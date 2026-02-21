@@ -1,0 +1,111 @@
+.sidebar {
+  background: linear-gradient(175deg, #1b2f4e 0%, #112240 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 3px 0 20px rgba(0,0,0,.22);
+  z-index: 60;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sb-logo {
+  width: 100%;
+  height: var(--hh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  flex-shrink: 0;
+}
+
+.sb-logo-box {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #3b7ff5, #1d5fd4);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(59,127,245,.4);
+}
+
+.sb-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 14px 0;
+  gap: 4px;
+}
+
+.sb-item {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  color: rgba(255,255,255,.4);
+  transition: all .18s;
+  text-decoration: none;
+}
+
+.sb-item:hover {
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.85);
+}
+
+.sb-item.active {
+  background: rgba(59,127,245,.28);
+  color: #74acff;
+}
+
+.sb-item.active::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 20px;
+  background: #3b7ff5;
+  border-radius: 0 4px 4px 0;
+}
+
+.sb-icon {
+  font-size: 20px;
+}
+
+.sb-tip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1a2535;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .13s;
+  z-index: 999;
+}
+
+.sb-tip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: #1a2535;
+}
+
+.sb-item:hover .sb-tip {
+  opacity: 1;
+}

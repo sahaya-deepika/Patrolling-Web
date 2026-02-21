@@ -1,0 +1,207 @@
+/* ── DASHBOARD PAGE ──────────────────────────────────── */
+.dashboard {
+  display: grid;
+  grid-template-rows: 44px 1fr 1fr;
+  gap: 10px;
+  padding: 12px 16px;
+  height: 100%;
+  overflow: hidden;
+  min-height: 0;
+  background: transparent; /* No background — cards only */
+}
+
+/* ── FILTER BAR ─────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 11px;
+  padding: 0 14px;
+  box-shadow: var(--sh);
+  flex-shrink: 0;
+}
+
+.fb-left,
+.fb-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.company-pill {
+  background: #e8edf6;
+  color: var(--t1);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* ── UNIT BUTTONS ───────────────────────────────────── */
+.unit-group {
+  display: flex;
+  gap: 3px;
+  background: #f0f4fb;
+  border-radius: 20px;
+  padding: 3px;
+}
+
+.unit-btn {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 4px 13px;
+  border-radius: 16px;
+  color: var(--t2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+  white-space: nowrap;
+}
+
+.unit-btn:hover:not(.active) {
+  color: var(--accent);
+  background: rgba(59, 127, 245, 0.08);
+}
+
+.unit-btn.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(59, 127, 245, 0.35);
+}
+
+/* ── SHIFT BUTTONS ──────────────────────────────────── */
+.shift-group {
+  display: flex;
+  gap: 3px;
+}
+
+.shift-btn {
+  border: 1.5px solid var(--bdr);
+  background: #fff;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 4px 13px;
+  border-radius: 16px;
+  color: var(--t2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+  white-space: nowrap;
+}
+
+.shift-btn:hover:not(.active) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.shift-btn.active {
+  background: #1b2f4e;
+  color: #fff;
+  border-color: #1b2f4e;
+  font-weight: 600;
+}
+
+/* ── DATE PICKER ────────────────────────────────────── */
+.dash-date-picker {
+  border: 1.5px solid var(--bdr) !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  min-width: 135px;
+}
+
+.dash-date-picker .rs-picker-toggle {
+  border-radius: 16px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: var(--t2) !important;
+  height: 30px !important;
+  padding: 0 12px !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.dash-date-picker .rs-picker-toggle:hover {
+  color: var(--accent) !important;
+}
+
+.dash-date-picker .rs-picker-toggle-value {
+  color: var(--t2) !important;
+}
+
+/* Current filter indicator badge */
+.filter-pill {
+  font-size: 11px;
+  color: var(--t3);
+  padding: 2px 9px;
+  background: #f0f5ff;
+  border-radius: 6px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── GRID ROWS ──────────────────────────────────────── */
+.dash-row {
+  display: grid;
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* row1 needs enough height for the 145px donut + card padding + title */
+.row1 {
+  grid-template-columns: 1fr 1fr;
+  min-height: 210px;
+}
+
+.row2 { grid-template-columns: 1fr 1.75fr; }
+
+/* ── SHARED CARD BASE ───────────────────────────────── */
+/*
+  Each of the 4 components (TripStats, AttendanceStats,
+  TodayStats, TodayScheduled) gets the .card class.
+  Cards have white background + shadow. Everything outside
+  is transparent — no extra wrappers with backgrounds.
+*/
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 12px rgba(30, 60, 120, 0.08),
+              0 1px 3px rgba(30, 60, 120, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  border: 1px solid rgba(220, 230, 245, 0.7);
+}
+
+.card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: -0.1px;
+  flex-shrink: 0;
+  color: var(--t1);
+}
+
+.card-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-txt {
+  color: var(--red);
+  font-size: 12px;
+  text-align: center;
+  padding: 8px;
+}

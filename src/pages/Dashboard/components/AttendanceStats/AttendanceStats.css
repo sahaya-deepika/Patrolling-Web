@@ -1,0 +1,84 @@
+/* ── ATTENDANCE STATS CARD ───────────────────────────── */
+.att-card {
+  /* Ensure card is tall enough to hold 145px donut without clipping */
+  min-height: 185px;
+}
+
+.att-body {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+/* Each donut panel — equal halves */
+.donut-panel {
+  flex: 1;
+  background: #f4f8fd;
+  border-radius: var(--rs);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 0;
+  /* Ensure panel stretches to fit 145px donut without overflow */
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Donut wrapper — 145px */
+.donut-wrap {
+  position: relative;
+  width: 145px;
+  height: 145px;
+  flex-shrink: 0;
+}
+
+.donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+  color: var(--t1);
+}
+
+/* Legend */
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.leg-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+}
+
+.leg-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.leg-name {
+  flex: 1;
+  color: var(--t2);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.leg-val {
+  font-weight: 700;
+  color: var(--t1);
+  font-size: 13px;
+}

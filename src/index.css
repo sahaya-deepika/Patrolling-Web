@@ -1,0 +1,45 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --sb: 64px;
+  --hh: 54px;
+  --navy: #1b2f4e;
+  --navy2: #112240;
+  --accent: #3b7ff5;
+  --accent2: #1d5fd4;
+  --green: #22c55e;
+  --teal: #22d3ee;
+  --purple: #8b5cf6;
+  --red: #f05252;
+  --orange: #fb923c;
+  --bg: #edf1f8;        /* ✅ outer page background — light grey-blue */
+  --white: #ffffff;
+  --t1: #1a2535;
+  --t2: #5b6f8a;
+  --t3: #9aaec4;
+  --bdr: #dde6f2;
+  --sh: 0 2px 12px rgba(27, 47, 78, 0.09);
+  --r: 13px;
+  --rs: 9px;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--t1);
+}
+
+.rs-picker-popup {
+  z-index: 9999 !important;
+}
+
+.rs-btn {
+  font-family: inherit !important;
+}

@@ -1,0 +1,128 @@
+/* ── TRIP STATS CARD ─────────────────────────────────── */
+.trip-card {
+  min-height: 0;
+}
+
+.trip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  grid-template-rows: 1fr 1fr;
+  gap: 7px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Each stat box */
+.stat-box {
+  background: #f4f8fd;
+  border-radius: var(--rs);
+  padding: 10px 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 0;
+}
+
+.stat-lbl {
+  font-size: 11px;
+  color: var(--t2);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-icon        { font-size: 12px; }
+.stat-icon.green  { color: #22c55e; }
+.stat-icon.red    { color: #f05252; }
+
+.stat-num {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--t1);
+  line-height: 1.1;
+}
+
+/* Arrow button */
+.arr-btn {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 24px;
+  height: 24px;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.arr-btn:hover { background: var(--accent2); }
+
+/* Efficiency column — spans 2 rows */
+.eff-col {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  background: #edf3fe;
+  width: 72px;
+  border-radius: var(--rs);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.eff-chart-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 6px 4px;
+  gap: 4px;
+}
+
+.eff-sublabel {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--t3);
+  text-align: center;
+  padding-bottom: 6px;
+}
+
+/* Ontime + Late row */
+.ontime-box {
+  flex-direction: row;
+  align-items: center;
+  padding: 10px 10px;
+  gap: 0;
+}
+
+.mini {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mini-lbl {
+  font-size: 10.5px;
+  color: var(--t2);
+  font-weight: 500;
+}
+
+.mini-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--t1);
+}
+
+.mini-num.red-txt,
+.red-txt { color: var(--red); }
+
+.mini-sep {
+  width: 1px;
+  height: 32px;
+  background: var(--bdr);
+  margin: 0 7px;
+}

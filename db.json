@@ -1,0 +1,57 @@
+{
+  "tripStats": [
+    { "id": 1, "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "allTrips": 110, "completed": 54, "missed": 6,  "ontime": 34, "late": 20, "efficiency": 63 },
+    { "id": 2, "unit": "All",    "shift": "Shift 2", "date": "2025-02-20", "allTrips": 98,  "completed": 48, "missed": 8,  "ontime": 30, "late": 18, "efficiency": 55 },
+    { "id": 3, "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "allTrips": 40,  "completed": 22, "missed": 2,  "ontime": 15, "late": 7,  "efficiency": 72 },
+    { "id": 4, "unit": "Unit 1", "shift": "Shift 2", "date": "2025-02-20", "allTrips": 35,  "completed": 18, "missed": 3,  "ontime": 12, "late": 6,  "efficiency": 60 },
+    { "id": 5, "unit": "Unit 2", "shift": "Shift 1", "date": "2025-02-20", "allTrips": 38,  "completed": 20, "missed": 2,  "ontime": 14, "late": 6,  "efficiency": 68 },
+    { "id": 6, "unit": "Unit 2", "shift": "Shift 2", "date": "2025-02-20", "allTrips": 30,  "completed": 14, "missed": 4,  "ontime": 10, "late": 4,  "efficiency": 50 },
+    { "id": 7, "unit": "Unit 3", "shift": "Shift 1", "date": "2025-02-20", "allTrips": 32,  "completed": 12, "missed": 2,  "ontime": 5,  "late": 7,  "efficiency": 45 },
+    { "id": 8, "unit": "Unit 3", "shift": "Shift 2", "date": "2025-02-20", "allTrips": 33,  "completed": 16, "missed": 1,  "ontime": 8,  "late": 8,  "efficiency": 58 },
+    { "id": 9, "unit": "All",    "shift": "Shift 1", "date": "2025-02-21", "allTrips": 115, "completed": 60, "missed": 5,  "ontime": 40, "late": 20, "efficiency": 70 },
+    { "id": 10,"unit": "All",    "shift": "Shift 2", "date": "2025-02-21", "allTrips": 100, "completed": 50, "missed": 7,  "ontime": 35, "late": 15, "efficiency": 60 }
+  ],
+  "attendanceStats": [
+    { "id": 1, "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "present": 250, "absent": 50, "ontime": 242, "late": 8  },
+    { "id": 2, "unit": "All",    "shift": "Shift 2", "date": "2025-02-20", "present": 220, "absent": 80, "ontime": 200, "late": 20 },
+    { "id": 3, "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "present": 90,  "absent": 10, "ontime": 88,  "late": 2  },
+    { "id": 4, "unit": "Unit 1", "shift": "Shift 2", "date": "2025-02-20", "present": 80,  "absent": 20, "ontime": 74,  "late": 6  },
+    { "id": 5, "unit": "Unit 2", "shift": "Shift 1", "date": "2025-02-20", "present": 85,  "absent": 15, "ontime": 80,  "late": 5  },
+    { "id": 6, "unit": "Unit 2", "shift": "Shift 2", "date": "2025-02-20", "present": 75,  "absent": 25, "ontime": 68,  "late": 7  },
+    { "id": 7, "unit": "Unit 3", "shift": "Shift 1", "date": "2025-02-20", "present": 75,  "absent": 25, "ontime": 74,  "late": 1  },
+    { "id": 8, "unit": "Unit 3", "shift": "Shift 2", "date": "2025-02-20", "present": 65,  "absent": 35, "ontime": 58,  "late": 7  },
+    { "id": 9, "unit": "All",    "shift": "Shift 1", "date": "2025-02-21", "present": 260, "absent": 40, "ontime": 255, "late": 5  },
+    { "id": 10,"unit": "All",    "shift": "Shift 2", "date": "2025-02-21", "present": 230, "absent": 70, "ontime": 215, "late": 15 }
+  ],
+  "todayStats": [
+    { "id": 1, "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "allTrips": 110, "complete": 54, "upcoming": 50, "missed": 6, "cancelled": 1 },
+    { "id": 2, "unit": "All",    "shift": "Shift 2", "date": "2025-02-20", "allTrips": 98,  "complete": 48, "upcoming": 40, "missed": 8, "cancelled": 2 },
+    { "id": 3, "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "allTrips": 40,  "complete": 22, "upcoming": 15, "missed": 2, "cancelled": 1 },
+    { "id": 4, "unit": "Unit 1", "shift": "Shift 2", "date": "2025-02-20", "allTrips": 35,  "complete": 18, "upcoming": 12, "missed": 3, "cancelled": 2 },
+    { "id": 5, "unit": "Unit 2", "shift": "Shift 1", "date": "2025-02-20", "allTrips": 38,  "complete": 20, "upcoming": 16, "missed": 2, "cancelled": 0 },
+    { "id": 6, "unit": "Unit 2", "shift": "Shift 2", "date": "2025-02-20", "allTrips": 30,  "complete": 14, "upcoming": 12, "missed": 4, "cancelled": 0 },
+    { "id": 7, "unit": "Unit 3", "shift": "Shift 1", "date": "2025-02-20", "allTrips": 32,  "complete": 12, "upcoming": 19, "missed": 2, "cancelled": 0 },
+    { "id": 8, "unit": "Unit 3", "shift": "Shift 2", "date": "2025-02-20", "allTrips": 33,  "complete": 16, "upcoming": 13, "missed": 1, "cancelled": 3 },
+    { "id": 9, "unit": "All",    "shift": "Shift 1", "date": "2025-02-21", "allTrips": 115, "complete": 60, "upcoming": 48, "missed": 5, "cancelled": 2 },
+    { "id": 10,"unit": "All",    "shift": "Shift 2", "date": "2025-02-21", "allTrips": 100, "complete": 50, "upcoming": 42, "missed": 7, "cancelled": 1 }
+  ],
+  "schedule": [
+    { "id": 1,  "tripId": 1234, "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "name": "Karthik",  "login": "Login 9:30am", "task": 3, "tripType": "Round: 6", "total": 11, "done": 6, "missed": 4, "status": "Ongoing"  },
+    { "id": 2,  "tripId": 1234, "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "name": "Nicolas",  "login": "Login 9:30am", "task": 3, "tripType": "Round: 6", "total": 11, "done": 6, "missed": 4, "status": "Ongoing"  },
+    { "id": 3,  "tripId": 1234, "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "name": "Praveen",  "login": "Login 9:30am", "task": 3, "tripType": "Round: 6", "total": 11, "done": 6, "missed": 4, "status": "Complete" },
+    { "id": 4,  "tripId": 1234, "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "name": "Sthish",   "login": "Login 9:30am", "task": 3, "tripType": "Round: 6", "total": 11, "done": 6, "missed": 4, "status": "Complete" },
+    { "id": 5,  "tripId": 1234, "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "name": "Pandi",    "login": "Login 9:30am", "task": 3, "tripType": "Round: 6", "total": 11, "done": 6, "missed": 4, "status": "Complete" },
+    { "id": 6,  "tripId": 1234, "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "name": "Mani",     "login": "Login 9:30am", "task": 3, "tripType": "Round: 6", "total": 11, "done": 6, "missed": 4, "status": "Complete" },
+    { "id": 7,  "tripId": 1235, "unit": "All",    "shift": "Shift 2", "date": "2025-02-20", "name": "Rajan",    "login": "Login 2:00pm", "task": 4, "tripType": "Round: 8", "total": 14, "done": 8, "missed": 2, "status": "Ongoing"  },
+    { "id": 8,  "tripId": 1235, "unit": "All",    "shift": "Shift 2", "date": "2025-02-20", "name": "Suresh",   "login": "Login 2:00pm", "task": 4, "tripType": "Round: 8", "total": 14, "done": 9, "missed": 3, "status": "Complete" },
+    { "id": 9,  "tripId": 1235, "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "name": "Arjun",    "login": "Login 9:30am", "task": 2, "tripType": "Round: 4", "total": 8,  "done": 4, "missed": 1, "status": "Ongoing"  },
+    { "id": 10, "tripId": 1235, "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "name": "Meena",    "login": "Login 9:30am", "task": 2, "tripType": "Round: 4", "total": 8,  "done": 5, "missed": 2, "status": "Complete" },
+    { "id": 11, "tripId": 1236, "unit": "Unit 1", "shift": "Shift 2", "date": "2025-02-20", "name": "Karthi",   "login": "Login 2:00pm", "task": 3, "tripType": "Round: 6", "total": 10, "done": 5, "missed": 2, "status": "Ongoing"  },
+    { "id": 12, "tripId": 1236, "unit": "Unit 2", "shift": "Shift 1", "date": "2025-02-20", "name": "Bala",     "login": "Login 9:30am", "task": 3, "tripType": "Round: 5", "total": 9,  "done": 5, "missed": 1, "status": "Complete" },
+    { "id": 13, "tripId": 1236, "unit": "Unit 2", "shift": "Shift 2", "date": "2025-02-20", "name": "Vijay",    "login": "Login 2:00pm", "task": 3, "tripType": "Round: 5", "total": 9,  "done": 4, "missed": 2, "status": "Ongoing"  },
+    { "id": 14, "tripId": 1237, "unit": "Unit 3", "shift": "Shift 1", "date": "2025-02-20", "name": "Senthil",  "login": "Login 9:30am", "task": 2, "tripType": "Round: 4", "total": 7,  "done": 3, "missed": 1, "status": "Complete" },
+    { "id": 15, "tripId": 1237, "unit": "Unit 3", "shift": "Shift 2", "date": "2025-02-20", "name": "Kumar",    "login": "Login 2:00pm", "task": 2, "tripType": "Round: 4", "total": 7,  "done": 2, "missed": 3, "status": "Ongoing"  },
+    { "id": 16, "tripId": 1238, "unit": "All",    "shift": "Shift 1", "date": "2025-02-21", "name": "Dinesh",   "login": "Login 9:30am", "task": 3, "tripType": "Round: 6", "total": 11, "done": 7, "missed": 1, "status": "Complete" },
+    { "id": 17, "tripId": 1238, "unit": "All",    "shift": "Shift 1", "date": "2025-02-21", "name": "Ganesh",   "login": "Login 9:30am", "task": 3, "tripType": "Round: 6", "total": 11, "done": 8, "missed": 2, "status": "Ongoing"  }
+  ]
+}

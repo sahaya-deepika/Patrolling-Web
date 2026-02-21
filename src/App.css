@@ -1,0 +1,37 @@
+/* ── APP SHELL ───────────────────────────────────────── */
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sb) 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.app-main {
+  display: grid;
+  grid-template-rows: var(--hh) 1fr;
+  overflow: hidden;
+  min-height: 0;
+  /* Subtle neutral page background — cards stand out on top */
+  background: #eef2f8;
+}
+
+.app-body {
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  /* No background here — dashboard.css uses transparent,
+     so the app-main background shows through cleanly */
+  background: transparent;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--t3);
+}
