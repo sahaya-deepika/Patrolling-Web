@@ -1,0 +1,116 @@
+/* ── EFFICIENT EMPLOYEES ─────────────────────────────── */
+.eff-emp {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 12px rgba(30,60,120,0.08), 0 1px 3px rgba(30,60,120,0.05);
+  border: 1px solid rgba(220,230,245,0.7);
+}
+
+.eff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.eff-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+}
+
+.eff-more {
+  border: none;
+  background: none;
+  font-size: 11.5px;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 500;
+  padding: 0;
+}
+.eff-more:hover { text-decoration: underline; }
+
+.eff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.eff-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eff-rank {
+  font-size: 11.5px;
+  color: var(--t3);
+  font-weight: 600;
+  width: 14px;
+  flex-shrink: 0;
+}
+
+.eff-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.eff-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 52px;
+}
+
+.eff-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--t1);
+  line-height: 1.2;
+}
+
+.eff-id {
+  font-size: 10px;
+  color: var(--t3);
+}
+
+.eff-bar-wrap {
+  flex: 1;
+}
+
+.eff-bar-track {
+  height: 5px;
+  background: #e8edf6;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.eff-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.eff-score {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t2);
+  white-space: nowrap;
+}
+
+.eff-loading {
+  font-size: 12px;
+  color: var(--t3);
+  text-align: center;
+  padding: 12px 0;
+}

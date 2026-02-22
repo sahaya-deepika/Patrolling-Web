@@ -1,6 +1,7 @@
 /* ── TODAY STATS CARD ────────────────────────────────── */
 .today-card {
   min-height: 0;
+  overflow: hidden; /* ← clips anything that bleeds out */
 }
 
 .today-body {
@@ -9,15 +10,19 @@
   gap: 14px;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .today-chart {
   flex: 1;
   min-height: 0;
   min-width: 0;
+  height: 100%;      /* ← fill available height only */
+  max-height: 180px; /* ← hard cap so bubbles don't overflow */
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .today-legend {
@@ -26,6 +31,7 @@
   justify-content: center;
   gap: 9px;
   min-width: 128px;
+  flex-shrink: 0;
 }
 
 .leg-row {

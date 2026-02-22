@@ -8,9 +8,9 @@ import './Sidebar.css'
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard',    Icon: DashboardIcon },
-  { to: '/live',      label: 'Live Tracking', Icon: LocationIcon  },
+   { to: '/schedule',  label: 'Schedule',      Icon: CalendarIcon  },
+  { to: '/attendance',      label: 'Live Tracking', Icon: LocationIcon  },
   { to: '/reports',   label: 'Reports',       Icon: DetailIcon    },
-  { to: '/schedule',  label: 'Schedule',      Icon: CalendarIcon  },
   { to: '/settings',  label: 'Settings',      Icon: SettingIcon   },
 ]
 

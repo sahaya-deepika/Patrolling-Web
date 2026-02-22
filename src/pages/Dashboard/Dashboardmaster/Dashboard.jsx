@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { DatePicker } from 'rsuite'
-import CalendarIcon from '@rsuite/icons/Calendar'
 
+import FilterBar       from "../../../components/FilterBar/FilterBar"
 import TripStats       from "../components/TripStats/TripStats"
 import AttendanceStats from "../components/AttendanceStats/AttendanceStats"
 import TodayStats      from "../components/TodayStats/TodayStats"
@@ -16,9 +15,6 @@ import {
 
 import "./Dashboard.css"
 
-const UNITS  = ['All', 'Unit 1', 'Unit 2', 'Unit 3']
-const SHIFTS = ['Shift 1', 'Shift 2']
-
 function toStr(d) {
   if (!d) return ''
   const y  = d.getFullYear()
@@ -32,9 +28,7 @@ const EMPTY = { data: null, loading: true, error: null }
 export default function Dashboard() {
   const [unit,  setUnit]  = useState('All')
   const [shift, setShift] = useState('Shift 1')
-
-  // ✅ FIXED: 2025-02-20 to match db.json
-  const [date, setDate] = useState(new Date(2025, 1, 20))
+  const [date,  setDate]  = useState(new Date(2025, 1, 20))
 
   const [trip,  setTrip]  = useState(EMPTY)
   const [att,   setAtt]   = useState(EMPTY)
@@ -72,63 +66,15 @@ export default function Dashboard() {
 
   }, [unit, shift, dateStr])
 
-  const handleDateChange = (val) => {
-    if (!val) return
-    const picked = new Date(val)
-    setDate(new Date(picked.getFullYear(), picked.getMonth(), picked.getDate()))
-  }
-
   return (
     <div className="dashboard">
 
-      {/* FILTER BAR */}
-      <div className="filter-bar">
-        <div className="fb-left">
-          
-
-          <div className="unit-group">
-            {UNITS.map(u => (
-              <button
-                key={u}
-                className={`unit-btn${unit === u ? ' active' : ''}`}
-                onClick={() => setUnit(u)}
-              >
-                {u}
-              </button>
-            ))}
-          </div>
-
-          <span className="filter-pill">
-            {unit} · {shift} · {dateStr}
-          </span>
-        </div>
-
-        <div className="fb-right">
-          <div className="shift-group">
-            {SHIFTS.map(s => (
-              <button
-                key={s}
-                className={`shift-btn${shift === s ? ' active' : ''}`}
-                onClick={() => setShift(s)}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-
-          <DatePicker
-            value={date}
-            onChange={handleDateChange}
-            format="dd MMM yyyy"
-            placement="bottomEnd"
-            cleanable={false}
-            caretAs={CalendarIcon}
-            size="sm"
-            className="dash-date-picker"
-            oneTap
-          />
-        </div>
-      </div>
+      {/* FILTER BAR — reusable component from src/components/FilterBar */}
+      <FilterBar
+        unit={unit}   setUnit={setUnit}
+        shift={shift} setShift={setShift}
+        date={date}   setDate={setDate}
+      />
 
       {/* ROW 1 */}
       <div className="dash-row row1">
@@ -138,7 +84,7 @@ export default function Dashboard() {
 
       {/* ROW 2 */}
       <div className="dash-row row2">
-        <TodayStats    data={today.data} loading={today.loading} error={today.error} />
+        <TodayStats     data={today.data} loading={today.loading} error={today.error} />
         <TodayScheduled data={sched.data} loading={sched.loading} error={sched.error} />
       </div>
 

@@ -1,0 +1,125 @@
+/* ── FILTER BAR ─────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 11px;
+  padding: 0 14px;
+  box-shadow: var(--sh);
+  flex-shrink: 0;
+}
+
+.fb-left,
+.fb-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── UNIT BUTTONS ───────────────────────────────────── */
+.unit-group {
+  display: flex;
+  gap: 3px;
+  background: #f0f4fb;
+  border-radius: 20px;
+  padding: 3px;
+}
+
+.unit-btn {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 4px 13px;
+  border-radius: 16px;
+  color: var(--t2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+  white-space: nowrap;
+}
+
+.unit-btn:hover:not(.active) {
+  color: var(--accent);
+  background: rgba(59, 127, 245, 0.08);
+}
+
+.unit-btn.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(59, 127, 245, 0.35);
+}
+
+/* ── FILTER PILL ────────────────────────────────────── */
+.filter-pill {
+  font-size: 11px;
+  color: var(--t3);
+  padding: 2px 9px;
+  background: #f0f5ff;
+  border-radius: 6px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── SHIFT BUTTONS ──────────────────────────────────── */
+.shift-group {
+  display: flex;
+  gap: 3px;
+}
+
+.shift-btn {
+  border: 1.5px solid var(--bdr);
+  background: #fff;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 4px 13px;
+  border-radius: 16px;
+  color: var(--t2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+  white-space: nowrap;
+}
+
+.shift-btn:hover:not(.active) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.shift-btn.active {
+  background: #1b2f4e;
+  color: #fff;
+  border-color: #1b2f4e;
+  font-weight: 600;
+}
+
+/* ── DATE PICKER ────────────────────────────────────── */
+.dash-date-picker {
+  border: 1.5px solid var(--bdr) !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  min-width: 135px;
+}
+
+.dash-date-picker .rs-picker-toggle {
+  border-radius: 16px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: var(--t2) !important;
+  height: 30px !important;
+  padding: 0 12px !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.dash-date-picker .rs-picker-toggle:hover {
+  color: var(--accent) !important;
+}
+
+.dash-date-picker .rs-picker-toggle-value {
+  color: var(--t2) !important;
+}

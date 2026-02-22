@@ -3,11 +3,11 @@ import { Loader } from 'rsuite'
 import './TodayStats.css'
 
 const BUBBLE_CFG = [
-  { key: 'allTrips',  color: '#22c55e', x: 20, y: 55, size: 90  },
-  { key: 'complete',  color: '#3b7ff5', x: 55, y: 38, size: 74  },
-  { key: 'missed',    color: '#22d3ee', x: 20, y: 82, size: 50  },
-  { key: 'upcoming',  color: '#8b5cf6', x: 72, y: 72, size: 66  },
-  { key: 'cancelled', color: '#f05252', x: 45, y: 82, size: 30  },
+  { key: 'allTrips',  color: '#22c55e', x: 25, y: 62, size: 100 },
+  { key: 'complete',  color: '#3b7ff5', x: 48, y: 55, size: 82  },
+  { key: 'upcoming',  color: '#8b5cf6', x: 52, y: 30, size: 72  },
+  { key: 'missed',    color: '#22d3ee', x: 18, y: 30, size: 46  },
+  { key: 'cancelled', color: '#f05252', x: 36, y: 28, size: 32  },
 ]
 
 const LEGEND_CFG = [
@@ -34,22 +34,28 @@ export default function TodayStats({ data, loading, error }) {
 
   const option = {
     animation: true,
-    grid: { left: 0, right: 0, top: 0, bottom: 0 },
-    xAxis: { show: false, type: 'value', min: 0, max: 100 },
-    yAxis: { show: false, type: 'value', min: 0, max: 100 },
+    grid: { left: '2%', right: '2%', top: '8%', bottom: '8%',
+            containLabel: false },
+    xAxis: { show: false, type: 'value', min: 0,  max: 100 },
+    yAxis: { show: false, type: 'value', min: 10, max: 90  }, // ← tighter range keeps bubbles inside
     series: BUBBLE_CFG.map(b => ({
       type: 'scatter',
       data: [[b.x, b.y, data[b.key]]],
       symbolSize: b.size,
-      itemStyle: { color: b.color, shadowBlur: 8, shadowColor: `${b.color}55` },
+      z: b.size,
+      itemStyle: {
+        color: b.color,
+        shadowBlur: 10,
+        shadowColor: `${b.color}66`
+      },
       label: {
         show: true,
         formatter: params => `${params.data[2]}`,
-        fontSize: b.size > 60 ? 15 : b.size > 40 ? 13 : 11,
+        fontSize: b.size > 80 ? 18 : b.size > 60 ? 15 : b.size > 40 ? 13 : 11,
         fontWeight: 700,
         color: '#fff'
       },
-      emphasis: { scale: 1.08 }
+      emphasis: { scale: 1.06 }
     })),
     tooltip: {
       trigger: 'item',
@@ -67,7 +73,11 @@ export default function TodayStats({ data, loading, error }) {
       <div className="card-title">Today Statistics</div>
       <div className="today-body">
         <div className="today-chart">
-          <ReactECharts option={option} style={{ height: '100%', width: '100%' }} opts={{ renderer: 'svg' }} />
+          <ReactECharts
+            option={option}
+            style={{ height: '100%', width: '100%' }}
+            opts={{ renderer: 'svg' }}
+          />
         </div>
         <div className="today-legend">
           {LEGEND_CFG.map(l => (
