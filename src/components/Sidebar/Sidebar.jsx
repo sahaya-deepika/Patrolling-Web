@@ -11,7 +11,7 @@ const NAV = [
    { to: '/schedule',  label: 'Schedule',      Icon: CalendarIcon  },
   { to: '/attendance',      label: 'Live Tracking', Icon: LocationIcon  },
   { to: '/reports',   label: 'Reports',       Icon: DetailIcon    },
-  { to: '/settings',  label: 'Settings',      Icon: SettingIcon   },
+
 ]
 
 export default function Sidebar() {

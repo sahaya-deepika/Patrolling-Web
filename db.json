@@ -56,7 +56,8 @@
   ],
   "tripDetails": [
     {
-      "id": 1234, "employeeName": "Karthik", "employeeId": "1234", "avatar": null,
+      "id": 1, "unit": "All", "shift": "Shift 1", "date": "2025-02-20",
+      "employeeName": "Karthik", "employeeId": "1234",
       "cycleTotal": 11, "cycleDone": 10, "checkpointsTotal": 6, "checkpointsDone": 4,
       "timeFrom": "10:00am", "timeTo": "5:00pm", "loginStatus": "On-time",
       "patrolName": "Patrol 01", "orderTrip": "Order Trip", "tripDoneOf": 7, "tripTotal": 11, "tripElapsed": "2.12hr",
@@ -72,44 +73,191 @@
       ]
     },
     {
-      "id": 1235, "employeeName": "Rajan", "employeeId": "1235", "avatar": null,
+      "id": 2, "unit": "All", "shift": "Shift 2", "date": "2025-02-20",
+      "employeeName": "Rajan", "employeeId": "1235",
       "cycleTotal": 14, "cycleDone": 8, "checkpointsTotal": 8, "checkpointsDone": 5,
       "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "On-time",
       "patrolName": "Patrol 02", "orderTrip": "Order Trip", "tripDoneOf": 5, "tripTotal": 14, "tripElapsed": "1.5hr",
       "patrols": [
-        { "id": "p1", "name": "Patrol 02", "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "On-time", "icons": [1,2,3,4], "cycle": "8/14", "rounds": "8/14", "checkpoints": "5/8", "status": "Ongoing" }
+        { "id": "p1", "name": "Patrol 02", "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "8/14", "rounds": "8/14", "checkpoints": "5/8", "status": "Ongoing" },
+        { "id": "p2", "name": "Patrol 02", "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "Late",    "icons": [1,3,2,4], "cycle": "6/14", "rounds": "6/14", "checkpoints": "3/8", "status": "Ongoing" }
       ],
       "tripPoints": [
-        { "id": "tp1", "name": "Gate B", "time": "2:00pm", "checkpoints": 4, "stats": [1,0,0,0], "status": "Ongoing" },
-        { "id": "tp2", "name": "Gate B", "time": "2:00pm", "checkpoints": 4, "stats": [0,0,0,0], "status": "Ongoing" }
+        { "id": "tp1", "name": "Gate B", "time": "2:00pm", "checkpoints": 4, "stats": [1,0,0,0], "status": "Ongoing"  },
+        { "id": "tp2", "name": "Gate B", "time": "3:30pm", "checkpoints": 4, "stats": [0,0,0,0], "status": "Upcoming" }
+      ]
+    },
+    {
+      "id": 3, "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20",
+      "employeeName": "Arjun", "employeeId": "1244",
+      "cycleTotal": 8, "cycleDone": 4, "checkpointsTotal": 4, "checkpointsDone": 2,
+      "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time",
+      "patrolName": "Patrol 03", "orderTrip": "Order Trip", "tripDoneOf": 4, "tripTotal": 8, "tripElapsed": "1.2hr",
+      "patrols": [
+        { "id": "p1", "name": "Patrol 03", "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "4/8", "rounds": "4/8", "checkpoints": "2/4", "status": "Ongoing"  },
+        { "id": "p2", "name": "Patrol 03", "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "3/8", "rounds": "3/8", "checkpoints": "2/4", "status": "Complete" }
+      ],
+      "tripPoints": [
+        { "id": "tp1", "name": "Block A Entry", "time": "9:30am",  "checkpoints": 2, "stats": [0,0,0,0], "status": "Ongoing"  },
+        { "id": "tp2", "name": "Block A Exit",  "time": "11:00am", "checkpoints": 2, "stats": [0,0,0,0], "status": "Upcoming" }
+      ]
+    },
+    {
+      "id": 4, "unit": "Unit 1", "shift": "Shift 2", "date": "2025-02-20",
+      "employeeName": "Karthi", "employeeId": "1246",
+      "cycleTotal": 10, "cycleDone": 5, "checkpointsTotal": 6, "checkpointsDone": 3,
+      "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "On-time",
+      "patrolName": "Patrol 04", "orderTrip": "Order Trip", "tripDoneOf": 4, "tripTotal": 10, "tripElapsed": "1.0hr",
+      "patrols": [
+        { "id": "p1", "name": "Patrol 04", "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "5/10", "rounds": "5/10", "checkpoints": "3/6", "status": "Ongoing" }
+      ],
+      "tripPoints": [
+        { "id": "tp1", "name": "Zone C Entry", "time": "2:00pm", "checkpoints": 3, "stats": [0,0,0,0], "status": "Ongoing"  },
+        { "id": "tp2", "name": "Zone C Exit",  "time": "3:30pm", "checkpoints": 3, "stats": [0,0,0,0], "status": "Upcoming" }
+      ]
+    },
+    {
+      "id": 5, "unit": "Unit 2", "shift": "Shift 1", "date": "2025-02-20",
+      "employeeName": "Bala", "employeeId": "1243",
+      "cycleTotal": 9, "cycleDone": 5, "checkpointsTotal": 5, "checkpointsDone": 3,
+      "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time",
+      "patrolName": "Patrol 05", "orderTrip": "Order Trip", "tripDoneOf": 5, "tripTotal": 9, "tripElapsed": "1.8hr",
+      "patrols": [
+        { "id": "p1", "name": "Patrol 05", "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "5/9", "rounds": "5/9", "checkpoints": "3/5", "status": "Ongoing"  },
+        { "id": "p2", "name": "Patrol 05", "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "4/9", "rounds": "4/9", "checkpoints": "2/5", "status": "Complete" }
+      ],
+      "tripPoints": [
+        { "id": "tp1", "name": "Unit 2 Gate",  "time": "9:30am",  "checkpoints": 3, "stats": [0,0,0,0], "status": "Complete" },
+        { "id": "tp2", "name": "Unit 2 Lobby", "time": "11:00am", "checkpoints": 2, "stats": [1,0,0,0], "status": "Ongoing"  }
+      ]
+    },
+    {
+      "id": 6, "unit": "Unit 2", "shift": "Shift 2", "date": "2025-02-20",
+      "employeeName": "Vijay", "employeeId": "1241",
+      "cycleTotal": 9, "cycleDone": 4, "checkpointsTotal": 5, "checkpointsDone": 2,
+      "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "Late",
+      "patrolName": "Patrol 06", "orderTrip": "Order Trip", "tripDoneOf": 3, "tripTotal": 9, "tripElapsed": "0.9hr",
+      "patrols": [
+        { "id": "p1", "name": "Patrol 06", "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "Late", "icons": [1,3,2,4], "cycle": "4/9", "rounds": "4/9", "checkpoints": "2/5", "status": "Ongoing" }
+      ],
+      "tripPoints": [
+        { "id": "tp1", "name": "Unit 2 Rear Gate", "time": "2:00pm", "checkpoints": 3, "stats": [0,0,0,0], "status": "Ongoing"  },
+        { "id": "tp2", "name": "Unit 2 Parking",   "time": "4:00pm", "checkpoints": 2, "stats": [0,0,0,0], "status": "Upcoming" }
+      ]
+    },
+    {
+      "id": 7, "unit": "Unit 3", "shift": "Shift 1", "date": "2025-02-20",
+      "employeeName": "Senthil", "employeeId": "1249",
+      "cycleTotal": 7, "cycleDone": 3, "checkpointsTotal": 4, "checkpointsDone": 2,
+      "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time",
+      "patrolName": "Patrol 07", "orderTrip": "Order Trip", "tripDoneOf": 3, "tripTotal": 7, "tripElapsed": "0.9hr",
+      "patrols": [
+        { "id": "p1", "name": "Patrol 07", "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "3/7", "rounds": "3/7", "checkpoints": "2/4", "status": "Complete" },
+        { "id": "p2", "name": "Patrol 07", "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "2/7", "rounds": "2/7", "checkpoints": "1/4", "status": "Ongoing"  }
+      ],
+      "tripPoints": [
+        { "id": "tp1", "name": "Block D North", "time": "9:30am",  "checkpoints": 2, "stats": [0,0,0,0], "status": "Complete" },
+        { "id": "tp2", "name": "Block D South", "time": "11:00am", "checkpoints": 2, "stats": [0,0,0,0], "status": "Ongoing"  }
+      ]
+    },
+    {
+      "id": 8, "unit": "Unit 3", "shift": "Shift 2", "date": "2025-02-20",
+      "employeeName": "Kumar", "employeeId": "1242",
+      "cycleTotal": 7, "cycleDone": 2, "checkpointsTotal": 4, "checkpointsDone": 1,
+      "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "On-time",
+      "patrolName": "Patrol 08", "orderTrip": "Order Trip", "tripDoneOf": 2, "tripTotal": 7, "tripElapsed": "0.5hr",
+      "patrols": [
+        { "id": "p1", "name": "Patrol 08", "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "2/7", "rounds": "2/7", "checkpoints": "1/4", "status": "Ongoing" }
+      ],
+      "tripPoints": [
+        { "id": "tp1", "name": "Block D East", "time": "2:00pm", "checkpoints": 2, "stats": [0,0,0,0], "status": "Ongoing"  },
+        { "id": "tp2", "name": "Block D West", "time": "4:00pm", "checkpoints": 2, "stats": [0,0,0,0], "status": "Upcoming" }
+      ]
+    },
+    {
+      "id": 9, "unit": "All", "shift": "Shift 1", "date": "2025-02-21",
+      "employeeName": "Dinesh", "employeeId": "1247",
+      "cycleTotal": 11, "cycleDone": 7, "checkpointsTotal": 6, "checkpointsDone": 5,
+      "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time",
+      "patrolName": "Patrol 09", "orderTrip": "Order Trip", "tripDoneOf": 7, "tripTotal": 11, "tripElapsed": "3.0hr",
+      "patrols": [
+        { "id": "p1", "name": "Patrol 09", "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "7/11", "rounds": "7/11", "checkpoints": "5/6", "status": "Complete" },
+        { "id": "p2", "name": "Patrol 09", "timeFrom": "9:30am", "timeTo": "5:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "6/11", "rounds": "6/11", "checkpoints": "4/6", "status": "Ongoing"  }
+      ],
+      "tripPoints": [
+        { "id": "tp1", "name": "Main Gate", "time": "9:30am",  "checkpoints": 3, "stats": [0,0,0,0], "status": "Complete" },
+        { "id": "tp2", "name": "Rear Gate", "time": "11:30am", "checkpoints": 3, "stats": [0,0,0,0], "status": "Complete" }
+      ]
+    },
+    {
+      "id": 10, "unit": "All", "shift": "Shift 2", "date": "2025-02-21",
+      "employeeName": "Rajan", "employeeId": "1239",
+      "cycleTotal": 12, "cycleDone": 6, "checkpointsTotal": 8, "checkpointsDone": 4,
+      "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "On-time",
+      "patrolName": "Patrol 10", "orderTrip": "Order Trip", "tripDoneOf": 5, "tripTotal": 12, "tripElapsed": "1.5hr",
+      "patrols": [
+        { "id": "p1", "name": "Patrol 10", "timeFrom": "2:00pm", "timeTo": "9:00pm", "loginStatus": "On-time", "icons": [1,3,2,4], "cycle": "6/12", "rounds": "6/12", "checkpoints": "4/8", "status": "Ongoing" }
+      ],
+      "tripPoints": [
+        { "id": "tp1", "name": "Gate B", "time": "2:00pm", "checkpoints": 4, "stats": [1,0,0,0], "status": "Ongoing"  },
+        { "id": "tp2", "name": "Gate C", "time": "4:00pm", "checkpoints": 4, "stats": [0,0,0,0], "status": "Upcoming" }
       ]
     }
   ],
   "efficientEmployees": [
-    { "id": 1, "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "employees": [
+    { "id": 1,  "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "employees": [
       { "rank": 1, "name": "Karthik", "empId": "1234", "score": 11, "maxScore": 12 },
       { "rank": 2, "name": "Nicolas", "empId": "1235", "score": 10, "maxScore": 12 },
       { "rank": 3, "name": "Praveen", "empId": "1236", "score": 9,  "maxScore": 12 },
       { "rank": 4, "name": "Sthish",  "empId": "1237", "score": 8,  "maxScore": 12 },
       { "rank": 5, "name": "Pandi",   "empId": "1238", "score": 7,  "maxScore": 12 }
     ]},
-    { "id": 2, "unit": "All",    "shift": "Shift 2", "date": "2025-02-20", "employees": [
+    { "id": 2,  "unit": "All",    "shift": "Shift 2", "date": "2025-02-20", "employees": [
       { "rank": 1, "name": "Rajan",  "empId": "1239", "score": 10, "maxScore": 12 },
       { "rank": 2, "name": "Suresh", "empId": "1240", "score": 9,  "maxScore": 12 },
       { "rank": 3, "name": "Vijay",  "empId": "1241", "score": 8,  "maxScore": 12 },
       { "rank": 4, "name": "Kumar",  "empId": "1242", "score": 7,  "maxScore": 12 },
       { "rank": 5, "name": "Bala",   "empId": "1243", "score": 6,  "maxScore": 12 }
     ]},
-    { "id": 3, "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+    { "id": 3,  "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "employees": [
       { "rank": 1, "name": "Arjun",  "empId": "1244", "score": 8, "maxScore": 10 },
       { "rank": 2, "name": "Meena",  "empId": "1245", "score": 7, "maxScore": 10 },
       { "rank": 3, "name": "Karthi", "empId": "1246", "score": 6, "maxScore": 10 },
       { "rank": 4, "name": "Dinesh", "empId": "1247", "score": 5, "maxScore": 10 },
       { "rank": 5, "name": "Ganesh", "empId": "1248", "score": 4, "maxScore": 10 }
+    ]},
+    { "id": 4,  "unit": "Unit 1", "shift": "Shift 2", "date": "2025-02-20", "employees": [
+      { "rank": 1, "name": "Karthi", "empId": "1246", "score": 9, "maxScore": 10 },
+      { "rank": 2, "name": "Meena",  "empId": "1245", "score": 7, "maxScore": 10 },
+      { "rank": 3, "name": "Arjun",  "empId": "1244", "score": 6, "maxScore": 10 }
+    ]},
+    { "id": 5,  "unit": "Unit 2", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+      { "rank": 1, "name": "Bala",  "empId": "1243", "score": 8, "maxScore": 10 },
+      { "rank": 2, "name": "Vijay", "empId": "1241", "score": 6, "maxScore": 10 }
+    ]},
+    { "id": 6,  "unit": "Unit 2", "shift": "Shift 2", "date": "2025-02-20", "employees": [
+      { "rank": 1, "name": "Vijay", "empId": "1241", "score": 7, "maxScore": 10 },
+      { "rank": 2, "name": "Bala",  "empId": "1243", "score": 5, "maxScore": 10 }
+    ]},
+    { "id": 7,  "unit": "Unit 3", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+      { "rank": 1, "name": "Senthil", "empId": "1249", "score": 6, "maxScore": 10 },
+      { "rank": 2, "name": "Kumar",   "empId": "1242", "score": 4, "maxScore": 10 }
+    ]},
+    { "id": 8,  "unit": "Unit 3", "shift": "Shift 2", "date": "2025-02-20", "employees": [
+      { "rank": 1, "name": "Kumar",   "empId": "1242", "score": 7, "maxScore": 10 },
+      { "rank": 2, "name": "Senthil", "empId": "1249", "score": 5, "maxScore": 10 }
+    ]},
+    { "id": 9,  "unit": "All",    "shift": "Shift 1", "date": "2025-02-21", "employees": [
+      { "rank": 1, "name": "Dinesh", "empId": "1247", "score": 11, "maxScore": 12 },
+      { "rank": 2, "name": "Ganesh", "empId": "1248", "score": 10, "maxScore": 12 }
+    ]},
+    { "id": 10, "unit": "All",    "shift": "Shift 2", "date": "2025-02-21", "employees": [
+      { "rank": 1, "name": "Rajan",  "empId": "1239", "score": 9, "maxScore": 12 },
+      { "rank": 2, "name": "Suresh", "empId": "1240", "score": 8, "maxScore": 12 }
     ]}
   ],
   "attendanceList": [
-    { "id": 1, "unit": "All", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+    { "id": 1,  "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "employees": [
       { "empId": "U123", "name": "Karthick", "role": "Admin or not", "phone": "9876543210", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" },
       { "empId": "U124", "name": "Nicolas",  "role": "Admin or not", "phone": "9876543211", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" },
       { "empId": "U125", "name": "Praveen",  "role": "Admin or not", "phone": "9876543212", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" },
@@ -117,14 +265,38 @@
       { "empId": "U127", "name": "Pandi",    "role": "Admin or not", "phone": "9876543214", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" },
       { "empId": "U128", "name": "Mani",     "role": "Admin or not", "phone": "9876543215", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" }
     ]},
-    { "id": 2, "unit": "All", "shift": "Shift 2", "date": "2025-02-20", "employees": [
-      { "empId": "U129", "name": "Rajan",  "role": "Admin or not", "phone": "9876543216", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" },
-      { "empId": "U130", "name": "Suresh", "role": "Admin or not", "phone": "9876543217", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" },
-      { "empId": "U131", "name": "Vijay",  "role": "Admin or not", "phone": "9876543218", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" }
+    { "id": 2,  "unit": "All",    "shift": "Shift 2", "date": "2025-02-20", "employees": [
+      { "empId": "U129", "name": "Rajan",  "role": "Admin or not", "phone": "9876543216", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "14:00" },
+      { "empId": "U130", "name": "Suresh", "role": "Admin or not", "phone": "9876543217", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "14:00" },
+      { "empId": "U131", "name": "Vijay",  "role": "Admin or not", "phone": "9876543218", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "14:00" }
     ]},
-    { "id": 3, "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+    { "id": 3,  "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "employees": [
       { "empId": "U132", "name": "Arjun", "role": "Admin or not", "phone": "9876543219", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" },
       { "empId": "U133", "name": "Meena", "role": "Admin or not", "phone": "9876543220", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" }
+    ]},
+    { "id": 4,  "unit": "Unit 1", "shift": "Shift 2", "date": "2025-02-20", "employees": [
+      { "empId": "U134", "name": "Karthi", "role": "Admin or not", "phone": "9876543221", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "14:00" }
+    ]},
+    { "id": 5,  "unit": "Unit 2", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+      { "empId": "U135", "name": "Bala",  "role": "Admin or not", "phone": "9876543222", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" },
+      { "empId": "U136", "name": "Vijay", "role": "Admin or not", "phone": "9876543223", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" }
+    ]},
+    { "id": 6,  "unit": "Unit 2", "shift": "Shift 2", "date": "2025-02-20", "employees": [
+      { "empId": "U137", "name": "Vijay", "role": "Admin or not", "phone": "9876543224", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "14:00" }
+    ]},
+    { "id": 7,  "unit": "Unit 3", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+      { "empId": "U138", "name": "Senthil", "role": "Admin or not", "phone": "9876543225", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" }
+    ]},
+    { "id": 8,  "unit": "Unit 3", "shift": "Shift 2", "date": "2025-02-20", "employees": [
+      { "empId": "U139", "name": "Kumar", "role": "Admin or not", "phone": "9876543226", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "14:00" }
+    ]},
+    { "id": 9,  "unit": "All",    "shift": "Shift 1", "date": "2025-02-21", "employees": [
+      { "empId": "U140", "name": "Dinesh", "role": "Admin or not", "phone": "9876543227", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" },
+      { "empId": "U141", "name": "Ganesh", "role": "Admin or not", "phone": "9876543228", "shift": "Shift G", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "9:30" }
+    ]},
+    { "id": 10, "unit": "All",    "shift": "Shift 2", "date": "2025-02-21", "employees": [
+      { "empId": "U142", "name": "Rajan",  "role": "Admin or not", "phone": "9876543229", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "14:00" },
+      { "empId": "U143", "name": "Suresh", "role": "Admin or not", "phone": "9876543230", "shift": "Shift N", "department": "Department", "zone": "Zone", "designation": "Designation", "loginTime": "14:00" }
     ]}
   ],
   "employeeAttendanceDetail": [
@@ -211,8 +383,117 @@
       ]
     }
   ],
+  "users": [
+    {
+      "id": 1, "userId": "U001", "userName": "Karthik", "mobile": "9876543210", "mail": "karthik@orbidx.com",
+      "image": null, "company": "OrbidX", "zone": "Zone A", "shift": "Shift 1",
+      "designation": "Security Officer", "role": "Guard", "department": "Operations", "isAdmin": false
+    },
+    {
+      "id": 2, "userId": "U002", "userName": "Nicolas", "mobile": "9876543211", "mail": "nicolas@orbidx.com",
+      "image": null, "company": "OrbidX", "zone": "Zone B", "shift": "Shift 1",
+      "designation": "Senior Guard", "role": "Guard", "department": "Operations", "isAdmin": false
+    },
+    {
+      "id": 3, "userId": "U003", "userName": "Praveen", "mobile": "9876543212", "mail": "praveen@orbidx.com",
+      "image": null, "company": "OrbidX", "zone": "Zone A", "shift": "Shift 2",
+      "designation": "Supervisor", "role": "Supervisor", "department": "Operations", "isAdmin": true
+    },
+    {
+      "id": 4, "userId": "U004", "userName": "Sthish", "mobile": "9876543213", "mail": "sthish@orbidx.com",
+      "image": null, "company": "OrbidX", "zone": "Zone C", "shift": "Shift 1",
+      "designation": "Security Officer", "role": "Guard", "department": "Operations", "isAdmin": false
+    },
+    {
+      "id": 5, "userId": "U005", "userName": "Pandi", "mobile": "9876543214", "mail": "pandi@orbidx.com",
+      "image": null, "company": "OrbidX", "zone": "Zone B", "shift": "Shift 2",
+      "designation": "Security Officer", "role": "Guard", "department": "Operations", "isAdmin": false
+    }
+  ],
+  "locations": [
+    {
+      "id": 1, "companyLongName": "OrbidX Technologies", "companyShortName": "OrbidX",
+      "companyCode": "OBX-001", "zone": "Zone A", "shift": "Shift 1",
+      "location": "Main Gate", "qrCode": "QR-MG-001", "rfid": "", "image": null
+    },
+    {
+      "id": 2, "companyLongName": "OrbidX Technologies", "companyShortName": "OrbidX",
+      "companyCode": "OBX-002", "zone": "Zone A", "shift": "Shift 2",
+      "location": "Parking Area A", "qrCode": "QR-PA-001", "rfid": "", "image": null
+    },
+    {
+      "id": 3, "companyLongName": "OrbidX Technologies", "companyShortName": "OrbidX",
+      "companyCode": "OBX-003", "zone": "Zone B", "shift": "Shift 1",
+      "location": "Rear Gate", "qrCode": "", "rfid": "RFID-RG-001", "image": null
+    },
+    {
+      "id": 4, "companyLongName": "OrbidX Technologies", "companyShortName": "OrbidX",
+      "companyCode": "OBX-004", "zone": "Zone C", "shift": "Shift 1",
+      "location": "Block D Entry", "qrCode": "QR-BD-001", "rfid": "", "image": null
+    }
+  ],
+  "masterSchedules": [
+    {
+      "id": 1, "userName": "Karthik", "tripName": "Morning Patrol", "tripType": "Round",
+      "maxRound": "11", "minRound": "8", "ordered": true,
+      "startDate": "2025-02-01", "endDate": "2025-02-28", "expDate": "2025-03-01",
+      "startTime": "09:30", "endTime": "17:00"
+    },
+    {
+      "id": 2, "userName": "Nicolas", "tripName": "Evening Patrol", "tripType": "Cycle",
+      "maxRound": "8", "minRound": "5", "ordered": false,
+      "startDate": "2025-02-01", "endDate": "2025-02-28", "expDate": "2025-03-01",
+      "startTime": "14:00", "endTime": "21:00"
+    },
+    {
+      "id": 3, "userName": "Praveen", "tripName": "Night Watch", "tripType": "Round",
+      "maxRound": "6", "minRound": "4", "ordered": true,
+      "startDate": "2025-02-10", "endDate": "2025-02-28", "expDate": "2025-03-01",
+      "startTime": "21:00", "endTime": "06:00"
+    }
+  ],
+  "tasks": [
+    {
+      "id": 1, "employeeRoll": "Guard", "type": "Option",
+      "questions": ["Is the main gate locked?", "Is CCTV operational?", "Any suspicious activity?"],
+      "zone": "Zone A", "shift": "Shift 1",
+      "tags": ["Fill", "Yes/No", "Option"], "name": "Questions 03"
+    },
+    {
+      "id": 2, "employeeRoll": "Supervisor", "type": "Yes/No",
+      "questions": ["Head count completed?", "Incident report submitted?"],
+      "zone": "Zone B", "shift": "Shift 2",
+      "tags": ["Fill", "Yes/No", "Option"], "name": "Questions 02"
+    },
+    {
+      "id": 3, "employeeRoll": "Guard", "type": "Fill",
+      "questions": ["Enter vehicle plate number:", "Enter visitor name:", "Enter purpose of visit:"],
+      "zone": "Zone C", "shift": "Shift 1",
+      "tags": ["Fill", "Yes/No", "Option"], "name": "Questions 03"
+    }
+  ],
+  "masterTrips": [
+    {
+      "id": 1, "tripName": "Morning Patrol Route", "tripType": "Round",
+      "mobile": "9876543210", "mail": "patrol@orbidx.com",
+      "mode": "Cycle", "employeeRoll": "Guard", "zone": "Zone A", "location": "Main Gate",
+      "tags": ["Fill", "Yes/No", "Option"]
+    },
+    {
+      "id": 2, "tripName": "Evening Security Check", "tripType": "Cycle",
+      "mobile": "9876543211", "mail": "security@orbidx.com",
+      "mode": "Round", "employeeRoll": "Supervisor", "zone": "Zone B", "location": "Rear Gate",
+      "tags": ["Fill", "Yes/No", "Option"]
+    },
+    {
+      "id": 3, "tripName": "Perimeter Walk", "tripType": "Round",
+      "mobile": "9876543212", "mail": "perimeter@orbidx.com",
+      "mode": "Cycle", "employeeRoll": "Guard", "zone": "Zone C", "location": "Block D Entry",
+      "tags": ["Fill", "Yes/No", "Option"]
+    }
+  ],
   "punctualEmployees": [
-    { "id": 1, "unit": "All", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+    { "id": 1,  "unit": "All",    "shift": "Shift 1", "date": "2025-02-20", "employees": [
       { "rank": 1, "name": "Karthik", "empId": "1234", "loginTime": "9:20am" },
       { "rank": 2, "name": "Nicolas", "empId": "1235", "loginTime": "9:21am" },
       { "rank": 3, "name": "Praveen", "empId": "1236", "loginTime": "9:25am" },
@@ -221,14 +502,38 @@
       { "rank": 6, "name": "Mani",    "empId": "1239", "loginTime": "9:30am" },
       { "rank": 7, "name": "Rajan",   "empId": "1240", "loginTime": "9:30am" }
     ]},
-    { "id": 2, "unit": "All", "shift": "Shift 2", "date": "2025-02-20", "employees": [
+    { "id": 2,  "unit": "All",    "shift": "Shift 2", "date": "2025-02-20", "employees": [
       { "rank": 1, "name": "Suresh", "empId": "1241", "loginTime": "9:20am" },
       { "rank": 2, "name": "Vijay",  "empId": "1242", "loginTime": "9:22am" },
       { "rank": 3, "name": "Kumar",  "empId": "1243", "loginTime": "9:28am" }
     ]},
-    { "id": 3, "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+    { "id": 3,  "unit": "Unit 1", "shift": "Shift 1", "date": "2025-02-20", "employees": [
       { "rank": 1, "name": "Arjun", "empId": "1244", "loginTime": "9:18am" },
       { "rank": 2, "name": "Meena", "empId": "1245", "loginTime": "9:22am" }
+    ]},
+    { "id": 4,  "unit": "Unit 1", "shift": "Shift 2", "date": "2025-02-20", "employees": [
+      { "rank": 1, "name": "Karthi", "empId": "1246", "loginTime": "13:55pm" }
+    ]},
+    { "id": 5,  "unit": "Unit 2", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+      { "rank": 1, "name": "Bala",  "empId": "1243", "loginTime": "9:25am" },
+      { "rank": 2, "name": "Vijay", "empId": "1241", "loginTime": "9:28am" }
+    ]},
+    { "id": 6,  "unit": "Unit 2", "shift": "Shift 2", "date": "2025-02-20", "employees": [
+      { "rank": 1, "name": "Vijay", "empId": "1241", "loginTime": "13:58pm" }
+    ]},
+    { "id": 7,  "unit": "Unit 3", "shift": "Shift 1", "date": "2025-02-20", "employees": [
+      { "rank": 1, "name": "Senthil", "empId": "1249", "loginTime": "9:22am" }
+    ]},
+    { "id": 8,  "unit": "Unit 3", "shift": "Shift 2", "date": "2025-02-20", "employees": [
+      { "rank": 1, "name": "Kumar", "empId": "1242", "loginTime": "13:52pm" }
+    ]},
+    { "id": 9,  "unit": "All",    "shift": "Shift 1", "date": "2025-02-21", "employees": [
+      { "rank": 1, "name": "Dinesh", "empId": "1247", "loginTime": "9:15am" },
+      { "rank": 2, "name": "Ganesh", "empId": "1248", "loginTime": "9:20am" }
+    ]},
+    { "id": 10, "unit": "All",    "shift": "Shift 2", "date": "2025-02-21", "employees": [
+      { "rank": 1, "name": "Rajan",  "empId": "1239", "loginTime": "13:50pm" },
+      { "rank": 2, "name": "Suresh", "empId": "1240", "loginTime": "13:55pm" }
     ]}
   ]
 }

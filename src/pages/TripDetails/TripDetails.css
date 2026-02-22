@@ -1,4 +1,6 @@
-/* ── TRIP DETAILS PAGE ───────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   TRIP DETAILS PAGE
+═══════════════════════════════════════════════════════ */
 .trip-details-page {
   display: grid;
   grid-template-rows: 44px 1fr;
@@ -16,7 +18,9 @@
   justify-content: center;
   height: 100%;
 }
+.error-txt { color: #ef4444; font-size: 13px; }
 
+/* ── 3-column body grid ────────────────────────────── */
 .td-body {
   display: grid;
   grid-template-columns: 1fr 1fr 303px;
@@ -25,7 +29,9 @@
   overflow: hidden;
 }
 
-/* ── LEFT ────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   LEFT  —  Scheduled List
+═══════════════════════════════════════════════════════ */
 .td-left {
   display: flex;
   flex-direction: column;
@@ -45,11 +51,12 @@
   flex-shrink: 0;
 }
 
+/* Avatar circle with dynamic background colour */
 .td-emp-avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--accent);
+  /* background set inline */
   color: #fff;
   font-size: 14px;
   font-weight: 700;
@@ -63,14 +70,20 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
 }
-.td-emp-name { font-size: 13px; font-weight: 700; color: var(--t1); }
-.td-emp-id   { font-size: 11px; color: var(--t3); }
+.td-emp-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.td-emp-id { font-size: 11px; color: var(--t3); }
 
-.td-emp-actions {
-  display: flex;
-  gap: 5px;
-}
+/* Action buttons */
+.td-emp-actions { display: flex; gap: 5px; flex-shrink: 0; }
 
 .td-action-btn {
   border: none;
@@ -83,14 +96,16 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
 }
-.td-action-btn:hover { opacity: 0.85; }
+.td-action-btn:hover  { opacity: 0.85; }
+.td-action-btn:active { transform: scale(0.96); }
 .td-action-btn.contact { background: #22c55e; color: #fff; }
-.td-action-btn.message { background: var(--accent); color: #fff; }
+.td-action-btn.message { background: var(--accent, #3b7ff5); color: #fff; }
 .td-action-btn.alert   { background: #ef4444; color: #fff; }
 
-/* Cycle / Checkpoints stats */
+/* Cycle / Checkpoints grid */
 .td-stats-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -103,7 +118,6 @@
   border-radius: 10px;
   padding: 10px 12px;
 }
-
 .td-stat-label {
   display: block;
   font-size: 10.5px;
@@ -111,29 +125,27 @@
   font-weight: 500;
   margin-bottom: 3px;
 }
-
 .td-stat-value {
   display: block;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--t1);
   margin-bottom: 6px;
 }
-
 .td-stat-bar {
   height: 4px;
   background: #e0e8f8;
   border-radius: 2px;
   overflow: hidden;
 }
-
 .td-stat-fill {
   height: 100%;
-  background: var(--accent);
+  background: var(--accent, #3b7ff5);
   border-radius: 2px;
+  transition: width 0.4s ease;
 }
 
-/* Patrol list */
+/* Patrol list — scrollable */
 .td-patrol-list {
   flex: 1;
   overflow-y: auto;
@@ -141,11 +153,12 @@
   flex-direction: column;
   gap: 8px;
   min-height: 0;
+  padding-right: 2px;
 }
-
 .td-patrol-list::-webkit-scrollbar { width: 3px; }
 .td-patrol-list::-webkit-scrollbar-thumb { background: #d0daf0; border-radius: 3px; }
 
+/* Single patrol card */
 .td-patrol-card {
   border: 1px solid #e8edf6;
   border-radius: 10px;
@@ -153,26 +166,27 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  transition: box-shadow 0.15s;
 }
+.td-patrol-card:hover { box-shadow: 0 2px 10px rgba(59,127,245,0.08); }
 
 .td-patrol-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
 .td-patrol-time {
   display: flex;
   align-items: center;
   gap: 6px;
 }
-
 .td-patrol-range {
   font-size: 11.5px;
   color: var(--t2);
   font-weight: 500;
 }
 
+/* Login badge */
 .td-login-badge {
   font-size: 10px;
   font-weight: 600;
@@ -182,23 +196,21 @@
 .td-login-badge.ontime { background: #d1fae5; color: #065f46; }
 .td-login-badge.late   { background: #fee2e2; color: #991b1b; }
 
-.td-patrol-icons {
-  display: flex;
-  gap: 4px;
-}
+/* Icon bubbles row (video / mic / camera / settings) */
+.td-patrol-icons { display: flex; gap: 4px; }
 
 .td-icon-bubble {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: #e8edf6;
-  color: var(--t2);
-  font-size: 10px;
-  font-weight: 600;
+  color: var(--t2, #5a6e8a);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.15s;
 }
+.td-icon-bubble:hover { background: #d0daf0; }
 
 .td-patrol-name {
   font-size: 12px;
@@ -208,14 +220,12 @@
   align-items: center;
   gap: 4px;
 }
-
 .td-patrol-bottom {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
-
 .td-patrol-meta {
   font-size: 11px;
   color: var(--t3);
@@ -224,20 +234,25 @@
   border-radius: 4px;
 }
 
-/* Status badges (shared) */
+/* ── Shared status badges ───────────────────────────── */
 .st-badge {
   font-size: 11px;
   font-weight: 600;
   padding: 3px 10px;
   border-radius: 5px;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .st-badge.ongoing  { background: #fff3cd; color: #b45309; }
 .st-badge.complete { background: #d1fae5; color: #065f46; }
 .st-badge.missed   { background: #fee2e2; color: #991b1b; }
 .st-badge.upcoming { background: #ede9fe; color: #5b21b6; }
 
-/* ── MIDDLE ──────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   MIDDLE  —  Gauge + Trip Points
+═══════════════════════════════════════════════════════ */
 .td-middle {
   display: flex;
   flex-direction: column;
@@ -252,7 +267,6 @@
   margin-bottom: 4px;
   flex-shrink: 0;
 }
-
 .td-patrol-name-lg {
   font-size: 13.5px;
   font-weight: 700;
@@ -261,7 +275,6 @@
   align-items: center;
   gap: 5px;
 }
-
 .td-patrol-time-sm {
   font-size: 11px;
   color: var(--t3);
@@ -269,41 +282,41 @@
   display: flex;
   align-items: center;
 }
-
 .td-order-trip {
   font-size: 12px;
   font-weight: 600;
-  color: var(--t2);
+  color: var(--accent, #3b7ff5);
+  cursor: pointer;
 }
+.td-order-trip:hover { text-decoration: underline; }
 
-/* Gauge */
+/* Gauge wrapper */
 .td-gauge-wrap {
   position: relative;
   flex-shrink: 0;
 }
-
 .td-elapsed {
   position: absolute;
-  top: 10px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 10.5px;
   color: var(--t3);
   font-weight: 500;
   white-space: nowrap;
+  pointer-events: none;
 }
 
-/* Trip points */
+/* Trip Points */
 .td-trip-pts-title {
   font-size: 13px;
   font-weight: 700;
   color: var(--t1);
-  margin: 6px 0 8px;
+  margin: 4px 0 8px;
   display: flex;
   align-items: center;
   flex-shrink: 0;
 }
-
 .td-trip-pts {
   flex: 1;
   overflow-y: auto;
@@ -311,6 +324,7 @@
   flex-direction: column;
   gap: 8px;
   min-height: 0;
+  padding-right: 2px;
 }
 .td-trip-pts::-webkit-scrollbar { width: 3px; }
 .td-trip-pts::-webkit-scrollbar-thumb { background: #d0daf0; border-radius: 3px; }
@@ -322,39 +336,39 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  transition: box-shadow 0.15s;
 }
+.td-tp-card:hover { box-shadow: 0 2px 10px rgba(59,127,245,0.08); }
 
 .td-tp-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .td-tp-info {
   display: flex;
   align-items: center;
   gap: 5px;
 }
-
 .td-tp-name { font-size: 12px; font-weight: 600; color: var(--t1); }
 .td-tp-time { font-size: 10.5px; color: var(--t3); }
 
-.td-tp-icons {
-  display: flex;
-  gap: 4px;
-}
-
+/* Small square stat icon boxes */
+.td-tp-icons { display: flex; gap: 4px; }
 .td-tp-icon-box {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 5px;
   background: #f0f4fb;
-  color: var(--t2);
-  font-size: 10px;
-  font-weight: 600;
+  color: #a0aec0;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.td-tp-icon-box.active {
+  background: #dbeafe;
+  color: var(--accent, #3b7ff5);
 }
 
 .td-tp-bottom {
@@ -362,7 +376,6 @@
   align-items: center;
   justify-content: space-between;
 }
-
 .td-tp-chk {
   font-size: 11px;
   color: var(--t3);
@@ -371,12 +384,14 @@
   border-radius: 4px;
 }
 
-/* ── RIGHT SIDEBAR ───────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   RIGHT SIDEBAR
+═══════════════════════════════════════════════════════ */
 .td-right {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  
+  overflow-y: auto;
   min-height: 0;
 }
 .td-right::-webkit-scrollbar { width: 3px; }
