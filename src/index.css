@@ -1,45 +1,28 @@
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --sb: 64px;
-  --hh: 54px;
-  --navy: #1b2f4e;
-  --navy2: #112240;
-  --accent: #3b7ff5;
-  --accent2: #1d5fd4;
-  --green: #22c55e;
-  --teal: #22d3ee;
-  --purple: #8b5cf6;
-  --red: #f05252;
-  --orange: #fb923c;
-  --bg: #edf1f8;        /* ✅ outer page background — light grey-blue */
-  --white: #ffffff;
-  --t1: #1a2535;
-  --t2: #5b6f8a;
-  --t3: #9aaec4;
-  --bdr: #dde6f2;
-  --sh: 0 2px 12px rgba(27, 47, 78, 0.09);
-  --r: 13px;
-  --rs: 9px;
+  --sb: 64px; --sb-open: 220px; --hh: 54px;
+  --navy: #1b2f4e; --navy2: #112240;
+  --accent: #3b7ff5; --accent2: #1d5fd4;
+  --green: #22c55e; --teal: #22d3ee; --purple: #8b5cf6;
+  --red: #f05252; --orange: #fb923c;
+  --bg: #edf1f8; --white: #ffffff;
+  --t1: #1a2535; --t2: #5b6f8a; --t3: #9aaec4;
+  --bdr: #dde6f2; --sh: 0 2px 12px rgba(27,47,78,0.09);
+  --r: 13px; --rs: 9px;
 }
 
-html, body, #root {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-  font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
-  background: var(--bg);
-  color: var(--t1);
-}
+html, body, #root { height: 100%; width: 100%; overflow: hidden; font-family: 'DM Sans','Helvetica Neue',sans-serif; background: var(--bg); color: var(--t1); }
+.rs-picker-popup { z-index: 9999 !important; }
+.rs-btn { font-family: inherit !important; }
 
-.rs-picker-popup {
-  z-index: 9999 !important;
+.card {
+  background: #fff; border-radius: 14px; padding: 14px 16px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+  display: flex; flex-direction: column; overflow: hidden;
+  width: 100%; height: 100%; min-height: 0;
+  border: 1px solid rgba(220,230,245,0.7); box-sizing: border-box;
 }
-
-.rs-btn {
-  font-family: inherit !important;
-}
+.card-title { font-size: 13.5px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.1px; flex-shrink: 0; color: var(--t1); }
+.card-center { flex: 1; display: flex; align-items: center; justify-content: center; }
+.error-txt { color: var(--red); font-size: 12px; text-align: center; padding: 8px; }

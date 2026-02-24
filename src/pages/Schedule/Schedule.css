@@ -233,4 +233,4 @@
   min-height: 0;
 }
 .sched-right::-webkit-scrollbar { width: 3px; }
-.sched-right::-webkit-scrollbar-thumb { background: #d0daf0; border-radius: 3px; }
+.sched-right::-webkit-scrollbar-thumb { background: #d0daf0; border-radius: 3px; }.sched-row-sel { background: #f0f5ff !important; border-left: 3px solid var(--accent); }

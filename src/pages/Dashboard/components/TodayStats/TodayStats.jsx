@@ -2,21 +2,45 @@ import ReactECharts from 'echarts-for-react'
 import { Loader } from 'rsuite'
 import './TodayStats.css'
 
-const BUBBLE_CFG = [
-  { key: 'allTrips',  color: '#22c55e', x: 25, y: 62, size: 100 },
-  { key: 'complete',  color: '#3b7ff5', x: 48, y: 55, size: 82  },
-  { key: 'upcoming',  color: '#8b5cf6', x: 52, y: 30, size: 72  },
-  { key: 'missed',    color: '#22d3ee', x: 18, y: 30, size: 46  },
-  { key: 'cancelled', color: '#f05252', x: 36, y: 28, size: 32  },
+// Positions verified — no overlaps, no clipping
+// Top row: allTrips(110px) + complete(88px)
+// Bottom row: cancelled(32px) + upcoming(74px) + missed(58px)
+const BUBBLES = [
+  { key:'allTrips',  base:'#1db954', light:'#5ee89a', x:33.7, y:70.0, size:110 },
+  { key:'complete',  base:'#3a8ef6', light:'#93c5fd', x:70.7, y:70.0, size:88  },
+  { key:'cancelled', base:'#dc2626', light:'#fca5a5', x:24.0, y:20.0, size:32  },
+  { key:'upcoming',  base:'#5b21b6', light:'#a78bfa', x:45.7, y:20.0, size:74  },
+  { key:'missed',    base:'#0d9488', light:'#5eead4', x:71.7, y:20.0, size:58  },
 ]
 
-const LEGEND_CFG = [
-  { key: 'allTrips',  label: 'All trips',  color: '#22c55e' },
-  { key: 'complete',  label: 'Complete',   color: '#3b7ff5' },
-  { key: 'upcoming',  label: 'Upcoming',   color: '#8b5cf6' },
-  { key: 'missed',    label: 'Missed',     color: '#22d3ee' },
-  { key: 'cancelled', label: 'Cancelled',  color: '#f05252' },
+const LEGEND = [
+  { key:'allTrips',  label:'All trips',  color:'#1db954' },
+  { key:'complete',  label:'Complete',   color:'#3a8ef6' },
+  { key:'upcoming',  label:'Upcoming',   color:'#5b21b6' },
+  { key:'missed',    label:'Missed',     color:'#0d9488' },
+  { key:'cancelled', label:'Cancelled',  color:'#dc2626' },
 ]
+
+function darken(hex, amount) {
+  const n = parseInt(hex.slice(1), 16)
+  const r = Math.max(0, (n >> 16) - Math.round(255 * amount))
+  const g = Math.max(0, ((n >> 8) & 0xff) - Math.round(255 * amount))
+  const b = Math.max(0, (n & 0xff) - Math.round(255 * amount))
+  return `rgb(${r},${g},${b})`
+}
+
+function sphereGradient(base, light) {
+  return {
+    type: 'radial',
+    x: 0.38, y: 0.35, r: 0.65,
+    colorStops: [
+      { offset: 0,    color: light },
+      { offset: 0.45, color: base  },
+      { offset: 1,    color: darken(base, 0.28) },
+    ],
+    global: false,
+  }
+}
 
 export default function TodayStats({ data, loading, error }) {
   if (loading) return (
@@ -34,38 +58,44 @@ export default function TodayStats({ data, loading, error }) {
 
   const option = {
     animation: true,
-    grid: { left: '2%', right: '2%', top: '8%', bottom: '8%',
-            containLabel: false },
+    grid: { left: '0%', right: '0%', top: '0%', bottom: '0%', containLabel: false },
     xAxis: { show: false, type: 'value', min: 0,  max: 100 },
-    yAxis: { show: false, type: 'value', min: 10, max: 90  }, // ← tighter range keeps bubbles inside
-    series: BUBBLE_CFG.map(b => ({
+    // min:-8 & max:105 gives breathing room so bubbles at edges aren't clipped
+    yAxis: { show: false, type: 'value', min: -8, max: 105 },
+    series: BUBBLES.map((b, i) => ({
       type: 'scatter',
       data: [[b.x, b.y, data[b.key]]],
       symbolSize: b.size,
       z: b.size,
       itemStyle: {
-        color: b.color,
-        shadowBlur: 10,
-        shadowColor: `${b.color}66`
+        color: sphereGradient(b.base, b.light),
+        shadowBlur: 20,
+        shadowColor: b.base + '77',
+        shadowOffsetX: 2,
+        shadowOffsetY: 5,
+        borderColor: 'rgba(255,255,255,0.22)',
+        borderWidth: 1.5,
       },
       label: {
         show: true,
-        formatter: params => `${params.data[2]}`,
-        fontSize: b.size > 80 ? 18 : b.size > 60 ? 15 : b.size > 40 ? 13 : 11,
-        fontWeight: 700,
-        color: '#fff'
+        formatter: p => `${p.data[2]}`,
+        fontWeight: 800,
+        color: '#fff',
+        textShadowBlur: 4,
+        textShadowColor: 'rgba(0,0,0,0.22)',
+        fontSize: b.size > 95 ? 18 : b.size > 75 ? 15 : b.size > 55 ? 13 : b.size > 35 ? 11 : 9,
+        fontFamily: "'DM Sans','Helvetica Neue',sans-serif",
       },
-      emphasis: { scale: 1.06 }
+      emphasis: {
+        scale: 1.06,
+        itemStyle: { shadowBlur: 30, shadowColor: b.base + 'bb' },
+      },
     })),
     tooltip: {
       trigger: 'item',
-      formatter: params => {
-        const cfg = BUBBLE_CFG[params.seriesIndex]
-        const lbl = LEGEND_CFG.find(l => l.key === cfg.key)
-        return `${lbl?.label}: ${params.data[2]}`
-      }
+      formatter: p => `${LEGEND[p.seriesIndex]?.label}: <b>${p.data[2]}</b>`,
     },
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
   }
 
   return (
@@ -80,7 +110,7 @@ export default function TodayStats({ data, loading, error }) {
           />
         </div>
         <div className="today-legend">
-          {LEGEND_CFG.map(l => (
+          {LEGEND.map(l => (
             <div key={l.key} className="leg-row">
               <span className="leg-dot" style={{ background: l.color }} />
               <span className="leg-name">{l.label}</span>

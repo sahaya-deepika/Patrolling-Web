@@ -1,36 +1,5 @@
-.header {
-  background: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 22px;
-  border-bottom: 1px solid var(--bdr);
-  box-shadow: 0 1px 8px rgba(0,0,0,.05);
-  z-index: 50;
-  height: var(--hh);
-  flex-shrink: 0;
-}
-
-.h-right {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.h-icon-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1.5px solid var(--bdr);
-  background: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: .18s;
-  outline: none;
-}
-
-.h-icon-btn:hover {
-  border-color: var(--accent);
-}
+.header { background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; border-bottom: 1px solid var(--bdr); box-shadow: 0 1px 8px rgba(0,0,0,.05); z-index: 50; height: var(--hh); flex-shrink: 0; }
+.h-company { background: #e8edf6; color: var(--t1); font-weight: 600; font-size: 13px; padding: 5px 18px; border-radius: 20px; }
+.h-right { display: flex; align-items: center; gap: 14px; }
+.h-icon-btn { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--bdr); background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: .18s; outline: none; }
+.h-icon-btn:hover { border-color: var(--accent); }

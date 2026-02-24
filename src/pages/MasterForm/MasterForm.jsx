@@ -1,66 +1,42 @@
-// src/pages/MasterForm/MasterForm.jsx
-import React, { useState } from 'react'
-import { Icons } from './components/MasterFormUI'
+
+
+import { useState } from 'react'
+import { Nav } from 'rsuite'
+import CalendarIcon   from '@rsuite/icons/Calendar'
+import PeopleFillIcon from '@rsuite/icons/Member'
+import ArrowRightIcon from '@rsuite/icons/ArrowRight'
+import TaskIcon       from '@rsuite/icons/Task'
+import LocationIcon   from '@rsuite/icons/Location'
 
 import ScheduleForm from './forms/ScheduleForm'
 import UserForm     from './forms/UserForm'
 import TripForm     from './forms/TripForm'
 import TaskForm     from './forms/TaskForm'
 import LocationForm from './forms/LocationForm'
-
 import './MasterForm.css'
 
 const TABS = [
-  { key: 'schedule', label: 'Schedule', icon: 'Schedule',  Component: ScheduleForm },
-  { key: 'user',     label: 'User',     icon: 'People',    Component: UserForm     },
-  { key: 'trip',     label: 'Trip',     icon: 'ArrowRight', Component: TripForm    },
-  { key: 'task',     label: 'task',     icon: 'Task',      Component: TaskForm     },
-  { key: 'location', label: 'Location', icon: 'Location',  Component: LocationForm },
+  { key:'schedule', label:'Schedule', icon:<CalendarIcon />,  Component: ScheduleForm },
+  { key:'user',     label:'User',     icon:<PeopleFillIcon />, Component: UserForm     },
+  { key:'trip',     label:'Trip',     icon:<ArrowRightIcon />, Component: TripForm     },
+  { key:'task',     label:'task',     icon:<TaskIcon />,       Component: TaskForm     },
+  { key:'location', label:'Location', icon:<LocationIcon />,   Component: LocationForm },
 ]
 
 export default function MasterForm() {
-  const [activeTab, setActiveTab] = useState('schedule')
-  const ActiveComponent = TABS.find(t => t.key === activeTab)?.Component ?? ScheduleForm
+  const [active, setActive] = useState('schedule')
+  const ActiveComp = TABS.find(t => t.key === active)?.Component ?? ScheduleForm
 
   return (
     <div className="mf-page">
-      <div className="mf-title-bar">
-        <h2>trip details</h2>
-      </div>
-
       <div className="mf-card">
-        {/* Top Bar */}
-        <div className="mf-topbar">
-          <div className="mf-company-badge">Company</div>
-          <div className="mf-topbar-actions">
-            <div className="mf-bell-wrap">
-              <Icons.Bell />
-              <span className="mf-bell-dot" />
-            </div>
-            <div className="mf-avatar">K</div>
-          </div>
-        </div>
-
-        {/* Tab Bar */}
-        <div className="mf-tabbar">
-          {TABS.map(({ key, label, icon }) => {
-            const IconComp = Icons[icon]
-            return (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`mf-tab-btn ${activeTab === key ? 'active' : ''}`}
-              >
-                {IconComp && <IconComp />}
-                {label}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Active Form */}
+        <Nav appearance="tabs" activeKey={active} onSelect={setActive} className="mf-nav">
+          {TABS.map(({ key, label, icon }) => (
+            <Nav.Item key={key} eventKey={key} icon={icon}>{label}</Nav.Item>
+          ))}
+        </Nav>
         <div className="mf-panel-area">
-          <ActiveComponent />
+          <ActiveComp />
         </div>
       </div>
     </div>

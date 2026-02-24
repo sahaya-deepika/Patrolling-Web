@@ -1,17 +1,19 @@
 /* ══════════════════════════════════════════════════════
-   TODAY SCHEDULED
+   TODAY SCHEDULED — the ONE rule that fixes everything:
+   .card has overflow:hidden which clips the table.
+   .sched-card overrides it to overflow-y:auto so the
+   autoHeight RSuite Table is never vertically clipped.
    ══════════════════════════════════════════════════════ */
 
 .sched-card {
-  overflow-x: hidden !important;
-  overflow-y: auto   !important;
-  padding-bottom: 0 !important;
+  overflow-x: hidden !important;  /* still no horizontal bleed  */
+  overflow-y: auto   !important;  /* allow vertical — no clipping */
 }
 
 /* ── TABLE WRAPPER ───────────────────────────────────── */
 .sched-table-wrap {
   width: 100%;
-  overflow: visible;        /* let header breathe, not get clipped */
+  overflow-x: hidden;
   box-sizing: border-box;
 }
 
@@ -19,16 +21,13 @@
 .sched-table-wrap .rs-table {
   width: 100% !important;
   max-width: 100% !important;
-  overflow: visible !important;
 }
 
-/* Kill horizontal scroll */
+/* Kill every horizontal scroll surface RSuite creates */
 .sched-table-wrap .rs-table-body-row-wrapper,
+.sched-table-wrap .rs-table-header-row-wrapper,
 .sched-table-wrap .rs-table-body-wheel-area {
   overflow-x: hidden !important;
-}
-.sched-table-wrap .rs-table-header-row-wrapper {
-  overflow: visible !important;   /* do NOT clip header */
 }
 .sched-table-wrap .rs-table-scrollbar-horizontal,
 .sched-table-wrap .rs-table-scroll-bar-horizontal {
@@ -39,23 +38,13 @@
 .sched-table-wrap .rs-table-header-row-wrapper {
   border-bottom: 1.5px solid #f0f4fb !important;
   background: #fff !important;
-  position: relative !important;
-  z-index: 5 !important;
 }
 
-/* Strip background at every level RSuite paints it */
-.sched-table-wrap .rs-table-cell-header {
-  background: #fff !important;
-}
-.sched-table-wrap .rs-table-cell-header .rs-table-cell {
-  background: #fff !important;
-}
 .sched-table-wrap .rs-table-cell-header .rs-table-cell-content {
-  background: #fff !important;
   font-size: 11px !important;
-  font-weight: 500 !important;
-  color: #a0aec0 !important;
-  letter-spacing: 0.1px !important;
+  font-weight: 600 !important;
+  color: #9aaec4 !important;
+  letter-spacing: 0.2px !important;
   padding: 0 6px !important;
   display: flex !important;
   align-items: center !important;

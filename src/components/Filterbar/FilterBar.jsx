@@ -1,67 +1,39 @@
-import { DatePicker } from 'rsuite'
+
+import { ButtonGroup, Button, DatePicker } from 'rsuite'
 import CalendarIcon from '@rsuite/icons/Calendar'
-import "./FilterBar.css"
+import './FilterBar.css'
 
 const UNITS  = ['All', 'Unit 1', 'Unit 2', 'Unit 3']
 const SHIFTS = ['Shift 1', 'Shift 2']
 
 export default function FilterBar({ unit, setUnit, shift, setShift, date, setDate }) {
-
-  const handleDateChange = (val) => {
-    if (!val) return
-    const picked = new Date(val)
-    setDate(new Date(picked.getFullYear(), picked.getMonth(), picked.getDate()))
-  }
-
-  const dateStr = date
-    ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-    : ''
-
   return (
     <div className="filter-bar">
-      {/* LEFT — Unit + filter pill */}
       <div className="fb-left">
-        <div className="unit-group">
+        <ButtonGroup>
           {UNITS.map(u => (
-            <button
-              key={u}
-              className={`unit-btn${unit === u ? ' active' : ''}`}
-              onClick={() => setUnit(u)}
-            >
-              {u}
-            </button>
+            <Button key={u} size="sm"
+              appearance={unit === u ? 'primary' : 'subtle'}
+              style={unit === u ? { background: 'var(--accent)', color: '#fff', borderRadius: 16, fontWeight: 600 } : { borderRadius: 16 }}
+              onClick={() => setUnit(u)}>{u}</Button>
           ))}
-        </div>
-
-        <span className="filter-pill">
-          {unit} · {shift} · {dateStr}
-        </span>
+        </ButtonGroup>
       </div>
-
-      {/* RIGHT — Shift + Date */}
       <div className="fb-right">
-        <div className="shift-group">
+        <ButtonGroup>
           {SHIFTS.map(s => (
-            <button
-              key={s}
-              className={`shift-btn${shift === s ? ' active' : ''}`}
-              onClick={() => setShift(s)}
-            >
-              {s}
-            </button>
+            <Button key={s} size="sm"
+              style={shift === s
+                ? { background: '#1b2f4e', color: '#fff', borderRadius: 16, fontWeight: 600, border: 'none' }
+                : { borderRadius: 16, color: 'var(--t2)' }}
+              onClick={() => setShift(s)}>{s}</Button>
           ))}
-        </div>
-
+        </ButtonGroup>
         <DatePicker
-          value={date}
-          onChange={handleDateChange}
-          format="dd MMM yyyy"
-          placement="bottomEnd"
-          cleanable={false}
-          caretAs={CalendarIcon}
-          size="sm"
-          className="dash-date-picker"
-          oneTap
+          value={date} onChange={v => v && setDate(new Date(v.getFullYear(), v.getMonth(), v.getDate()))}
+          format="dd MMM yyyy" placement="bottomEnd" cleanable={false}
+          caretAs={CalendarIcon} size="sm" oneTap
+          style={{ minWidth: 135 }}
         />
       </div>
     </div>

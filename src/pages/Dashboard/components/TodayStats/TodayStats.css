@@ -1,37 +1,43 @@
 /* ── TODAY STATS CARD ────────────────────────────────── */
 .today-card {
   min-height: 0;
-  overflow: hidden; /* ← clips anything that bleeds out */
+  overflow: hidden;
 }
 
 .today-body {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+/* Bubble chart area */
 .today-chart {
   flex: 1;
   min-height: 0;
   min-width: 0;
-  height: 100%;      /* ← fill available height only */
-  max-height: 180px; /* ← hard cap so bubbles don't overflow */
+  height: 100%;
+  max-height: 190px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
 }
 
+/* Legend */
 .today-legend {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 9px;
-  min-width: 128px;
+  gap: 8px;
   flex-shrink: 0;
+  min-width: 130px;
+  max-width: 140px;
+  overflow: hidden;
 }
 
 .leg-row {
@@ -39,6 +45,7 @@
   align-items: center;
   gap: 7px;
   font-size: 12.5px;
+  min-width: 0;
 }
 
 .leg-dot {
@@ -50,12 +57,18 @@
 
 .leg-name {
   flex: 1;
-  color: var(--t2);
+  color: var(--t2, #6b7c99);
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .leg-val {
   font-weight: 700;
-  color: var(--t1);
+  color: var(--t1, #1a2535);
   font-size: 13px;
+  flex-shrink: 0;
+  min-width: 24px;
+  text-align: right;
 }

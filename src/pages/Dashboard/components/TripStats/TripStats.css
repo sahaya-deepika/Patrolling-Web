@@ -1,21 +1,64 @@
 /* ── TRIP STATS CARD ─────────────────────────────────── */
 .trip-card {
   min-height: 0;
+  overflow: hidden;
 }
 
+/*
+  3-column grid:
+  Col 1: All trips (row1) + Missed (row2)
+  Col 2: completed-group spans BOTH rows (Completed on top, Ontime+Late on bottom)
+  Col 3: Efficiency bar spans BOTH rows
+*/
 .trip-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr 68px;
   grid-template-rows: 1fr 1fr;
-  gap: 7px;
+  grid-template-areas:
+    "alltrips  group  eff"
+    "missed    group  eff";
+  gap: 8px;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Each stat box */
+/* ── Stat box (All trips, Missed) ── */
 .stat-box {
-  background: #f4f8fd;
-  border-radius: var(--rs);
+  background: #ffffff;
+  border: 1px solid #e8eef7;
+  border-radius: 10px;
+  padding: 10px 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  box-shadow: 0 1px 4px rgba(30,60,120,0.05);
+}
+
+/* ── Completed group: spans both rows ── */
+.completed-group {
+  grid-area: group;
+  background: #ffffff;
+  border: 1px solid #e8eef7;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(30,60,120,0.05);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+/* Top half: Completed */
+.cg-top {
+  flex: 1;
   padding: 10px 12px;
   position: relative;
   display: flex;
@@ -24,105 +67,151 @@
   min-height: 0;
 }
 
+/* Horizontal divider between Completed and Ontime/Late */
+.cg-divider {
+  height: 1px;
+  background: #e8eef7;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+/* Bottom half: Ontime + Late as 2 columns */
+.cg-bot {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 0;
+  min-height: 0;
+}
+
 .stat-lbl {
   font-size: 11px;
-  color: var(--t2);
+  color: var(--t2, #6b7c99);
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
+  white-space: nowrap;
 }
 
-.stat-icon        { font-size: 12px; }
-.stat-icon.green  { color: #22c55e; }
-.stat-icon.red    { color: #f05252; }
+.stat-bus        { font-size: 12px; }
+.stat-icon       { font-size: 12px; font-weight: 700; }
+.stat-icon.green { color: #22c55e; }
+.stat-icon.red   { color: #f05252; }
 
 .stat-num {
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--t1);
-  line-height: 1.1;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--t1, #1a2535);
+  line-height: 1.05;
+  letter-spacing: -0.5px;
 }
 
 /* Arrow button */
 .arr-btn {
   position: absolute;
-  top: 7px;
-  right: 7px;
-  width: 24px;
-  height: 24px;
-  background: var(--accent);
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: #3b7ff5;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: background 0.18s;
 }
-.arr-btn:hover { background: var(--accent2); }
+.arr-btn:hover { background: #2463d4; }
 
-/* Efficiency column — spans 2 rows */
-.eff-col {
-  grid-column: 3;
-  grid-row: 1 / 3;
-  background: #edf3fe;
-  width: 72px;
-  border-radius: var(--rs);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.eff-chart-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 8px 6px 4px;
-  gap: 4px;
-}
-
-.eff-sublabel {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--t3);
-  text-align: center;
-  padding-bottom: 6px;
-}
-
-/* Ontime + Late row */
-.ontime-box {
-  flex-direction: row;
-  align-items: center;
-  padding: 10px 10px;
-  gap: 0;
-}
-
+/* Ontime / Late mini columns */
 .mini {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .mini-lbl {
   font-size: 10.5px;
-  color: var(--t2);
+  color: var(--t2, #6b7c99);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .mini-num {
   font-size: 22px;
-  font-weight: 700;
-  color: var(--t1);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.5px;
 }
-
-.mini-num.red-txt,
-.red-txt { color: var(--red); }
+.mini-num.teal-txt { color: #0d9488; }
+.mini-num.red-txt  { color: #f05252; }
 
 .mini-sep {
   width: 1px;
   height: 32px;
-  background: var(--bdr);
-  margin: 0 7px;
+  background: #e0e8f4;
+  margin: 0 10px;
+  flex-shrink: 0;
+}
+
+/* ── Efficiency bar — spans both rows ── */
+.eff-col {
+  grid-area: eff;
+  background: linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%);
+  border-radius: 10px;
+  border: 1px solid #bfdbfe;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.eff-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 6px 10px;
+  gap: 5px;
+}
+
+.eff-bar-wrap {
+  flex: 1;
+  width: 26px;
+  background: rgba(255,255,255,0.45);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+}
+
+.eff-bar-fill {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, #60a5fa 0%, #1d4ed8 100%);
+  border-radius: 8px;
+  transition: height 0.6s ease;
+}
+
+.eff-pct {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1d4ed8;
+  line-height: 1;
+  letter-spacing: -0.3px;
+}
+
+.eff-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #3b7ff5;
+  text-align: center;
+  white-space: nowrap;
 }

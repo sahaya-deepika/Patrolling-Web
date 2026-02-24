@@ -1,3 +1,5 @@
+
+
 import { useState, useCallback } from 'react'
 import { Table, Tag, Loader, Progress } from 'rsuite'
 import './TodayScheduled.css'
@@ -13,16 +15,16 @@ const STATUS_COLORS = {
 
 const hStyle = {
   fontSize: 11,
-  fontWeight: 500,
-  color: '#a0aec0',
-  letterSpacing: '0.1px',
+  fontWeight: 600,
+  color: '#9aaec4',
+  letterSpacing: '0.2px',
   padding: '0 6px',
 }
 
 /* ── Cells ───────────────────────────────────────────── */
 function NameCell({ rowData, ...props }) {
   return (
-    <Cell {...props} style={{ padding: '6px 6px' }}>
+    <Cell {...props}>
       <div style={{ minWidth: 0, overflow: 'hidden' }}>
         <div className="name-main">{rowData.name}</div>
         <div className="name-sub">{rowData.login}</div>
@@ -33,7 +35,7 @@ function NameCell({ rowData, ...props }) {
 
 function TripTypeCell({ rowData, ...props }) {
   return (
-    <Cell {...props} style={{ padding: '0 6px' }}>
+    <Cell {...props}>
       <Tag
         size="sm"
         style={{
@@ -43,7 +45,7 @@ function TripTypeCell({ rowData, ...props }) {
           color: '#fff',
           border: 'none',
           borderRadius: 20,
-          padding: '2px 10px',
+          padding: '2px 8px',
           whiteSpace: 'nowrap',
           display: 'inline-block',
         }}
@@ -59,14 +61,14 @@ function ProgressCell({ rowData, ...props }) {
     ? Math.round((rowData.done / rowData.total) * 100)
     : 0
   return (
-    <Cell {...props} style={{ padding: '0 6px' }}>
+    <Cell {...props}>
       <div className="prog-cell">
         <Progress.Line
           percent={pct}
           strokeWidth={4}
           showInfo={false}
           strokeColor="#3b7ff5"
-          style={{ padding: 0, flex: 1 }}
+          style={{ padding: 0 }}
         />
         <span className="prog-txt">{rowData.done}/{rowData.total}</span>
       </div>
@@ -76,7 +78,7 @@ function ProgressCell({ rowData, ...props }) {
 
 function MissedCell({ rowData, ...props }) {
   return (
-    <Cell {...props} style={{ padding: '0 6px' }}>
+    <Cell {...props}>
       <span style={{ color: '#f05252', fontWeight: 700, fontSize: 13 }}>
         {rowData.missed}
       </span>
@@ -87,17 +89,11 @@ function MissedCell({ rowData, ...props }) {
 function StatusCell({ rowData, ...props }) {
   const color = STATUS_COLORS[rowData.status] || 'blue'
   return (
-    <Cell {...props} style={{ padding: '0 6px' }}>
+    <Cell {...props}>
       <Tag
         color={color}
         size="sm"
-        style={{
-          fontWeight: 700,
-          fontSize: 11,
-          borderRadius: 20,
-          padding: '3px 12px',
-          whiteSpace: 'nowrap',
-        }}
+        style={{ fontWeight: 700, fontSize: 11, borderRadius: 20, padding: '3px 10px' }}
       >
         {rowData.status}
       </Tag>
@@ -118,9 +114,11 @@ export default function TodayScheduled({ data, loading, error }) {
     ro.observe(node)
   }, [])
 
-  const tripStatusW = Math.max(110, Math.round(colW * 0.20))
+  const tripStatusW = Math.max(100, Math.round(colW * 0.18))
 
   return (
+    /* sched-card overrides .card's overflow:hidden → overflow-y:auto
+       so the autoHeight table is never clipped vertically            */
     <div className="card sched-card">
       <div className="card-title">Today Scheduled</div>
 
@@ -139,8 +137,7 @@ export default function TodayScheduled({ data, loading, error }) {
         {!loading && !error && (
           <Table
             data={data || []}
-            autoHeight
-            showHeader        /* explicitly show header */
+            autoHeight          /* grows with rows — never needs a pixel height */
             rowHeight={52}
             headerHeight={36}
             bordered={false}
@@ -149,29 +146,29 @@ export default function TodayScheduled({ data, loading, error }) {
             wordWrap={false}
             shouldUpdateScroll={false}
           >
-            <Column width={42} fixed>
+            <Column width={38} fixed>
               <HeaderCell style={hStyle}>ID</HeaderCell>
-              <Cell dataKey="tripId" style={{ color: '#b0bec5', fontSize: 11, padding: '0 6px' }} />
+              <Cell dataKey="tripId" style={{ color: '#b0bec5', fontSize: 11 }} />
             </Column>
 
-            <Column flexGrow={1} minWidth={90}>
+            <Column flexGrow={1} minWidth={80}>
               <HeaderCell style={hStyle}>Name</HeaderCell>
               <NameCell dataKey="name" />
             </Column>
 
-            <Column width={44} align="center">
+            <Column width={40} align="center">
               <HeaderCell style={hStyle}>Task</HeaderCell>
-              <Cell dataKey="task" style={{ fontSize: 13, color: '#3d4f6e', padding: '0 6px' }} />
+              <Cell dataKey="task" style={{ fontSize: 13, color: '#3d4f6e' }} />
             </Column>
 
-            <Column width={90} align="center">
+            <Column width={82}>
               <HeaderCell style={hStyle}>Trip Type</HeaderCell>
               <TripTypeCell dataKey="tripType" />
             </Column>
 
-            <Column width={46} align="center">
+            <Column width={44} align="center">
               <HeaderCell style={hStyle}>Total</HeaderCell>
-              <Cell dataKey="total" style={{ fontSize: 13, color: '#3d4f6e', padding: '0 6px' }} />
+              <Cell dataKey="total" style={{ fontSize: 13, color: '#3d4f6e' }} />
             </Column>
 
             <Column width={tripStatusW}>
@@ -179,12 +176,12 @@ export default function TodayScheduled({ data, loading, error }) {
               <ProgressCell dataKey="done" />
             </Column>
 
-            <Column width={58} align="center">
+            <Column width={56} align="center">
               <HeaderCell style={hStyle}>Missed</HeaderCell>
               <MissedCell dataKey="missed" />
             </Column>
 
-            <Column width={88} fixed="right" align="center">
+            <Column width={82} fixed="right">
               <HeaderCell style={hStyle}>Status</HeaderCell>
               <StatusCell dataKey="status" />
             </Column>
