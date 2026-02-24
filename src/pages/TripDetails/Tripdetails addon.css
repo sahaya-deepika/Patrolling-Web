@@ -1,0 +1,48 @@
+/* ── Add these to the bottom of TripDetails.css ────── */
+
+/* Media icons row in patrol card */
+.td-patrol-media-icons {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+/* Individual icon button: icon on top, count below */
+.td-media-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: #f0f4fb;
+  border: 1px solid #e2eaf6;
+  border-radius: 8px;
+  padding: 5px 6px 4px;
+  cursor: pointer;
+  color: #6b7c99;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+  min-width: 30px;
+}
+.td-media-btn:hover:not(.td-media-btn-empty) {
+  background: #dbeafe;
+  color: #3b7ff5;
+  border-color: #bfdbfe;
+  transform: translateY(-1px);
+}
+.td-media-btn-active {
+  background: #dbeafe !important;
+  color: #3b7ff5 !important;
+  border-color: #3b7ff5 !important;
+}
+/* Zero count — grayed out, not clickable */
+.td-media-btn-empty {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.td-media-count {
+    display: block;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: inherit;
+}

@@ -1,90 +1,109 @@
+/* ── Card shell ─────────────────────────────────────── */
 .mini-cal {
   background: #fff;
   border-radius: 14px;
-  padding: 14px;
-  box-shadow: 0 2px 12px rgba(30,60,120,0.08),
-              0 1px 3px rgba(30,60,120,0.05);
+  padding: 10px 12px;
+  box-shadow: 0 2px 12px rgba(30,60,120,0.08), 0 1px 3px rgba(30,60,120,0.05);
   border: 1px solid rgba(220,230,245,0.7);
   width: 100%;
+  /* position:relative so the absolute dropdown anchors here */
+  position: relative;
 }
 
+/* ── Top row ────────────────────────────────────────── */
 .mc-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
+.mc-today-info { display: flex; flex-direction: column; }
+.mc-today-label { font-size: 10px; color: var(--t3); }
+.mc-today-date  { font-size: 13px; font-weight: 700; color: var(--t1); }
+.mc-nav-arrows  { display: flex; gap: 2px; }
 
-.mc-today-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.mc-today-label {
-  font-size: 11px;
-  color: var(--t3);
-}
-
-.mc-today-date {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--t1);
-}
-
-.mc-nav-arrows {
-  display: flex;
-  gap: 4px;
-}
-
+/* ── Week strip ─────────────────────────────────────── */
 .mc-week-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin-bottom: 14px;
+  gap: 3px;
 }
-
 .mc-week-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 4px;
-  border-radius: 12px;
+  padding: 4px 2px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background 0.15s;
 }
+.mc-week-cell:hover { background: #eef4ff; }
+.mc-dn  { font-size: 9px;  font-weight: 600; color: var(--t3); }
+.mc-day { font-size: 12px; font-weight: 600; color: var(--t1); }
 
-.mc-week-cell:hover {
-  background: #eef4ff;
-}
-
-.mc-dn {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--t3);
-}
-
-.mc-day {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--t1);
-}
-
-.mc-today {
-  background: var(--accent);
-}
-
+.mc-today { background: var(--accent); }
 .mc-today .mc-dn,
-.mc-today .mc-day {
-  color: #fff;
-}
+.mc-today .mc-day { color: #fff; }
 
-.mc-sel {
-  background: #e8f0ff;
-}
+.mc-sel { background: #e8f0ff; }
+.mc-sel .mc-day { color: var(--accent); }
 
-.mc-sel .mc-day {
-  color: var(--accent);
-}
-
+/* ── Expanded full calendar — floats over content below ── */
 .mc-full-calendar {
-  margin-top: 16px;
+  position: absolute;
+  top: calc(100% + 6px);   /* sits just below the card */
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(220,230,245,0.9);
+  box-shadow: 0 8px 32px rgba(30,60,120,0.14), 0 2px 8px rgba(30,60,120,0.08);
+  overflow: hidden;
+  padding: 4px;
+}
+
+/* ── Compact RSuite Calendar overrides ──────────────── */
+.mc-full-calendar .rs-calendar {
+  padding: 0 !important;
+  min-width: unset !important;
+  width: 100% !important;
+}
+.mc-full-calendar .rs-calendar-header {
+  padding: 4px 2px 2px !important;
+}
+.mc-full-calendar .rs-calendar-header-title {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+.mc-full-calendar .rs-calendar-header-backward,
+.mc-full-calendar .rs-calendar-header-forward {
+  padding: 2px !important;
+}
+.mc-full-calendar .rs-calendar-table {
+  padding: 0 !important;
+}
+.mc-full-calendar .rs-calendar-table-row {
+  height: 28px !important;
+}
+.mc-full-calendar .rs-calendar-table-cell {
+  padding: 1px !important;
+}
+.mc-full-calendar .rs-calendar-table-cell-content {
+  width: 26px !important;
+  height: 26px !important;
+  font-size: 11px !important;
+  padding: 0 !important;
+  line-height: 26px !important;
+  border-radius: 6px !important;
+}
+.mc-full-calendar .rs-calendar-table-header-row {
+  height: 22px !important;
+}
+.mc-full-calendar .rs-calendar-table-header-cell-content {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  padding: 2px 0 !important;
+  height: 22px !important;
+  line-height: 22px !important;
 }
