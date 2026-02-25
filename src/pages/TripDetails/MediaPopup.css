@@ -1,24 +1,27 @@
-/* ── Media Modal ────────────────────────────────────── */
+/* ── Media Modal ────────────────────────────────────────────────────────────── */
 .media-modal .rs-modal-content {
   border-radius: 14px;
   overflow: hidden;
   padding: 0;
 }
+
 .media-modal .rs-modal-header {
   padding: 14px 16px 12px;
   border-bottom: 1px solid #eef2f8;
 }
+
 .media-modal .rs-modal-body {
   padding: 0 !important;
   max-height: 420px;
 }
 
+/* ── Modal Body with 2-column layout (List + Preview) ────────────────────────── */
 .mp-body {
   display: flex;
   height: 380px;
 }
 
-/* Left list */
+/* ── Left: item list ──────────────────────────────────────────────────────────── */
 .mp-list {
   width: 160px;
   flex-shrink: 0;
@@ -26,8 +29,15 @@
   overflow-y: auto;
   padding: 8px 0;
 }
-.mp-list::-webkit-scrollbar { width: 3px; }
-.mp-list::-webkit-scrollbar-thumb { background: #d0daf0; border-radius: 3px; }
+
+.mp-list::-webkit-scrollbar {
+  width: 3px;
+}
+
+.mp-list::-webkit-scrollbar-thumb {
+  background: #d0daf0;
+  border-radius: 3px;
+}
 
 .mp-list-item {
   display: flex;
@@ -36,21 +46,30 @@
   padding: 8px 10px;
   cursor: pointer;
   border-left: 3px solid transparent;
-  transition: background 0.15s, border-color 0.15s;
+  transition: all 0.15s;
 }
-.mp-list-item:hover { background: #f7faff; }
-.mp-list-item-sel   { background: #eef4ff; border-left-color: #3b7ff5; }
+
+.mp-list-item:hover {
+  background: #f7faff;
+}
+
+.mp-list-item-sel {
+  background: #eef4ff;
+  border-left-color: #3b7ff5;
+}
 
 .mp-thumb-wrap {
   position: relative;
   flex-shrink: 0;
 }
+
 .mp-thumb {
   width: 44px;
   height: 34px;
   object-fit: cover;
   border-radius: 5px;
 }
+
 .mp-play-overlay {
   position: absolute;
   inset: 0;
@@ -68,6 +87,7 @@
   flex-direction: column;
   min-width: 0;
 }
+
 .mp-item-label {
   font-size: 11.5px;
   font-weight: 600;
@@ -76,12 +96,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .mp-item-meta {
   font-size: 10px;
   color: #9aaec4;
 }
 
-/* Right preview */
+/* ── Right: preview ──────────────────────────────────────────────────────────── */
 .mp-preview {
   flex: 1;
   display: flex;
@@ -99,7 +120,7 @@
   padding: 40px 0;
 }
 
-/* Voice */
+/* ── Voice Preview ──────────────────────────────────────────────────────────── */
 .mp-voice {
   display: flex;
   flex-direction: column;
@@ -107,13 +128,36 @@
   gap: 8px;
   width: 100%;
 }
-.mp-voice-icon  { font-size: 40px; }
-.mp-voice-label { font-size: 14px; font-weight: 700; color: #1a2535; }
-.mp-voice-dur   { font-size: 12px; color: #9aaec4; }
-.mp-audio       { width: 100%; margin-top: 8px; }
 
-/* Photo */
-.mp-photo { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+.mp-voice-icon {
+  font-size: 40px;
+}
+
+.mp-voice-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a2535;
+}
+
+.mp-voice-dur {
+  font-size: 12px;
+  color: #9aaec4;
+}
+
+.mp-audio {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* ── Photo Preview ──────────────────────────────────────────────────────────── */
+.mp-photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
 .mp-photo-img {
   width: 100%;
   max-height: 280px;
@@ -122,8 +166,15 @@
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
-/* Video */
-.mp-video { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+/* ── Video Preview ──────────────────────────────────────────────────────────── */
+.mp-video {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
 .mp-video-el {
   width: 100%;
   max-height: 280px;
@@ -137,13 +188,20 @@
   text-align: center;
 }
 
-/* Message */
-.mp-msg { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+/* ── Message Preview ────────────────────────────────────────────────────────── */
+.mp-msg {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .mp-msg-time {
   font-size: 11px;
   color: #9aaec4;
   text-align: right;
 }
+
 .mp-msg-bubble {
   background: #3b7ff5;
   color: #fff;
@@ -154,17 +212,25 @@
   box-shadow: 0 2px 8px rgba(59,127,245,0.2);
 }
 
-/* Report */
-.mp-report { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+/* ── Report Preview ─────────────────────────────────────────────────────────── */
+.mp-report {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .mp-report-title {
   font-size: 14px;
   font-weight: 700;
   color: #1a2535;
 }
+
 .mp-report-time {
   font-size: 11px;
   color: #9aaec4;
 }
+
 .mp-report-body {
   background: #fff;
   border: 1px solid #e8edf6;

@@ -1,6 +1,6 @@
 // ─── DUMMY PATROL DATA ───────────────────────────────────────────────────────
-// Each patrol has its OWN tripPoints, tripDoneOf, tripTotal so the middle
-// card shows completely different content when you click each patrol card.
+// Each patrol has its OWN tripPoints with media data so trip point media
+// modals work properly when clicked
 
 export const DUMMY_PATROLS = [
   {
@@ -15,10 +15,72 @@ export const DUMMY_PATROLS = [
     tripDoneOf:   7,
     tripTotal:    11,
     tripPoints: [
-      { id:'tp1', name:'Parking area A', time:'10:00am', checkpoints:3, status:'Ongoing',  stats:[1,1,0,1] },
-      { id:'tp2', name:'Main Gate',      time:'10:30am', checkpoints:2, status:'Complete', stats:[0,2,1,0] },
-      { id:'tp3', name:'Block B Entry',  time:'11:00am', checkpoints:4, status:'Complete', stats:[1,0,0,1] },
-      { id:'tp4', name:'Lobby Area',     time:'11:45am', checkpoints:1, status:'Upcoming', stats:[0,0,0,0] },
+      { 
+        id:'tp1', 
+        name:'Parking area A', 
+        time:'10:00am', 
+        checkpoints:3, 
+        status:'Ongoing',  
+        stats:[1,1,0,1],
+        media: {
+          voice:  [{ id:'v1', label:'Parking Check', url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', duration:'0:35' }],
+          photo:  [
+            { id:'ph1', label:'Space A-1', url:'https://picsum.photos/seed/park1/400/300', thumb:'https://picsum.photos/seed/park1/80/60' },
+            { id:'ph2', label:'Space A-2', url:'https://picsum.photos/seed/park2/400/300', thumb:'https://picsum.photos/seed/park2/80/60' },
+          ],
+          video:  [{ id:'vid1', label:'Area Scan', url:'https://www.w3schools.com/html/mov_bbb.mp4', thumb:'https://picsum.photos/seed/pv1/80/60' }],
+          message:[{ id:'m1', label:'All spaces clear', text:'Parking area A fully cleared.', time:'10:05am' }],
+          report: [{ id:'r1', label:'Parking Log', text:'No violations found.', time:'10:00am' }],
+        }
+      },
+      { 
+        id:'tp2', 
+        name:'Main Gate',      
+        time:'10:30am', 
+        checkpoints:2, 
+        status:'Complete', 
+        stats:[0,2,1,0],
+        media: {
+          voice:  [{ id:'v1', label:'Gate Status', url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', duration:'0:42' }],
+          photo:  [
+            { id:'ph1', label:'Gate Entry', url:'https://picsum.photos/seed/gate1/400/300', thumb:'https://picsum.photos/seed/gate1/80/60' },
+            { id:'ph2', label:'Gate Exit', url:'https://picsum.photos/seed/gate2/400/300', thumb:'https://picsum.photos/seed/gate2/80/60' },
+          ],
+          video:  [{ id:'vid1', label:'Traffic Flow', url:'https://www.w3schools.com/html/movie.mp4', thumb:'https://picsum.photos/seed/pv2/80/60' }],
+          message:[],
+          report: [],
+        }
+      },
+      { 
+        id:'tp3', 
+        name:'Block B Entry',  
+        time:'11:00am', 
+        checkpoints:4, 
+        status:'Complete', 
+        stats:[1,0,0,1],
+        media: {
+          voice:  [],
+          photo:  [{ id:'ph1', label:'Entry Door', url:'https://picsum.photos/seed/block1/400/300', thumb:'https://picsum.photos/seed/block1/80/60' }],
+          video:  [],
+          message:[{ id:'m1', label:'Entry Secured', text:'Block B entry door secured.', time:'11:02am' }],
+          report: [{ id:'r1', label:'Block B Log', text:'Entry checkpoint completed.', time:'11:00am' }],
+        }
+      },
+      { 
+        id:'tp4', 
+        name:'Lobby Area',     
+        time:'11:45am', 
+        checkpoints:1, 
+        status:'Upcoming', 
+        stats:[0,0,0,0],
+        media: {
+          voice:  [],
+          photo:  [],
+          video:  [],
+          message:[],
+          report: [],
+        }
+      },
     ],
     media: {
       voice:  [{ id:'v1', label:'Voice Note 1', url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', duration:'0:42' }],
@@ -58,10 +120,71 @@ export const DUMMY_PATROLS = [
     tripDoneOf:   9,
     tripTotal:    9,
     tripPoints: [
-      { id:'tp1', name:'South Gate Entry', time:'12:10pm', checkpoints:2, status:'Complete', stats:[0,1,1,0] },
-      { id:'tp2', name:'Parking Lot C',    time:'12:45pm', checkpoints:3, status:'Complete', stats:[1,1,0,1] },
-      { id:'tp3', name:'Side Fence Row',   time:'01:20pm', checkpoints:2, status:'Complete', stats:[0,0,1,0] },
-      { id:'tp4', name:'Guard Post 2',     time:'01:50pm', checkpoints:2, status:'Complete', stats:[1,1,1,1] },
+      { 
+        id:'tp1', 
+        name:'South Gate Entry', 
+        time:'12:10pm', 
+        checkpoints:2, 
+        status:'Complete', 
+        stats:[0,1,1,0],
+        media: {
+          voice:  [{ id:'v1', label:'Entry Log', url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', duration:'0:28' }],
+          photo:  [
+            { id:'ph1', label:'Gate View', url:'https://picsum.photos/seed/south1/400/300', thumb:'https://picsum.photos/seed/south1/80/60' },
+          ],
+          video:  [{ id:'vid1', label:'Entry Check', url:'https://www.w3schools.com/html/mov_bbb.mp4', thumb:'https://picsum.photos/seed/sv1/80/60' }],
+          message:[],
+          report: [],
+        }
+      },
+      { 
+        id:'tp2', 
+        name:'Parking Lot C',    
+        time:'12:45pm', 
+        checkpoints:3, 
+        status:'Complete', 
+        stats:[1,1,0,1],
+        media: {
+          voice:  [],
+          photo:  [
+            { id:'ph1', label:'Lot Overview', url:'https://picsum.photos/seed/lot1/400/300', thumb:'https://picsum.photos/seed/lot1/80/60' },
+            { id:'ph2', label:'Lot Details', url:'https://picsum.photos/seed/lot2/400/300', thumb:'https://picsum.photos/seed/lot2/80/60' },
+          ],
+          video:  [],
+          message:[{ id:'m1', label:'Lot clear', text:'Parking lot C is clear.', time:'12:48pm' }],
+          report: [{ id:'r1', label:'Lot Log', text:'3 spaces occupied, rest clear.', time:'12:45pm' }],
+        }
+      },
+      { 
+        id:'tp3', 
+        name:'Side Fence Row',   
+        time:'01:20pm', 
+        checkpoints:2, 
+        status:'Complete', 
+        stats:[0,0,1,0],
+        media: {
+          voice:  [{ id:'v1', label:'Fence Check', url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', duration:'0:55' }],
+          photo:  [],
+          video:  [{ id:'vid1', label:'Fence Scan', url:'https://www.w3schools.com/html/movie.mp4', thumb:'https://picsum.photos/seed/sv2/80/60' }],
+          message:[],
+          report: [],
+        }
+      },
+      { 
+        id:'tp4', 
+        name:'Guard Post 2',     
+        time:'01:50pm', 
+        checkpoints:2, 
+        status:'Complete', 
+        stats:[1,1,1,1],
+        media: {
+          voice:  [],
+          photo:  [{ id:'ph1', label:'Post Check', url:'https://picsum.photos/seed/guard1/400/300', thumb:'https://picsum.photos/seed/guard1/80/60' }],
+          video:  [{ id:'vid1', label:'Post Footage', url:'https://www.w3schools.com/html/mov_bbb.mp4', thumb:'https://picsum.photos/seed/sv3/80/60' }],
+          message:[{ id:'m1', label:'Post clear', text:'Guard post secured.', time:'01:52pm' }],
+          report: [{ id:'r1', label:'Post Log', text:'No incidents.', time:'01:50pm' }],
+        }
+      },
     ],
     media: {
       voice:  [
@@ -95,10 +218,69 @@ export const DUMMY_PATROLS = [
     tripDoneOf:   4,
     tripTotal:    7,
     tripPoints: [
-      { id:'tp1', name:'East Entrance',  time:'02:05pm', checkpoints:2, status:'Complete', stats:[1,2,0,0] },
-      { id:'tp2', name:'Warehouse Door', time:'02:40pm', checkpoints:3, status:'Ongoing',  stats:[0,1,1,1] },
-      { id:'tp3', name:'Generator Room', time:'03:15pm', checkpoints:1, status:'Upcoming', stats:[0,0,0,0] },
-      { id:'tp4', name:'Roof Access',    time:'03:45pm', checkpoints:1, status:'Upcoming', stats:[0,0,0,0] },
+      { 
+        id:'tp1', 
+        name:'East Entrance',  
+        time:'02:05pm', 
+        checkpoints:2, 
+        status:'Complete', 
+        stats:[1,2,0,0],
+        media: {
+          voice:  [{ id:'v1', label:'Entry Log', url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', duration:'0:33' }],
+          photo:  [
+            { id:'ph1', label:'Main Entrance', url:'https://picsum.photos/seed/east1/400/300', thumb:'https://picsum.photos/seed/east1/80/60' },
+            { id:'ph2', label:'Entrance Side', url:'https://picsum.photos/seed/east2/400/300', thumb:'https://picsum.photos/seed/east2/80/60' },
+          ],
+          video:  [],
+          message:[],
+          report: [],
+        }
+      },
+      { 
+        id:'tp2', 
+        name:'Warehouse Door', 
+        time:'02:40pm', 
+        checkpoints:3, 
+        status:'Ongoing',  
+        stats:[0,1,1,1],
+        media: {
+          voice:  [{ id:'v1', label:'Warehouse Log', url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', duration:'1:12' }],
+          photo:  [{ id:'ph1', label:'Door Status', url:'https://picsum.photos/seed/warehouse1/400/300', thumb:'https://picsum.photos/seed/warehouse1/80/60' }],
+          video:  [{ id:'vid1', label:'Door Check', url:'https://www.w3schools.com/html/movie.mp4', thumb:'https://picsum.photos/seed/wv1/80/60' }],
+          message:[{ id:'m1', label:'Door secured', text:'Warehouse door is locked.', time:'02:42pm' }],
+          report: [],
+        }
+      },
+      { 
+        id:'tp3', 
+        name:'Generator Room', 
+        time:'03:15pm', 
+        checkpoints:1, 
+        status:'Upcoming', 
+        stats:[0,0,0,0],
+        media: {
+          voice:  [],
+          photo:  [],
+          video:  [],
+          message:[],
+          report: [],
+        }
+      },
+      { 
+        id:'tp4', 
+        name:'Roof Access',    
+        time:'03:45pm', 
+        checkpoints:1, 
+        status:'Upcoming', 
+        stats:[0,0,0,0],
+        media: {
+          voice:  [],
+          photo:  [],
+          video:  [],
+          message:[],
+          report: [],
+        }
+      },
     ],
     media: {
       voice:  [
@@ -140,10 +322,42 @@ export const DUMMY_PATROLS = [
     tripDoneOf:   0,
     tripTotal:    6,
     tripPoints: [
-      { id:'tp1', name:'West Gate',      time:'04:00pm', checkpoints:2, status:'Upcoming', stats:[0,0,0,0] },
-      { id:'tp2', name:'Boundary Wall',  time:'04:30pm', checkpoints:2, status:'Upcoming', stats:[0,0,0,0] },
-      { id:'tp3', name:'Rear Exit',      time:'05:00pm', checkpoints:1, status:'Upcoming', stats:[0,0,0,0] },
-      { id:'tp4', name:'Guard Room',     time:'05:30pm', checkpoints:1, status:'Upcoming', stats:[0,0,0,0] },
+      { 
+        id:'tp1', 
+        name:'West Gate',      
+        time:'04:00pm', 
+        checkpoints:2, 
+        status:'Upcoming', 
+        stats:[0,0,0,0],
+        media: { voice:[], photo:[], video:[], message:[], report:[] }
+      },
+      { 
+        id:'tp2', 
+        name:'Boundary Wall',  
+        time:'04:30pm', 
+        checkpoints:2, 
+        status:'Upcoming', 
+        stats:[0,0,0,0],
+        media: { voice:[], photo:[], video:[], message:[], report:[] }
+      },
+      { 
+        id:'tp3', 
+        name:'Rear Exit',      
+        time:'05:00pm', 
+        checkpoints:1, 
+        status:'Upcoming', 
+        stats:[0,0,0,0],
+        media: { voice:[], photo:[], video:[], message:[], report:[] }
+      },
+      { 
+        id:'tp4', 
+        name:'Guard Room',     
+        time:'05:30pm', 
+        checkpoints:1, 
+        status:'Upcoming', 
+        stats:[0,0,0,0],
+        media: { voice:[], photo:[], video:[], message:[], report:[] }
+      },
     ],
     media: { voice:[], photo:[], video:[], message:[], report:[] },
   },

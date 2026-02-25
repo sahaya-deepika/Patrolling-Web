@@ -4,12 +4,6 @@
   overflow: hidden;
 }
 
-/*
-  3-column grid:
-  Col 1: All trips (row1) + Missed (row2)
-  Col 2: completed-group spans BOTH rows (Completed on top, Ontime+Late on bottom)
-  Col 3: Efficiency bar spans BOTH rows
-*/
 .trip-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 68px;
@@ -25,7 +19,7 @@
   box-sizing: border-box;
 }
 
-/* ── Stat box (All trips, Missed) ── */
+/* ── Stat box ── */
 .stat-box {
   background: #ffffff;
   border: 1px solid #e8eef7;
@@ -41,7 +35,7 @@
   box-shadow: 0 1px 4px rgba(30,60,120,0.05);
 }
 
-/* ── Completed group: spans both rows ── */
+/* ── Completed group ── */
 .completed-group {
   grid-area: group;
   background: #ffffff;
@@ -56,7 +50,6 @@
   padding: 0;
 }
 
-/* Top half: Completed */
 .cg-top {
   flex: 1;
   padding: 10px 12px;
@@ -67,39 +60,39 @@
   min-height: 0;
 }
 
-/* Horizontal divider between Completed and Ontime/Late */
 .cg-divider {
   height: 1px;
   background: #e8eef7;
   flex-shrink: 0;
-  margin: 0;
 }
 
-/* Bottom half: Ontime + Late as 2 columns */
 .cg-bot {
   flex: 1;
   display: flex;
   flex-direction: row;
   align-items: center;
   padding: 8px 12px;
-  gap: 0;
   min-height: 0;
 }
 
+/* ── Label row with react-icon ── */
 .stat-lbl {
   font-size: 11px;
   color: var(--t2, #6b7c99);
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   white-space: nowrap;
 }
 
-.stat-bus        { font-size: 12px; }
-.stat-icon       { font-size: 12px; font-weight: 700; }
-.stat-icon.green { color: #22c55e; }
-.stat-icon.red   { color: #f05252; }
+/* react-icons inside labels */
+.stat-icon-ri {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.stat-icon-ri.green { color: #22c55e; }
+.stat-icon-ri.red   { color: #f05252; }
 
 .stat-num {
   font-size: 30px;
@@ -141,6 +134,8 @@
   color: var(--t2, #6b7c99);
   font-weight: 500;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
 .mini-num {
@@ -160,7 +155,7 @@
   flex-shrink: 0;
 }
 
-/* ── Efficiency bar — spans both rows ── */
+/* ── Efficiency bar ── */
 .eff-col {
   grid-area: eff;
   background: linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%);

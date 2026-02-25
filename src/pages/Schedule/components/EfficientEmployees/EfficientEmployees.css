@@ -1,17 +1,350 @@
-/* ── EFFICIENT EMPLOYEES ─────────────────────────────── */
-.eff-emp {
-  background: #fff;
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: 0 2px 12px rgba(30,60,120,0.08), 0 1px 3px rgba(30,60,120,0.05);
-  border: 1px solid rgba(220,230,245,0.7);
+/* ── SCHEDULE PAGE ───────────────────────────────────── */
+.schedule-page {
+  display: grid;
+  grid-template-rows: 44px 1fr;
+  gap: 10px;
+  padding: 12px 16px;
+  height: 100%;
+  overflow: hidden;
+  min-height: 0;
+  background: transparent;
 }
 
-.eff-header {
+.sched-body {
+  display: grid;
+  grid-template-columns: 1fr 303px;
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+/* ── RSUITE PANEL OVERRIDES ──────────────────────────– */
+.sched-left-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+  border: 1px solid rgba(220,230,245,0.7) !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  box-shadow: 0 2px 12px rgba(30,60,120,0.08), 0 1px 3px rgba(30,60,120,0.05) !important;
+  height: 100% !important;
+  flex: 1 !important;
+}
+
+.sched-left-panel .rs-panel-body {
+  flex: 1 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  height: 100% !important;
+}
+
+.sched-left-panel .rs-panel-heading {
+  background: #fff !important;
+  border-bottom: 1px solid #eef2f8 !important;
+  padding: 8px 16px !important;
+  border-radius: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.sched-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+  padding: 0;
+}
+
+/* ── TABS ────────────────────────────────────────────– */
+.sched-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 6px;
+  margin: 4px 0 4px 0;
+  border-bottom: 2px solid #eef2f8;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.sched-tab {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--t3);
+  padding: 4px 12px 6px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.sched-tab:hover { 
+  color: var(--accent); 
+}
+
+.sched-tab.active {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.sched-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* ── TABLE HEAD ──────────────────────────────────────– */
+.sched-table-head {
+  display: grid;
+  grid-template-columns: 26px 2.2fr 70px 55px 100px 55px 1.2fr 70px 110px 40px;
+  gap: 6px;
+  padding: 6px 6px;
+  border-bottom: 1px solid #eef2f8;
+  flex-shrink: 0;
+}
+
+.sched-table-head span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ── TABLE BODY ──────────────────────────────────────– */
+.sched-table-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  padding: 0 6px;
+  scroll-behavior: smooth;
+}
+
+.sched-table-body::-webkit-scrollbar { 
+  width: 6px; 
+}
+
+.sched-table-body::-webkit-scrollbar-track { 
+  background: transparent; 
+  margin: 5px 0;
+}
+
+.sched-table-body::-webkit-scrollbar-thumb { 
+  background: #4a6cf7;
+  border-radius: 3px;
+  min-height: 40px;
+}
+
+.sched-table-body::-webkit-scrollbar-thumb:hover { 
+  background: #2d4bbb;
+}
+
+.sched-table-body::-webkit-scrollbar-thumb:active {
+  background: #1f3a8a;
+}
+
+.sched-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+}
+
+/* ── ROW ─────────────────────────────────────────────– */
+.sched-row {
+  display: grid;
+  grid-template-columns: 26px 2.2fr 70px 55px 100px 55px 1.2fr 70px 110px 40px;
+  gap: 6px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid #f4f6fb;
+  transition: background 0.12s;
+  cursor: pointer;
+}
+
+.sched-row:hover { 
+  background: #f8faff; 
+}
+
+.sched-row-sel { 
+  background: #f0f5ff !important; 
+  border-left: 3px solid var(--accent);
+  padding-left: -3px;
+}
+
+.sc-num  { 
+  font-size: 11.5px; 
+  color: var(--t3); 
+  font-weight: 500; 
+}
+
+.sc-id   { 
+  font-size: 12px;   
+  color: var(--t2); 
+  font-weight: 500; 
+}
+
+.sc-task { 
+  font-size: 12px;   
+  color: var(--t1); 
+  font-weight: 600; 
+  text-align: center; 
+}
+
+.sc-total { 
+  font-size: 12px;   
+  color: var(--t1); 
+  font-weight: 600; 
+  text-align: center; 
+}
+
+.sc-missed { 
+  font-size: 12px;  
+  color: var(--red); 
+  font-weight: 700; 
+  text-align: center; 
+}
+
+/* Employee cell */
+.sc-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.emp-info { 
+  display: flex; 
+  flex-direction: column; 
+}
+
+.emp-name  { 
+  font-size: 12.5px; 
+  font-weight: 600; 
+  color: var(--t1); 
+  line-height: 1.2; 
+}
+
+.emp-login { 
+  font-size: 10.5px; 
+  color: var(--t3); 
+}
+
+/* Trip type pill */
+.sc-type { 
+  display: flex; 
+  align-items: center; 
+}
+
+/* Progress bar */
+.sc-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.trip-lbl {
+  font-size: 11px;
+  color: var(--t2);
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 35px;
+}
+
+/* Status badge */
+.sc-badge { 
+  display: flex; 
+  align-items: center; 
+}
+
+/* Open button */
+.sc-act { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+.open-btn {
+  background: #e8f0ff !important;
+  color: var(--accent) !important;
+}
+
+.open-btn:hover {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+
+/* ── RIGHT SIDEBAR ───────────────────────────────────– */
+.sched-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Mini Calendar specific height - fixed */
+.sched-right > :first-child {
+  flex-shrink: 0;
+  height: auto;
+  max-height: none;
+}
+
+/* Efficient Employees panel takes remaining space */
+.sched-right > :last-child {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+}
+
+/* ── EFFICIENT EMPLOYEES PANEL ───────────────────────– */
+.eff-emp-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+  border: 1px solid rgba(220,230,245,0.7) !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  box-shadow: 0 2px 12px rgba(30,60,120,0.08), 0 1px 3px rgba(30,60,120,0.05) !important;
+  flex: 1 !important;
+  height: auto !important;
+}
+
+.eff-emp-panel .rs-panel-body {
+  flex: 1 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+}
+
+.eff-emp-panel .rs-panel-heading {
+  background: #fff !important;
+  border-bottom: 1px solid #eef2f8 !important;
+  padding: 10px 16px !important;
+  border-radius: 0 !important;
+}
+
+.eff-header-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  width: 100%;
 }
 
 .eff-title {
@@ -20,27 +353,55 @@
   color: var(--t1);
 }
 
-.eff-more {
-  border: none;
-  background: none;
-  font-size: 11.5px;
-  color: var(--accent);
-  cursor: pointer;
-  font-weight: 500;
-  padding: 0;
+/* ── LIST WRAPPER ────────────────────────────────────– */
+.eff-list-wrapper {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 8px 16px;
 }
-.eff-more:hover { text-decoration: underline; }
 
+.eff-list-wrapper.eff-list-expanded {
+  overflow-y: auto;
+}
+
+/* ── LIST ────────────────────────────────────────────– */
 .eff-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  padding-bottom: 4px;
 }
 
+.eff-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.eff-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.eff-list::-webkit-scrollbar-thumb {
+  background: #4a6cf7;
+  border-radius: 3px;
+}
+
+.eff-list::-webkit-scrollbar-thumb:hover {
+  background: #2d4bbb;
+}
+
+/* ── ROW ─────────────────────────────────────────────– */
 .eff-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 3px 0;
+  min-height: 32px;
 }
 
 .eff-rank {
@@ -51,66 +412,70 @@
   flex-shrink: 0;
 }
 
-.eff-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
 .eff-info {
   display: flex;
   flex-direction: column;
   min-width: 52px;
+  flex-shrink: 0;
 }
 
 .eff-name {
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--t1);
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .eff-id {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--t3);
+  line-height: 1;
 }
 
 .eff-bar-wrap {
   flex: 1;
-}
-
-.eff-bar-track {
-  height: 5px;
-  background: #e8edf6;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.eff-bar-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 3px;
-  transition: width 0.4s ease;
+  min-width: 0;
 }
 
 .eff-score {
   font-size: 11px;
   font-weight: 700;
-  color: var(--t2);
+  color: var(--t1);
   white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ── FOOTER ──────────────────────────────────────────– */
+/* Removed - button now in header */
+
+.eff-see-more-btn {
+  font-size: 12px !important;
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+  padding: 6px 12px !important;
+  margin-left: auto !important;
+  background: transparent !important;
+  border: 1px solid var(--accent) !important;
+  cursor: pointer !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+.eff-see-more-btn:hover {
+  background: var(--accent) !important;
+  color: #fff !important;
+  text-decoration: none !important;
 }
 
 .eff-loading {
   font-size: 12px;
   color: var(--t3);
   text-align: center;
-  padding: 12px 0;
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
 }

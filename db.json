@@ -2450,7 +2450,6 @@
   ],
   "masterTrips": [
     {
-      "id": 1,
       "tripName": "Morning Patrol Route",
       "tripType": "Round",
       "mobile": "9876543210",
@@ -2459,6 +2458,7 @@
       "employeeRoll": "Guard",
       "zone": "Zone A",
       "location": "Main Gate",
+      "id": 1,
       "tags": [
         "Fill",
         "Yes/No",

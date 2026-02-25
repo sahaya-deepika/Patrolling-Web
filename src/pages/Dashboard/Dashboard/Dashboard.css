@@ -17,7 +17,6 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  padding: 4px;        /* ← add this so shadow isn't clipped at edges */
   box-sizing: border-box;
 }
 
@@ -26,28 +25,35 @@
   gap: 12px;
   width: 100%;
   min-height: 0;
+  box-sizing: border-box;
 }
-.dash-row-top { height: 215px; flex-shrink: 0; }
-.dash-row-bot { flex: 1; min-height: 0; overflow: hidden; }
+
+.dash-row-top {
+  height: 215px;
+  flex-shrink: 0;
+}
+
+.dash-row-bot {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
 
 .dash-col {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow: visible;  /* ← change from hidden to visible */
+  overflow: hidden;
+  border-radius: 14px; /* matches card radius so col clips AT the card edge, not inside it */
 }
 
-/*
-  FIX: Was 58% + 42% = 100%, but flex gap: 12px adds extra space,
-  causing total width to overflow by 12px. The right column got
-  clipped by the parent overflow:hidden, cutting off its right
-  border-radius. Use flex shorthand without fixed max-width so
-  flex handles distribution correctly within the gap.
-*/
 .dash-col-left  { flex: 58 0 0%; }
 .dash-col-right { flex: 42 0 0%; }
 
-.dash-col > * { flex: 1; min-height: 0; }
+.dash-col > * {
+  flex: 1;
+  min-height: 0;
+}
 
 @media (max-width: 900px) {
   .dash-row { flex-wrap: wrap; height: auto !important; }

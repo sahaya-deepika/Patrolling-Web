@@ -3,32 +3,42 @@
    ══════════════════════════════════════════════════════ */
 
 .sched-card {
-  overflow-x: hidden !important;
-  overflow-y: auto   !important;
+  overflow: hidden !important;   /* card stays clipped → border-radius shows on all 4 corners */
   padding-bottom: 0 !important;
 }
 
-/* ── TABLE WRAPPER ───────────────────────────────────── */
+/* ── TABLE WRAPPER — this is what scrolls, not the card ── */
 .sched-table-wrap {
   width: 100%;
-  overflow: visible;        /* let header breathe, not get clipped */
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;              /* scroll lives inside the card boundary */
   box-sizing: border-box;
+}
+
+/* Custom scrollbar — thin and inside the card */
+.sched-table-wrap::-webkit-scrollbar {
+  width: 4px;
+}
+.sched-table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sched-table-wrap::-webkit-scrollbar-thumb {
+  background: #d0daf0;
+  border-radius: 4px;
 }
 
 /* ── RSUITE TABLE ────────────────────────────────────── */
 .sched-table-wrap .rs-table {
   width: 100% !important;
   max-width: 100% !important;
-  overflow: visible !important;
 }
 
-/* Kill horizontal scroll */
+/* Kill horizontal scroll surfaces RSuite creates */
 .sched-table-wrap .rs-table-body-row-wrapper,
 .sched-table-wrap .rs-table-body-wheel-area {
   overflow-x: hidden !important;
-}
-.sched-table-wrap .rs-table-header-row-wrapper {
-  overflow: visible !important;   /* do NOT clip header */
 }
 .sched-table-wrap .rs-table-scrollbar-horizontal,
 .sched-table-wrap .rs-table-scroll-bar-horizontal {
@@ -37,6 +47,7 @@
 
 /* ── HEADER ROW ──────────────────────────────────────── */
 .sched-table-wrap .rs-table-header-row-wrapper {
+  overflow: visible !important;
   border-bottom: 1.5px solid #f0f4fb !important;
   background: #fff !important;
   position: relative !important;
