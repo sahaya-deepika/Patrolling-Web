@@ -1,2 +1,116 @@
-.filter-bar { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 11px; padding: 0 14px; height: 44px; box-shadow: var(--sh); flex-shrink: 0; gap: 8px; width: 100%; overflow: hidden; }
-.fb-left, .fb-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+:root {
+    --filter-bar-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+    --filter-bar-bg: #1a1e2e;
+}
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--filter-bar-bg);
+    border-radius: 11px;
+    padding: 0 14px;
+    height: 44px;
+    box-shadow: var(--sh);
+    flex-shrink: 0;
+    gap: 8px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.fb-left,
+.fb-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+:root {
+    --filter-bar-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+    --filter-bar-bg: #1a1e2e;
+}
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--filter-bar-bg);
+    border-radius: 11px;
+    padding: 0 14px;
+    height: 44px;
+    box-shadow: var(--sh);
+    flex-shrink: 0;
+    gap: 8px;
+    width: 100%;
+    overflow: visible;
+}
+
+.fb-left,
+.fb-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Auto-refresh button styles */
+.refresh-btn {
+    background-color: transparent !important;
+    color: var(--t2) !important;
+    border: 1px solid transparent !important;
+    transition: all 0.3s ease !important;
+}
+
+.refresh-btn:hover {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="dark"] .refresh-btn:hover {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.refresh-btn.active {
+    background-color: var(--accent) !important;
+    color: #fff !important;
+    animation: spin 2s linear infinite;
+}
+
+.refresh-btn.active:hover {
+    opacity: 0.9;
+    background-color: var(--accent) !important;
+}
+
+/* Spin animation for active refresh */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+/* ── Compact DatePicker — force fixed width ─────────── */
+.filter-bar .rs-picker-date {
+  width: 80px !important;
+}
+.filter-bar .rs-picker-date .rs-picker-toggle {
+  width: 80px !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+  height: 28px !important;
+}
+.filter-bar .rs-picker-date .rs-picker-toggle-value {
+  font-size: 11px !important;
+}
+.filter-bar .rs-picker-date .rs-picker-toggle-caret {
+  right: 6px !important;
+  font-size: 12px !important;
+}

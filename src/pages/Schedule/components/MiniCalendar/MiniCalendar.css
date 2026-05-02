@@ -1,33 +1,52 @@
 /* ── Card shell ─────────────────────────────────────── */
 .mini-cal {
-  background: #fff;
+  background: var(--panel-bg, #fff);
   border-radius: 14px;
   padding: 10px 12px;
-  box-shadow: 0 2px 12px rgba(30,60,120,0.08), 0 1px 3px rgba(30,60,120,0.05);
-  border: 1px solid rgba(220,230,245,0.7);
+  box-shadow: 0 2px 12px rgba(30, 60, 120, 0.08), 0 1px 3px rgba(30, 60, 120, 0.05);
+  border: 1px solid rgba(220, 230, 245, 0.7);
   width: 100%;
-  /* position:relative so the absolute dropdown anchors here */
   position: relative;
+  box-sizing: border-box;
 }
 
-/* ── Top row ────────────────────────────────────────── */
+/* ── Top row ─────────────────────────────────────────── */
 .mc-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
 }
-.mc-today-info { display: flex; flex-direction: column; }
-.mc-today-label { font-size: 10px; color: var(--t3); }
-.mc-today-date  { font-size: 13px; font-weight: 700; color: var(--t1); }
-.mc-nav-arrows  { display: flex; gap: 2px; }
 
-/* ── Week strip ─────────────────────────────────────── */
+.mc-today-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-today-label {
+  font-size: 10px;
+  color: var(--t3, #9bacc4);
+}
+
+.mc-today-date {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1, #1a2535);
+}
+
+.mc-nav-arrows {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Week strip ──────────────────────────────────────── */
 .mc-week-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 3px;
 }
+
 .mc-week-cell {
   display: flex;
   flex-direction: column;
@@ -37,73 +56,221 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.mc-week-cell:hover { background: #eef4ff; }
-.mc-dn  { font-size: 9px;  font-weight: 600; color: var(--t3); }
-.mc-day { font-size: 12px; font-weight: 600; color: var(--t1); }
 
-.mc-today { background: var(--accent); }
+.mc-week-cell:hover {
+  background: #eef4ff;
+}
+
+.mc-dn {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--t3, #9bacc4);
+}
+
+.mc-day {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t1, #1a2535);
+}
+
+.mc-today {
+  background: var(--accent, #4a6cf7);
+}
+
 .mc-today .mc-dn,
-.mc-today .mc-day { color: #fff; }
+.mc-today .mc-day {
+  color: #fff;
+}
 
-.mc-sel { background: #e8f0ff; }
-.mc-sel .mc-day { color: var(--accent); }
+.mc-sel {
+  background: #e8f0ff;
+}
 
-/* ── Expanded full calendar — floats over content below ── */
+.mc-sel .mc-dn {
+  color: var(--accent, #4a6cf7);
+}
+
+.mc-sel .mc-day {
+  color: var(--accent, #4a6cf7);
+  font-weight: 700;
+}
+
+/* ── Expanded dropdown ───────────────────────────────── */
 .mc-full-calendar {
   position: absolute;
-  top: calc(100% + 6px);   /* sits just below the card */
+  top: calc(100% + 6px);
   left: 0;
   right: 0;
   z-index: 999;
-  background: #fff;
+  background: var(--panel-bg, #fff);
   border-radius: 12px;
-  border: 1px solid rgba(220,230,245,0.9);
-  box-shadow: 0 8px 32px rgba(30,60,120,0.14), 0 2px 8px rgba(30,60,120,0.08);
+  border: 1px solid rgba(220, 230, 245, 0.9);
+  box-shadow: 0 8px 32px rgba(30, 60, 120, 0.14), 0 2px 8px rgba(30, 60, 120, 0.08);
   overflow: hidden;
-  padding: 4px;
 }
 
-/* ── Compact RSuite Calendar overrides ──────────────── */
-.mc-full-calendar .rs-calendar {
-  padding: 0 !important;
+/* ── RSuite Calendar overrides ───────────────────────── */
+.mc-rs-cal-wrap {
+  padding: 4px 4px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mc-rs-cal-wrap .rs-calendar {
   min-width: unset !important;
   width: 100% !important;
+  padding: 0 !important;
 }
-.mc-full-calendar .rs-calendar-header {
-  padding: 4px 2px 2px !important;
+
+.mc-rs-cal-wrap .rs-calendar-header {
+  padding: 4px 6px 2px !important;
 }
-.mc-full-calendar .rs-calendar-header-title {
+
+.mc-rs-cal-wrap .rs-calendar-header-title {
   font-size: 12px !important;
   font-weight: 700 !important;
 }
-.mc-full-calendar .rs-calendar-header-backward,
-.mc-full-calendar .rs-calendar-header-forward {
-  padding: 2px !important;
+
+.mc-rs-cal-wrap .rs-calendar-table-row {
+  height: 30px !important;
 }
-.mc-full-calendar .rs-calendar-table {
-  padding: 0 !important;
-}
-.mc-full-calendar .rs-calendar-table-row {
-  height: 28px !important;
-}
-.mc-full-calendar .rs-calendar-table-cell {
+
+.mc-rs-cal-wrap .rs-calendar-table-cell {
   padding: 1px !important;
 }
-.mc-full-calendar .rs-calendar-table-cell-content {
-  width: 26px !important;
-  height: 26px !important;
-  font-size: 11px !important;
+
+.mc-rs-cal-wrap .rs-calendar-table-cell-content {
+  width: 28px !important;
+  height: 28px !important;
+  font-size: 11.5px !important;
   padding: 0 !important;
-  line-height: 26px !important;
+  line-height: 28px !important;
   border-radius: 6px !important;
 }
-.mc-full-calendar .rs-calendar-table-header-row {
+
+.mc-rs-cal-wrap .rs-calendar-table-header-row {
   height: 22px !important;
 }
-.mc-full-calendar .rs-calendar-table-header-cell-content {
+
+.mc-rs-cal-wrap .rs-calendar-table-header-cell-content {
   font-size: 10px !important;
   font-weight: 600 !important;
-  padding: 2px 0 !important;
   height: 22px !important;
   line-height: 22px !important;
+  padding: 0 !important;
+}
+
+/* Selected cell highlight via :has() dot trick */
+.mc-rs-cal-wrap .rs-calendar-table-cell:has(.mc-cal-sel-dot) .rs-calendar-table-cell-content {
+  background: var(--accent, #4a6cf7) !important;
+  color: #fff !important;
+}
+
+/* The invisible dot that triggers :has() */
+.mc-cal-sel-dot {
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  position: absolute;
+  pointer-events: none;
+}
+
+/* ── Footer ──────────────────────────────────────────── */
+.mc-cal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px 8px;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mc-shortcuts {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.mc-sh-btn.rs-btn {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--accent, #4a6cf7) !important;
+  padding: 3px 8px !important;
+  height: auto !important;
+  border-radius: 6px !important;
+}
+
+.mc-sh-btn.rs-btn:hover {
+  background: #ebf2ff !important;
+}
+
+.mc-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* ── Action buttons (OK/Cancel) ─────────────────────── */
+.mc-action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f8fafc;
+}
+
+.mc-action-buttons .rs-btn {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 6px 16px !important;
+  height: auto !important;
+  border-radius: 6px !important;
+}
+
+.mc-action-buttons .rs-btn-primary {
+  background: var(--accent, #4a6cf7) !important;
+  border-color: var(--accent, #4a6cf7) !important;
+}
+
+.mc-action-buttons .rs-btn-primary:hover:not(:disabled) {
+  background: #2d4bbb !important;
+  border-color: #2d4bbb !important;
+}
+
+.mc-action-buttons .rs-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mc-action-buttons .rs-btn-subtle {
+  color: var(--t2, #5a6f8f) !important;
+}
+
+.mc-action-buttons .rs-btn-subtle:hover {
+  background: #e8ecf2 !important;
+}
+
+/* ── Dark mode ───────────────────────────────────────── */
+[data-theme="dark"] .mini-cal {
+  background: var(--panel-bg, #1a1e2e);
+  border-color: rgba(60, 80, 120, 0.5);
+}
+
+[data-theme="dark"] .mc-week-cell:hover {
+  background: #1e2a45;
+}
+
+[data-theme="dark"] .mc-sel {
+  background: #1e2a45;
+}
+
+[data-theme="dark"] .mc-full-calendar {
+  background: var(--panel-bg, #1a1e2e);
+  border-color: rgba(60, 80, 120, 0.6);
+}
+
+[data-theme="dark"] .mc-action-buttons {
+  background: #151929;
 }

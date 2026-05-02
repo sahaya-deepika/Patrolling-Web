@@ -1,138 +1,122 @@
-/* ══════════════════════════════════════════════════════
-   TODAY SCHEDULED
-   ══════════════════════════════════════════════════════ */
-
-.sched-card {
-  overflow: hidden !important;   /* card stays clipped → border-radius shows on all 4 corners */
-  padding-bottom: 0 !important;
+/* ── DARK MODE VARIABLES ─────────────────────────────── */
+:root {
+  --sched-header-bg:    #ffffff;
+  --sched-header-border:#f0f4fb;
+  --sched-header-color: #a0aec0;
+  --sched-row-border:   #f5f7fb;
+  --sched-row-hover:    #f7faff;
+  --sched-scrollbar:    #d0daf0;
+  --name-main-color:    #1a2535;
+  --name-sub-color:     #9aaec4;
+  --prog-txt-color:     #6b7c99;
+}
+[data-theme="dark"] {
+  --sched-header-bg:    #1e1e2e;
+  --sched-header-border:#2e2e42;
+  --sched-header-color: #6b7c99;
+  --sched-row-border:   #252535;
+  --sched-row-hover:    #25253a;
+  --sched-scrollbar:    #3a3a55;
+  --name-main-color:    #e2e8f0;
+  --name-sub-color:     #6b7c99;
+  --prog-txt-color:     #6b7c99;
 }
 
-/* ── TABLE WRAPPER — this is what scrolls, not the card ── */
+/* ── Card ────────────────────────────────────────────── */
+.sched-card {
+  overflow: hidden !important;
+  padding-bottom: 0 !important;
+  gap: 4px !important;
+}
+
+/* ── Table wrapper — fills remaining card height ─────── */
 .sched-table-wrap {
   width: 100%;
   flex: 1;
   min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;              /* scroll lives inside the card boundary */
+  overflow: hidden;
   box-sizing: border-box;
 }
 
-/* Custom scrollbar — thin and inside the card */
-.sched-table-wrap::-webkit-scrollbar {
-  width: 4px;
-}
-.sched-table-wrap::-webkit-scrollbar-track {
-  background: transparent;
-}
-.sched-table-wrap::-webkit-scrollbar-thumb {
-  background: #d0daf0;
-  border-radius: 4px;
-}
-
-/* ── RSUITE TABLE ────────────────────────────────────── */
+/* ── RSuite Table base ───────────────────────────────── */
 .sched-table-wrap .rs-table {
   width: 100% !important;
   max-width: 100% !important;
 }
 
-/* Kill horizontal scroll surfaces RSuite creates */
-.sched-table-wrap .rs-table-body-row-wrapper,
+/* Hide ALL scrollbars — vertical + horizontal ────────── */
+.sched-table-wrap .rs-table-scrollbar,
+.sched-table-wrap .rs-table-scrollbar-vertical,
+.sched-table-wrap .rs-table-scrollbar-horizontal,
+.sched-table-wrap .rs-table-scroll-bar-vertical,
+.sched-table-wrap .rs-table-scroll-bar-horizontal {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Also hide native scrollbar on the body wrapper */
+.sched-table-wrap .rs-table-body-row-wrapper {
+  overflow: hidden !important;
+  scrollbar-width: none !important;   /* Firefox */
+}
+.sched-table-wrap .rs-table-body-row-wrapper::-webkit-scrollbar {
+  display: none !important;           /* Chrome/Safari */
+  width: 0 !important;
+}
 .sched-table-wrap .rs-table-body-wheel-area {
   overflow-x: hidden !important;
 }
-.sched-table-wrap .rs-table-scrollbar-horizontal,
-.sched-table-wrap .rs-table-scroll-bar-horizontal {
-  display: none !important;
-}
 
-/* ── HEADER ROW ──────────────────────────────────────── */
+/* ── Header ──────────────────────────────────────────── */
 .sched-table-wrap .rs-table-header-row-wrapper {
-  overflow: visible !important;
-  border-bottom: 1.5px solid #f0f4fb !important;
-  background: #fff !important;
+  border-bottom: 1.5px solid var(--sched-header-border) !important;
+  background: var(--sched-header-bg) !important;
   position: relative !important;
   z-index: 5 !important;
 }
-
-/* Strip background at every level RSuite paints it */
-.sched-table-wrap .rs-table-cell-header {
-  background: #fff !important;
-}
+.sched-table-wrap .rs-table-cell-header,
 .sched-table-wrap .rs-table-cell-header .rs-table-cell {
-  background: #fff !important;
+  background: var(--sched-header-bg) !important;
 }
 .sched-table-wrap .rs-table-cell-header .rs-table-cell-content {
-  background: #fff !important;
+  background: var(--sched-header-bg) !important;
   font-size: 11px !important;
   font-weight: 500 !important;
-  color: #a0aec0 !important;
+  color: var(--sched-header-color) !important;
   letter-spacing: 0.1px !important;
   padding: 0 6px !important;
   display: flex !important;
   align-items: center !important;
 }
 
-/* ── BODY CELLS ──────────────────────────────────────── */
+/* ── Body cells ──────────────────────────────────────── */
 .sched-table-wrap .rs-table-cell-content {
   padding: 6px 6px !important;
   display: flex !important;
   align-items: center !important;
   overflow: hidden !important;
 }
-
-/* Row separator */
 .sched-table-wrap .rs-table-row {
-  border-bottom: 1px solid #f5f7fb !important;
+  border-bottom: 1px solid var(--sched-row-border) !important;
 }
-
-/* Row hover */
 .sched-table-wrap .rs-table-row:hover .rs-table-cell {
-  background: #f7faff !important;
+  background: var(--sched-row-hover) !important;
+}
+.sched-table-row-selected .rs-table-cell {
+  background: #eff6ff !important;
 }
 
-/* ── PROGRESS CELL ───────────────────────────────────── */
-.prog-cell {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  overflow: hidden;
-  width: 100%;
+/* ── Action button ───────────────────────────────────── */
+.open-btn.rs-btn {
+  background: transparent !important;
+  color: #6b7c99 !important;
+  border: none !important;
+  box-shadow: none !important;
 }
-
-.prog-txt {
-  font-size: 11px;
-  color: #6b7c99;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.prog-cell .rs-progress-line {
-  padding: 0 !important;
-  flex: 1 !important;
-  min-width: 30px !important;
-}
-
-.prog-cell .rs-progress-line-bg {
-  height: 4px !important;
-}
-
-/* ── NAME CELL ───────────────────────────────────────── */
-.name-main {
-  font-weight: 700;
-  font-size: 12.5px;
-  color: #1a2535;
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.name-sub {
-  font-size: 10px;
-  color: #9aaec4;
-  line-height: 1.4;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.open-btn.rs-btn:hover {
+  color: #3b7ff5 !important;
+  background: #f0f6ff !important;
 }
