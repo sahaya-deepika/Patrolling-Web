@@ -1,21 +1,21 @@
-const BASE =  'http://194.238.18.68:5045/api/web/v1'
+const BASE = 'http://194.238.18.68:5045/api/web/v1'
 console.log('[api.js] ✅ LOADED — getZones uses zone/view directly')
 
 // ── GLOBAL AUTH STORE ─────────────────────────────────────────────────────────
 const _auth = {
   api_key: localStorage.getItem('api_key') || '',
-  e_id:    localStorage.getItem('e_id')    || import.meta.env.VITE_E_ID || '',
+  e_id: localStorage.getItem('e_id') || import.meta.env.VITE_E_ID || '',
 }
 
 export function setAuth({ api_key, e_id, ...rest }) {
   if (api_key) { _auth.api_key = api_key; localStorage.setItem('api_key', api_key) }
-  if (e_id)    { _auth.e_id    = e_id;    localStorage.setItem('e_id',    e_id)    }
+  if (e_id) { _auth.e_id = e_id; localStorage.setItem('e_id', e_id) }
   localStorage.setItem('authUser', JSON.stringify({ api_key, e_id, ...rest }))
 }
 
-function getAuth() {
+export function getAuth() {
   let stored = {}
-  try { stored = JSON.parse(localStorage.getItem('authUser') || '{}') } catch {}
+  try { stored = JSON.parse(localStorage.getItem('authUser') || '{}') } catch { }
   const api_key =
     _auth.api_key ||
     localStorage.getItem('api_key') ||
@@ -73,8 +73,8 @@ async function getAll(endpoint) {
 async function fetchOne(endpoint, filters) {
   const all = await getAll(endpoint)
   const match = all.find(row => {
-    const unitMatch  = row.unit === filters.unit
-    const dateMatch  = row.date === filters.date
+    const unitMatch = row.unit === filters.unit
+    const dateMatch = row.date === filters.date
     const shiftMatch = !filters.shift || row.shift === filters.shift
     return unitMatch && dateMatch && shiftMatch
   })
@@ -85,8 +85,8 @@ async function fetchOne(endpoint, filters) {
 async function fetchMany(endpoint, filters) {
   const all = await getAll(endpoint)
   return all.filter(row => {
-    const unitMatch  = row.unit === filters.unit
-    const dateMatch  = row.date === filters.date
+    const unitMatch = row.unit === filters.unit
+    const dateMatch = row.date === filters.date
     const shiftMatch = !filters.shift || row.shift === filters.shift
     return unitMatch && dateMatch && shiftMatch
   })
@@ -107,9 +107,9 @@ async function getMany(endpoint) {
 
 async function postOne(endpoint, body) {
   const res = await fetch(`${BASE}/${endpoint}`, {
-    method:  'POST',
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body),
+    body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error(`Server error ${res.status} posting to ${endpoint}`)
   return res.json()
@@ -117,9 +117,9 @@ async function postOne(endpoint, body) {
 
 async function putOne(endpoint, id, body) {
   const res = await fetch(`${BASE}/${endpoint}/${id}`, {
-    method:  'PUT',
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body),
+    body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error(`Server error ${res.status} updating ${endpoint}/${id}`)
   return res.json()
@@ -127,9 +127,9 @@ async function putOne(endpoint, id, body) {
 
 async function patchOne(endpoint, id, body) {
   const res = await fetch(`${BASE}/${endpoint}/${id}`, {
-    method:  'PATCH',
+    method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body),
+    body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error(`Server error ${res.status} patching ${endpoint}/${id}`)
   return res.json()
@@ -162,9 +162,9 @@ function datesBetween(start, end) {
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
-export const fetchTripStats        = f => fetchOne('tripStats',       f)
-export const fetchAttendanceStats  = f => fetchOne('attendanceStats', f)
-export const fetchTodayStats       = f => fetchOne('todayStats',      f)
+export const fetchTripStats = f => fetchOne('tripStats', f)
+export const fetchAttendanceStats = f => fetchOne('attendanceStats', f)
+export const fetchTodayStats = f => fetchOne('todayStats', f)
 export const fetchTodayStatsByDate = async (date) => {
   const all = await getAll('todayStats')
   return all.filter(row => row.date === date)
@@ -180,12 +180,12 @@ export async function fetchTripStatsRange(filters) {
     throw new Error(`No data found for ${unit} between ${dateStart} and ${dateEnd}`)
   const totals = rows.reduce(
     (acc, r) => ({
-      allTrips:  acc.allTrips  + (r.allTrips  ?? 0),
+      allTrips: acc.allTrips + (r.allTrips ?? 0),
       completed: acc.completed + (r.completed ?? 0),
-      missed:    acc.missed    + (r.missed    ?? 0),
-      ontime:    acc.ontime    + (r.ontime    ?? 0),
-      late:      acc.late      + (r.late      ?? 0),
-      _effSum:   acc._effSum   + (r.efficiency ?? 0) * (r.allTrips ?? 0),
+      missed: acc.missed + (r.missed ?? 0),
+      ontime: acc.ontime + (r.ontime ?? 0),
+      late: acc.late + (r.late ?? 0),
+      _effSum: acc._effSum + (r.efficiency ?? 0) * (r.allTrips ?? 0),
     }),
     { allTrips: 0, completed: 0, missed: 0, ontime: 0, late: 0, _effSum: 0 }
   )
@@ -194,23 +194,23 @@ export async function fetchTripStatsRange(filters) {
 }
 
 // ── SCHEDULE PAGE ─────────────────────────────────────────────────────────────
-export const fetchScheduleList        = f  => fetchMany('schedule',          f)
-export const fetchTripDetails         = id => fetchById('tripDetails',        id)
-export const fetchTripDetailByFilters = f  => fetchOne ('tripDetails',        f)
-export const fetchEfficientEmployees  = f  => fetchOne ('efficientEmployees', f)
+export const fetchScheduleList = f => fetchMany('schedule', f)
+export const fetchTripDetails = id => fetchById('tripDetails', id)
+export const fetchTripDetailByFilters = f => fetchOne('tripDetails', f)
+export const fetchEfficientEmployees = f => fetchOne('efficientEmployees', f)
 
 // ── ATTENDANCE PAGE ───────────────────────────────────────────────────────────
-export const fetchAttendanceList           = f  => fetchOne ('attendanceList',           f)
+export const fetchAttendanceList = f => fetchOne('attendanceList', f)
 export const fetchEmployeeAttendanceDetail = id => fetchById('employeeAttendanceDetail', id)
-export const fetchPunctualEmployees        = f  => fetchOne ('punctualEmployees',        f)
+export const fetchPunctualEmployees = f => fetchOne('punctualEmployees', f)
 
 // ── MASTER FORM — USERS ───────────────────────────────────────────────────────
-export const getUsers    = ()      => getMany('users')
-export const getUserById = (id)    => fetchById('users', id)
-export const createUser  = (body)  => postOne('users', body)
-export const updateUser  = (id, b) => putOne('users', id, b)
-export const patchUser   = (id, b) => patchOne('users', id, b)
-export const deleteUser  = (id)    => deleteOne('users', id)
+export const getUsers = () => getMany('users')
+export const getUserById = (id) => fetchById('users', id)
+export const createUser = (body) => postOne('user/create', body)
+export const updateUser = (id, b) => putOne('user/update', id, b)
+export const patchUser = (id, b) => patchOne('user/update', id, b)
+export const deleteUser = (id) => deleteOne('user/delete', id)
 
 export async function getEmployeeNames() {
   const all = await getAll('attendanceList')
@@ -224,44 +224,44 @@ export async function getEmployeeNames() {
 }
 
 // ── MASTER FORM — LOCATIONS ───────────────────────────────────────────────────
-export const getLocations    = ()      => getMany('locations')
-export const getLocationById = (id)    => fetchById('locations', id)
-export const createLocation  = (body)  => postOne('locations', body)
-export const updateLocation  = (id, b) => putOne('locations', id, b)
-export const patchLocation   = (id, b) => patchOne('locations', id, b)
-export const deleteLocation  = (id)    => deleteOne('locations', id)
+export const getLocations = () => getMany('locations')
+export const getLocationById = (id) => fetchById('locations', id)
+export const createLocation = (body) => postOne('locations', body)
+export const updateLocation = (id, b) => putOne('locations', id, b)
+export const patchLocation = (id, b) => patchOne('locations', id, b)
+export const deleteLocation = (id) => deleteOne('locations', id)
 
 // ── MASTER FORM — SCHEDULES ───────────────────────────────────────────────────
-export const getSchedules    = ()      => getMany('masterSchedules')
-export const getScheduleById = (id)    => fetchById('masterSchedules', id)
-export const createSchedule  = (body)  => postOne('masterSchedules', body)
-export const updateSchedule  = (id, b) => putOne('masterSchedules', id, b)
-export const patchSchedule   = (id, b) => patchOne('masterSchedules', id, b)
-export const deleteSchedule  = (id)    => deleteOne('masterSchedules', id)
+export const getSchedules = () => getMany('masterSchedules')
+export const getScheduleById = (id) => fetchById('masterSchedules', id)
+export const createSchedule = (body) => postOne('masterSchedules', body)
+export const updateSchedule = (id, b) => putOne('masterSchedules', id, b)
+export const patchSchedule = (id, b) => patchOne('masterSchedules', id, b)
+export const deleteSchedule = (id) => deleteOne('masterSchedules', id)
 
 // ── MASTER FORM — TASKS ───────────────────────────────────────────────────────
-export const getTasks    = ()      => getMany('tasks')
-export const getTaskById = (id)    => fetchById('tasks', id)
-export const createTask  = (body)  => postOne('tasks', body)
-export const updateTask  = (id, b) => putOne('tasks', id, b)
-export const patchTask   = (id, b) => patchOne('tasks', id, b)
-export const deleteTask  = (id)    => deleteOne('tasks', id)
+export const getTasks = () => getMany('tasks')
+export const getTaskById = (id) => fetchById('tasks', id)
+export const createTask = (body) => postOne('tasks', body)
+export const updateTask = (id, b) => putOne('tasks', id, b)
+export const patchTask = (id, b) => patchOne('tasks', id, b)
+export const deleteTask = (id) => deleteOne('tasks', id)
 
 // ── MASTER FORM — TRIPS ───────────────────────────────────────────────────────
-export const getTrips    = ()      => getMany('masterTrips')
-export const getTripById = (id)    => fetchById('masterTrips', id)
-export const createTrip  = (body)  => postOne('masterTrips', body)
-export const updateTrip  = (id, b) => putOne('masterTrips', id, b)
-export const patchTrip   = (id, b) => patchOne('masterTrips', id, b)
-export const deleteTrip  = (id)    => deleteOne('masterTrips', id)
+export const getTrips = () => getMany('masterTrips')
+export const getTripById = (id) => fetchById('masterTrips', id)
+export const createTrip = (body) => postOne('masterTrips', body)
+export const updateTrip = (id, b) => putOne('masterTrips', id, b)
+export const patchTrip = (id, b) => patchOne('masterTrips', id, b)
+export const deleteTrip = (id) => deleteOne('masterTrips', id)
 
 // ── OTHERS — EMPLOYEES ────────────────────────────────────────────────────────
-export const getEmployees    = ()      => getMany('employees')
-export const getEmployeeById = (id)    => fetchById('employees', id)
-export const createEmployee  = (body)  => postOne('employees', body)
-export const updateEmployee  = (id, b) => putOne('employees', id, b)
-export const patchEmployee   = (id, b) => patchOne('employees', id, b)
-export const deleteEmployee  = (id)    => deleteOne('employees', id)
+export const getEmployees = () => getMany('employees')
+export const getEmployeeById = (id) => fetchById('employees', id)
+export const createEmployee = (body) => postOne('employees', body)
+export const updateEmployee = (id, b) => putOne('employees', id, b)
+export const patchEmployee = (id, b) => patchOne('employees', id, b)
+export const deleteEmployee = (id) => deleteOne('employees', id)
 
 // ── MASTER FORM — DESIGNATIONS ────────────────────────────────────────────────
 export async function getDesignations() {
@@ -294,11 +294,16 @@ export async function getDesignations() {
   const res = await fetch(`${BASE}/designation/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      id: 0, name: 'all',
+      limit: 100, offset: 0,
+      e_id: auth.e_id, api_key: auth.api_key,
+    }),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch designations')
-  return parseRecords(data)
+  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+  return records.map(r => ({ id: r.id, designationName: str(r.name || r.designation_name || r.designationName) }))
 }
 
 export async function getDesignationById(id) {
@@ -404,12 +409,18 @@ export async function getDepartments() {
       district: '-', state: '-', country: 'india',
       zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
+    name: 'all', lat: '0', lon: '0',
+    adrs1: '-', adrs2: '-', city: '-',
+    district: '-', state: '-', country: 'india',
+    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+
+
     }),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch departments')
   const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
-  return records.map(r => ({ id: r.id, departmentName: str(r.name || r.department_name || r.departmentName) }))
+  return records.map(r => ({ id: r.value, departmentName: r.label }))
 }
 
 export async function getDepartmentById(id) {
@@ -562,18 +573,18 @@ export async function filterPatrolTypes(name = 'all') {
 function zoneFromRecord(r) {
   // zone/filter returns { value: id, label: name }
   // zone/view / zone/create / zone/update returns full shape
-  const id       = r.id      ?? r.value ?? null
+  const id = r.id ?? r.value ?? null
   const zoneFull = str(r.label || r.name || r.zone || r.l_name || r.s_name || '').trim()
 
-  const district = str(r.dist_name    || r.district || '')
-  const state    = str(r.state_name   || r.state    || '')
-  const country  = str(r.country_name || r.country  || '')
-  const pincode  = str(r.zipcode      || r.zip_code || '')
+  const district = str(r.dist_name || r.district || '')
+  const state = str(r.state_name || r.state || '')
+  const country = str(r.country_name || r.country || '')
+  const pincode = str(r.zipcode || r.zip_code || '')
 
   // Server returns adrs1/adrs2 (Postman confirmed) — also handle address_l1/l2
   const adrs1 = str(r.adrs1 || r.address_l1 || '')
   const adrs2 = str(r.adrs2 || r.address_l2 || '')
-  const city  = str(r.city  || '')
+  const city = str(r.city || '')
 
   // Clean coord: strip degree symbols/direction letters the server may echo back
   const cleanCoord = v => {
@@ -590,24 +601,24 @@ function zoneFromRecord(r) {
 
   return {
     id,
-    zoneNameLong : zoneFull,
+    zoneNameLong: zoneFull,
     zoneNameShort: str(r.s_name || r.code || ''),
-    zoneName     : zoneFull,
-    code         : str(r.code   || ''),
+    zoneName: zoneFull,
+    code: str(r.code || ''),
     lat,
     lng,
     liveAddress,
-    addressLine1 : adrs1,
-    addressLine2 : adrs2,
+    addressLine1: adrs1,
+    addressLine2: adrs2,
     city,
     district,
     state,
     country,
     pincode,
-    email        : str(r.mail    || r.email  || ''),
-    mobile       : str(r.mobile  || ''),
-    createdAt    : r.created_at,
-    updatedAt    : r.updated_at,
+    email: str(r.mail || r.email || ''),
+    mobile: str(r.mobile || ''),
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
   }
 }
 
@@ -624,27 +635,27 @@ function zoneToBody(form, auth, id = 0) {
     const s = str(v).replace(/[°NSEW\s]/gi, '').trim()
     return s || '0'
   }
-  const lat = cleanCoord(form.lat  || '0')
-  const lon = cleanCoord(form.lng  || form.lon || '0')
+  const lat = cleanCoord(form.lat || '0')
+  const lon = cleanCoord(form.lng || form.lon || '0')
 
   return {
     id,
-    limit   : '10',   // Postman sends as string
-    offset  : '0',    // Postman sends as string
+    limit: '10',   // Postman sends as string
+    offset: '0',    // Postman sends as string
     name,
     lat,
     lon,
-    adrs1   : str(form.addressLine1) || '-',
-    adrs2   : str(form.addressLine2) || '-',
-    city    : str(form.city)         || '-',
-    district: str(form.district)     || '-',
-    state   : str(form.state)        || '-',
-    country : str(form.country).toLowerCase() || 'india',
-    zipcode : str(form.pincode)      || '000000',
-    mail    : str(form.email)        || 'a@a.com',
-    mobile  : str(form.mobile)       || '0000000000',
-    e_id    : auth.e_id,
-    api_key : auth.api_key,
+    adrs1: str(form.addressLine1) || '-',
+    adrs2: str(form.addressLine2) || '-',
+    city: str(form.city) || '-',
+    district: str(form.district) || '-',
+    state: str(form.state) || '-',
+    country: str(form.country).toLowerCase() || 'india',
+    zipcode: str(form.pincode) || '000000',
+    mail: str(form.email) || 'a@a.com',
+    mobile: str(form.mobile) || '0000000000',
+    e_id: auth.e_id,
+    api_key: auth.api_key,
   }
 }
 
@@ -671,15 +682,15 @@ function zoneCache_delete(id) {
 function zoneCache_merge(stubs) {
   const cache = zoneCache_read()
   return stubs.map(stub => {
-    const id     = stub.value ?? stub.id
+    const id = stub.value ?? stub.id
     const cached = cache[String(id)]
     // Prefer cached (has full address/contact details from form save)
     // Always use the freshest name label from the stub
     if (cached) {
       const zone = zoneFromRecord({
         ...cached,
-        value : id,
-        label : stub.label ?? stub.name ?? cached.zoneName ?? '',
+        value: id,
+        label: stub.label ?? stub.name ?? cached.zoneName ?? '',
       })
       return zone
     }
@@ -701,21 +712,21 @@ export async function getZones() {
   const tryView = async (extraFields = {}) => {
     try {
       const res = await fetch(`${BASE}/zone/view`, {
-        method : 'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({
+        body: JSON.stringify({
           id: 0, limit: '100', offset: '0',
-          e_id: auth.e_id, api_key: auth.api_key,
+          e_id: auth.e_id, api_key: auth.api_key, userid: "1", "dsg": "manager",
           ...extraFields,
         }),
       })
       const data = await res.json()
-      console.log(data);
+
       if (!data.error && data.result) {
         let records = []
-        if      (Array.isArray(data.data?.records)) records = data.data.records
-        else if (Array.isArray(data.data))           records = data.data
-        else if (Array.isArray(data.records))        records = data.records
+        if (Array.isArray(data.data?.records)) records = data.data.records
+        else if (Array.isArray(data.data)) records = data.data
+        else if (Array.isArray(data.records)) records = data.records
         if (records.length > 0) {
           const zones = records.map(r => zoneFromRecord(r))
           // Cache each zone so future loads are instant
@@ -723,7 +734,7 @@ export async function getZones() {
           return zones
         }
       }
-    } catch {}
+    } catch { }
     return null
   }
 
@@ -746,21 +757,21 @@ export async function getZones() {
     lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
     district: '-', state: '-', country: 'india',
     zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-    e_id: auth.e_id, api_key: auth.api_key,
+    e_id: auth.e_id, api_key: auth.api_key, 
   }
-  const res  = await fetch(`${BASE}/zone/filter`, {
-    method : 'POST',
+  const res = await fetch(`${BASE}/zone/filter`, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify(filterBody),
+    body: JSON.stringify(filterBody),
   })
   const data = await res.json()
 
   if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch zones')
 
   let stubs = []
-  if      (Array.isArray(data.data?.records)) stubs = data.data.records
-  else if (Array.isArray(data.data))          stubs = data.data
-  else if (Array.isArray(data.records))       stubs = data.records
+  if (Array.isArray(data.data?.records)) stubs = data.data.records
+  else if (Array.isArray(data.data)) stubs = data.data
+  else if (Array.isArray(data.records)) stubs = data.records
 
   // Merge with localStorage cache — full details available for recently created/edited zones
   return zoneCache_merge(stubs)
@@ -771,33 +782,33 @@ export async function getZones() {
 export async function getZoneFilter() {
   const auth = getAuth()
   const body = {
-    id      : 0,
-    limit   : '100',
-    offset  : '0',
-    name    : 'all',   // ✅ confirmed working value
-    lat     : '0',
-    lon     : '0',
-    adrs1   : '-',
-    adrs2   : '-',
-    city    : '-',
+    id: 0,
+    limit: '100',
+    offset: '0',
+    name: 'all',   // ✅ confirmed working value
+    lat: '0',
+    lon: '0',
+    adrs1: '-',
+    adrs2: '-',
+    city: '-',
     district: '-',
-    state   : '-',
-    country : 'india',
-    zipcode : '000000',
-    mail    : 'a@a.com',
-    mobile  : '0000000000',
-    e_id    : auth.e_id,
-    api_key : auth.api_key,
+    state: '-',
+    country: 'india',
+    zipcode: '000000',
+    mail: 'a@a.com',
+    mobile: '0000000000',
+    e_id: auth.e_id,
+    api_key: auth.api_key,
   }
   const res = await fetch(`${BASE}/zone/filter`, {
-    method : 'POST',
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify(body),
+    body: JSON.stringify(body),
   })
   const data = await res.json()
   if (data.error || !data.result) return []
   const records = Array.isArray(data.data?.records) ? data.data.records
-                : Array.isArray(data.data)           ? data.data : []
+    : Array.isArray(data.data) ? data.data : []
   return records
 }
 
@@ -805,10 +816,10 @@ export async function createZone(form) {
   const auth = getAuth()
   if (!auth.api_key) throw new Error('Not authenticated — please log in first')
   const body = zoneToBody(form, auth)
-  const res  = await fetch(`${BASE}/zone/create`, {
-    method : 'POST',
+  const res = await fetch(`${BASE}/zone/create`, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify(body),
+    body: JSON.stringify(body),
   })
   const data = await res.json()
   if (data.error || !data.result) {
@@ -828,12 +839,12 @@ export async function createZone(form) {
       zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
     }
-    const fr   = await fetch(`${BASE}/zone/filter`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(filterBody) })
-    const fd   = await fr.json()
-    let list   = []
-    if      (Array.isArray(fd.data?.records)) list = fd.data.records
-    else if (Array.isArray(fd.data))          list = fd.data
-    else if (Array.isArray(fd.records))       list = fd.records
+    const fr = await fetch(`${BASE}/zone/filter`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(filterBody) })
+    const fd = await fr.json()
+    let list = []
+    if (Array.isArray(fd.data?.records)) list = fd.data.records
+    else if (Array.isArray(fd.data)) list = fd.data
+    else if (Array.isArray(fd.records)) list = fd.records
     // Match by zone name (label), take the highest id as the newest
     const matches = list.filter(s => str(s.label || s.name || '').trim().toLowerCase() === zoneName.toLowerCase())
     if (matches.length > 0) {
@@ -843,7 +854,7 @@ export async function createZone(form) {
     if (!resolvedId && list.length > 0) {
       resolvedId = list.reduce((max, s) => ((s.id ?? s.value) > max ? (s.id ?? s.value) : max), 0)
     }
-  } catch {}
+  } catch { }
 
   const finalId = resolvedId || Date.now()
   // ✅ Cache full form data keyed by resolved id so it shows in the list with all details
@@ -857,10 +868,10 @@ export async function updateZone(id, form) {
   const auth = getAuth()
   if (!auth.api_key) throw new Error('Not authenticated — please log in first')
   const body = zoneToBody(form, auth, id)
-  const res  = await fetch(`${BASE}/zone/update`, {
-    method : 'POST',
+  const res = await fetch(`${BASE}/zone/update`, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify(body),
+    body: JSON.stringify(body),
   })
   const data = await res.json()
   if (data.error || !data.result) {
@@ -875,41 +886,38 @@ export async function updateZone(id, form) {
 
 export async function cloneZone(id) {
   const auth = getAuth()
-  const res  = await fetch(`${BASE}/zone/clone`, {
-    method : 'POST',
+  const res = await fetch(`${BASE}/zone/clone`, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify({ name: 'all', lat: '0', lon: '0',
-    adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000', }),
+    body   : JSON.stringify({ id, limit: '10', offset: '0', e_id: auth.e_id, api_key: auth.api_key }),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to clone zone')
   notifyZonesUpdated()
-  const r        = (data.data || [])[0] || {}
+  const r = (data.data || [])[0] || {}
   const zoneName = str(r.l_name || r.zone || r.name).trim()
   const cleanCoord = v => {
     const n = parseFloat(str(v).replace(/[°NSEW\s]/gi, ''))
     return isNaN(n) ? 0 : n
   }
-  const cloned   = {
-    id           : r.id,
+  const cloned = {
+    id: r.id,
     zoneName,
-    zoneNameLong : zoneName,
+    zoneNameLong: zoneName,
     zoneNameShort: str(r.s_name),
-    code         : str(r.code),
-    lat          : cleanCoord(r.lat) || 20.5937,
-    lng          : cleanCoord(r.lon ?? r.lng) || 78.9629,
-    liveAddress  : '',
-    addressLine1 : str(r.adrs1 || r.address_l1),
-    addressLine2 : str(r.adrs2 || r.address_l2),
-    city         : str(r.city),
-    district     : str(r.dist_name  || r.district  || ''),
-    state        : str(r.state_name || r.state     || ''),
-    country      : str(r.country_name || r.country || ''),
-    pincode      : str(r.zipcode || r.zip_code || ''),
-    email        : str(r.mail || r.email || ''),
-    mobile       : str(r.mobile),
+    code: str(r.code),
+    lat: cleanCoord(r.lat) || 20.5937,
+    lng: cleanCoord(r.lon ?? r.lng) || 78.9629,
+    liveAddress: '',
+    addressLine1: str(r.adrs1 || r.address_l1),
+    addressLine2: str(r.adrs2 || r.address_l2),
+    city: str(r.city),
+    district: str(r.dist_name || r.district || ''),
+    state: str(r.state_name || r.state || ''),
+    country: str(r.country_name || r.country || ''),
+    pincode: str(r.zipcode || r.zip_code || ''),
+    email: str(r.mail || r.email || ''),
+    mobile: str(r.mobile),
   }
   // ✅ Cache the cloned zone so it shows full details in the list
   if (cloned.id) zoneCache_save(cloned.id, cloned)
@@ -920,8 +928,8 @@ export async function deleteZone(id, zoneOrName = '') {
   const auth = getAuth()
   if (!auth.api_key) throw new Error('Not authenticated — please log in first')
   const isObj = zoneOrName && typeof zoneOrName === 'object'
-  const form  = isObj ? zoneOrName : {}
-  const name  = isObj
+  const form = isObj ? zoneOrName : {}
+  const name = isObj
     ? (str(form.zoneName || form.zoneNameLong || form.name).trim() || 'zone')
     : (String(zoneOrName).trim() || 'zone')
 
@@ -929,26 +937,26 @@ export async function deleteZone(id, zoneOrName = '') {
   const cleanCoord = v => str(v).replace(/[°NSEW\s]/gi, '').trim() || '0'
 
   const res = await fetch(`${BASE}/zone/delete`, {
-    method : 'POST',
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify({
+    body: JSON.stringify({
       id,
-      limit   : '10',
-      offset  : '0',
+      limit: '10',
+      offset: '0',
       name,
-      lat     : cleanCoord(form.lat || '0'),
-      lon     : cleanCoord(form.lng || form.lon || '0'),
-      adrs1   : str(form.addressLine1) || '-',
-      adrs2   : str(form.addressLine2) || '-',
-      city    : str(form.city)         || '-',
-      district: str(form.district)     || '-',
-      state   : str(form.state)        || '-',
-      country : str(form.country).toLowerCase() || 'india',
-      zipcode : str(form.pincode)      || '000000',
-      mail    : str(form.email)        || 'a@a.com',
-      mobile  : str(form.mobile)       || '0000000000',
-      e_id    : auth.e_id,
-      api_key : auth.api_key,
+      lat: cleanCoord(form.lat || '0'),
+      lon: cleanCoord(form.lng || form.lon || '0'),
+      adrs1: str(form.addressLine1) || '-',
+      adrs2: str(form.addressLine2) || '-',
+      city: str(form.city) || '-',
+      district: str(form.district) || '-',
+      state: str(form.state) || '-',
+      country: str(form.country).toLowerCase() || 'india',
+      zipcode: str(form.pincode) || '000000',
+      mail: str(form.email) || 'a@a.com',
+      mobile: str(form.mobile) || '0000000000',
+      e_id: auth.e_id,
+      api_key: auth.api_key,
     }),
   })
   const data = await res.json()
@@ -960,7 +968,7 @@ export async function deleteZone(id, zoneOrName = '') {
 }
 
 export const getZoneById = (_id) => Promise.resolve(null)
-export const patchZone   = (id, b) => updateZone(id, b)
+export const patchZone = (id, b) => updateZone(id, b)
 
 // ── Fetch full zone details by id ────────────────────────────────────────────
 // Tries zone/view (minimal + full body), then localStorage cache, then filter stub.
@@ -971,9 +979,9 @@ export async function getZoneDetails(id) {
   const tryView = async (extraFields = {}) => {
     try {
       const res = await fetch(`${BASE}/zone/view`, {
-        method : 'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({
+        body: JSON.stringify({
           id, limit: '10', offset: '0',
           e_id: auth.e_id, api_key: auth.api_key,
           ...extraFields,
@@ -982,8 +990,8 @@ export async function getZoneDetails(id) {
       const data = await res.json()
       if (!data.error && data.result) {
         const records = Array.isArray(data.data?.records) ? data.data.records
-                      : Array.isArray(data.data)           ? data.data
-                      : data.data                          ? [data.data] : []
+          : Array.isArray(data.data) ? data.data
+            : data.data ? [data.data] : []
         const r = records.find(x => (x.id ?? x.value) === id) || records[0]
         if (r && (r.adrs1 || r.city || r.mail || r.mobile)) {
           const zone = zoneFromRecord({ ...r, value: id })
@@ -991,7 +999,7 @@ export async function getZoneDetails(id) {
           return zone
         }
       }
-    } catch {}
+    } catch { }
     return null
   }
 
@@ -1021,19 +1029,19 @@ export async function getZoneDetails(id) {
       zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
     }
-    const res  = await fetch(`${BASE}/zone/filter`, {
-      method : 'POST',
+    const res = await fetch(`${BASE}/zone/filter`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body   : JSON.stringify(body),
+      body: JSON.stringify(body),
     })
     const data = await res.json()
     if (!data.error && data.result) {
       const records = Array.isArray(data.data?.records) ? data.data.records
-                    : Array.isArray(data.data)           ? data.data : []
+        : Array.isArray(data.data) ? data.data : []
       const r = records.find(x => (x.id ?? x.value) === id) || records[0]
       if (r) return zoneFromRecord({ ...r, value: id })
     }
-  } catch {}
+  } catch { }
 
   return null
 }
@@ -1130,11 +1138,17 @@ export async function getPatrolTypes() {
   const res = await fetch(`${BASE}/patrol_type/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      id: 0, name: 'all',
+      limit: 100, offset: 0,
+      e_id: auth.e_id, api_key: auth.api_key,
+    }),
   })
   const data = await res.json()
+  console.log(data);
   if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch patrol types')
-  return parseRecords(data)
+  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+  return records.map(r => ({ id: r.id ?? r.value, patrolName: str(r.name || r.patrol_name || r.patrolName || r.label) }))
 }
 
 export async function getPatrolTypeById(id) {
@@ -1197,6 +1211,10 @@ export async function deletePatrolType(id) {
       district: '-', state: '-', country: 'india',
       zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
+      name: 'all', lat: '0', lon: '0',
+    adrs1: '-', adrs2: '-', city: '-',
+    district: '-', state: '-', country: 'india',
+    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
     }),
   })
   const data = await res.json()
@@ -1230,12 +1248,12 @@ export async function clonePatrolType(id) {
 
 
 // ── OTHERS — MASTER TRIPS ─────────────────────────────────────────────────────
-export const getMasterTrips    = ()      => getMany('masterTripsList')
-export const getMasterTripById = (id)    => fetchById('masterTripsList', id)
-export const createMasterTrip  = (body)  => postOne('masterTripsList', body)
-export const updateMasterTrip  = (id, b) => putOne('masterTripsList', id, b)
-export const patchMasterTrip   = (id, b) => patchOne('masterTripsList', id, b)
-export const deleteMasterTrip  = (id)    => deleteOne('masterTripsList', id)
+export const getMasterTrips = () => getMany('masterTripsList')
+export const getMasterTripById = (id) => fetchById('masterTripsList', id)
+export const createMasterTrip = (body) => postOne('masterTripsList', body)
+export const updateMasterTrip = (id, b) => putOne('masterTripsList', id, b)
+export const patchMasterTrip = (id, b) => patchOne('masterTripsList', id, b)
+export const deleteMasterTrip = (id) => deleteOne('masterTripsList', id)
 
 // ── TRIP DETAILS PAGE — Employee list ─────────────────────────────────────────
 export async function fetchTripDetailEmployees(filters) {
@@ -1252,13 +1270,13 @@ export async function fetchTripDetailEmployees(filters) {
       if (!seen.has(emp.empId)) {
         seen.add(emp.empId)
         employees.push({
-          empId      : emp.empId,
-          name       : emp.name,
-          department : emp.department  ?? 'General',
-          role       : emp.role        ?? '',
-          loginTime  : emp.loginTime   ?? '',
-          phone      : emp.phone       ?? '',
-          zone       : emp.zone        ?? '',
+          empId: emp.empId,
+          name: emp.name,
+          department: emp.department ?? 'General',
+          role: emp.role ?? '',
+          loginTime: emp.loginTime ?? '',
+          phone: emp.phone ?? '',
+          zone: emp.zone ?? '',
           designation: emp.designation ?? '',
         })
       }

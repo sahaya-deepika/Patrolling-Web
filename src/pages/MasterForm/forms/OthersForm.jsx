@@ -13,6 +13,12 @@ const COLORS = ['#1a73e8', '#e8371a', '#1e8e3e', '#8e1ae8', '#e8a81a', '#1ae8d4'
 /* ─── safe string coerce (mirrors api.js) ─── */
 const str = v => (v == null ? '' : String(v))
 
+const formatDesignation = (data) =>
+  data.map(d => ({
+    id: d.value,
+    designationName: d.label
+  }));
+
 /* ─── shared base input style ─── */
 const iStyle = {
   width: '100%', padding: '10px 14px', border: '1px solid #dadce0',
@@ -1225,23 +1231,37 @@ function DesignationSection() {
   const [errors, setErrors] = useState({})
   const [searching, setSearching] = useState(false)
 
-  // ✅ FIX: Centralized loader
+  //  FIX: Centralized loader
   const loadData = async () => {
+<<<<<<< HEAD
     try { 
       const res=await getDesignations()
       setSaved(res) } catch { }
+=======
+    try {
+      const res = await getDesignations()
+      setSaved(res)
+    } catch (err) {
+      console.error(err)
+    }
+>>>>>>> 79db11b5e6cc4a72f98e9d5e0cf751a80350ebb7
   }
 
   useEffect(() => { loadData() }, [])
 
-  // ✅ Real API filter search
+  //  Real API filter search
   const handleSearch = async (query) => {
     setSearching(true)
     try {
-      const results = await filterDesignations(query && query.trim() ? query.trim() : 'all')
-      setSaved(results)
-    } catch {
-      // fallback: keep existing list
+      const results = await filterDesignations(query?.trim() || 'all')
+
+      const formatted = results.map(r => ({
+        id: r.value,
+        designationName: r.label
+      }))
+
+      setSaved(formatted)
+
     } finally {
       setSearching(false)
     }
@@ -1261,7 +1281,6 @@ function DesignationSection() {
       } else {
         await createDesignation(form)
       }
-      // ✅ FIX: Re-fetch from API immediately
       await loadData()
       setSel(null)
       setForm(desigBlank)
@@ -1350,7 +1369,15 @@ function DepartmentSection() {
 
   // ✅ FIX: Centralized loader
   const loadData = async () => {
+<<<<<<< HEAD
     try { setSaved(await getDepartments()) } catch { }
+=======
+    try { 
+      setSaved(await getDepartments()) 
+    } catch {
+      
+     }
+>>>>>>> 79db11b5e6cc4a72f98e9d5e0cf751a80350ebb7
   }
 
   useEffect(() => { loadData() }, [])
