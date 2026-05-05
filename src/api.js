@@ -266,20 +266,39 @@ export const deleteEmployee  = (id)    => deleteOne('employees', id)
 // ── MASTER FORM — DESIGNATIONS ────────────────────────────────────────────────
 export async function getDesignations() {
   const auth = getAuth()
-  // designation/view returns empty on this server — use filter instead
+  const payload = {
+    id: 0, limit: '100', offset: '0', name: 'all',
+    lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
+    district: '-', state: '-', country: 'india',
+    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+    e_id: auth.e_id, api_key: auth.api_key,
+  }
+  const parseRecords = (data) => {
+    const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+    return records.map(r => ({ id: r.id, designationName: str(r.name || r.designation_name || r.designationName) }))
+  }
+  // Try /view first (canonical "fetch all" endpoint)
+  try {
+    const res = await fetch(`${BASE}/designation/view`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    const data = await res.json()
+    if (!data.error && data.result) {
+      const rows = parseRecords(data)
+      if (rows.length > 0) return rows
+    }
+  } catch { /* fall through */ }
+  // Fallback to /filter
   const res = await fetch(`${BASE}/designation/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: 0, name: 'all',
-      limit: 100, offset: 0,
-      e_id: auth.e_id, api_key: auth.api_key,
-    }),
+    body: JSON.stringify(payload),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch designations')
-  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
-  return records.map(r => ({ id: r.id, designationName: str(r.name || r.designation_name || r.designationName) }))
+  return parseRecords(data)
 }
 
 export async function getDesignationById(id) {
@@ -349,6 +368,29 @@ export async function deleteDesignation(id) {
   return true
 }
 
+
+export async function cloneDesignation(id) {
+  const auth = getAuth()
+  // Try designation/clone endpoint first
+  try {
+    const res = await fetch(`${BASE}/designation/clone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, limit: '10', offset: '0', e_id: auth.e_id, api_key: auth.api_key }),
+    })
+    const data = await res.json()
+    if (!data.error && data.result) {
+      const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+      return { id: r.id || Date.now(), designationName: str(r.name || r.designationName || r.designation_name) }
+    }
+  } catch {}
+  // Fallback: fetch the source, create a copy
+  const source = await getDesignationById(id)
+  return createDesignation({ designationName: `${source.designationName} (copy)` })
+}
+
+export const patchDesignation = (id, b) => updateDesignation(id, b)
+
 // ── MASTER FORM — DEPARTMENTS ─────────────────────────────────────────────────
 export async function getDepartments() {
   const auth = getAuth()
@@ -357,8 +399,10 @@ export async function getDepartments() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: 0, name: 'all',
-      limit: 100, offset: 0,
+      id: 0, limit: '100', offset: '0', name: 'all',
+      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
+      district: '-', state: '-', country: 'india',
+      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -435,14 +479,37 @@ export async function deleteDepartment(id) {
   return true
 }
 
+
+export async function cloneDepartment(id) {
+  const auth = getAuth()
+  try {
+    const res = await fetch(`${BASE}/department/clone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, limit: '10', offset: '0', e_id: auth.e_id, api_key: auth.api_key }),
+    })
+    const data = await res.json()
+    if (!data.error && data.result) {
+      const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+      return { id: r.id || Date.now(), departmentName: str(r.name || r.departmentName || r.department_name) }
+    }
+  } catch {}
+  const source = await getDepartmentById(id)
+  return createDepartment({ departmentName: `${source.departmentName} (copy)` })
+}
+
+export const patchDepartment = (id, b) => updateDepartment(id, b)
+
 export async function filterDepartments(name = 'all') {
   const auth = getAuth()
   const res = await fetch(`${BASE}/department/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: 0, name: name || 'all',
-      limit: 100, offset: 0,
+      id: 0, limit: '100', offset: '0', name: name || 'all',
+      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
+      district: '-', state: '-', country: 'india',
+      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -458,8 +525,10 @@ export async function filterDesignations(name = 'all') {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: 0, name: name || 'all',
-      limit: 100, offset: 0,
+      id: 0, limit: '100', offset: '0', name: name || 'all',
+      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
+      district: '-', state: '-', country: 'india',
+      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -476,8 +545,10 @@ export async function filterPatrolTypes(name = 'all') {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: 0, name: name || 'all',
-      limit: 100, offset: 0,
+      id: 0, limit: '100', offset: '0', name: name || 'all',
+      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
+      district: '-', state: '-', country: 'india',
+      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -807,7 +878,10 @@ export async function cloneZone(id) {
   const res  = await fetch(`${BASE}/zone/clone`, {
     method : 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify({ id, limit: '10', offset: '0', e_id: auth.e_id, api_key: auth.api_key }),
+    body   : JSON.stringify({ name: 'all', lat: '0', lon: '0',
+    adrs1: '-', adrs2: '-', city: '-',
+    district: '-', state: '-', country: 'india',
+    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000', }),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to clone zone')
@@ -1028,20 +1102,39 @@ export const patchTripType = (id, b) => updateTripType(id, b)
 // ── OTHERS — PATROL TYPES ─────────────────────────────────────────────────────
 export async function getPatrolTypes() {
   const auth = getAuth()
-  // Try patrol_type/filter — confirmed correct path from Postman
+  const payload = {
+    id: 0, limit: '100', offset: '0', name: 'all',
+    lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
+    district: '-', state: '-', country: 'india',
+    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+    e_id: auth.e_id, api_key: auth.api_key,
+  }
+  const parseRecords = (data) => {
+    const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+    return records.map(r => ({ id: r.id ?? r.value, patrolName: str(r.name || r.patrol_name || r.patrolName || r.label) }))
+  }
+  // Try /view first (canonical "fetch all" endpoint)
+  try {
+    const res = await fetch(`${BASE}/patrol_type/view`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    const data = await res.json()
+    if (!data.error && data.result) {
+      const rows = parseRecords(data)
+      if (rows.length > 0) return rows
+    }
+  } catch { /* fall through */ }
+  // Fallback to /filter
   const res = await fetch(`${BASE}/patrol_type/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: 0, name: 'all',
-      limit: 100, offset: 0,
-      e_id: auth.e_id, api_key: auth.api_key,
-    }),
+    body: JSON.stringify(payload),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch patrol types')
-  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
-  return records.map(r => ({ id: r.id ?? r.value, patrolName: str(r.name || r.patrol_name || r.patrolName || r.label) }))
+  return parseRecords(data)
 }
 
 export async function getPatrolTypeById(id) {
@@ -1112,6 +1205,29 @@ export async function deletePatrolType(id) {
 }
 
 export const patchPatrolType = (id, b) => updatePatrolType(id, b)
+
+export async function clonePatrolType(id) {
+  const auth = getAuth()
+  try {
+    const res = await fetch(`${BASE}/patrol_type/clone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id, limit: '10', offset: '0',
+        e_id: auth.e_id, api_key: auth.api_key,
+      }),
+    })
+    const data = await res.json()
+    if (!data.error && data.result) {
+      const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+      return { id: r.id || Date.now(), patrolName: str(r.name || r.patrolName || r.patrol_name) }
+    }
+  } catch {}
+  const source = await getPatrolTypeById(id)
+  return createPatrolType({ patrolName: `${source.patrolName} (copy)` })
+}
+
+
 
 // ── OTHERS — MASTER TRIPS ─────────────────────────────────────────────────────
 export const getMasterTrips    = ()      => getMany('masterTripsList')

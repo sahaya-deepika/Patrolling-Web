@@ -3475,7 +3475,7 @@ import { useState, useEffect, useRef } from 'react'
 import {
   getUsers, createUser, deleteUser, updateUser,
   getZones,        createZone,
-  getPatrolTypes,  createPatrolType,
+  getPatrolTypes,  createPatrolType, 
   getDesignations, createDesignation,
   getDepartments,  createDepartment,
 } from '../../../api'

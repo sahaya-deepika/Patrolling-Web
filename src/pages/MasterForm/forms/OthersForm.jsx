@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import {
-  getZones,        createZone,        updateZone,        deleteZone,   cloneZone,   getZoneDetails,
-  getPatrolTypes,  createPatrolType,  updatePatrolType,  deletePatrolType,  filterPatrolTypes,
+  getZones, createZone, updateZone, deleteZone, cloneZone, getZoneDetails,
+  getPatrolTypes, createPatrolType, updatePatrolType, deletePatrolType, filterPatrolTypes,
   getDesignations, createDesignation, updateDesignation, deleteDesignation, filterDesignations,
-  getDepartments,  createDepartment,  updateDepartment,  deleteDepartment,  filterDepartments,
+  getDepartments, createDepartment, updateDepartment, deleteDepartment, filterDepartments,
 } from '../../../api'
 import { ConfirmSaveModal } from '../components/MasterFormUI'
 
 /* ─── colour palette for avatars ─── */
-const COLORS = ['#1a73e8','#e8371a','#1e8e3e','#8e1ae8','#e8a81a','#1ae8d4','#e81a8e','#4a90d9']
+const COLORS = ['#1a73e8', '#e8371a', '#1e8e3e', '#8e1ae8', '#e8a81a', '#1ae8d4', '#e81a8e', '#4a90d9']
 
 /* ─── safe string coerce (mirrors api.js) ─── */
 const str = v => (v == null ? '' : String(v))
@@ -55,8 +55,8 @@ function CardMenu({ onSelect, onClone, onEdit, onDelete }) {
   }, [])
   const items = [
     { label: 'Select', icon: '☑', color: '#202124', action: onSelect },
-    { label: 'Clone',  icon: '⧉', color: '#202124', action: onClone  },
-    { label: 'Edit',   icon: '✎', color: '#202124', action: onEdit   },
+    { label: 'Clone', icon: '⧉', color: '#202124', action: onClone },
+    { label: 'Edit', icon: '✎', color: '#202124', action: onEdit },
     { label: 'Delete', icon: '🗑', color: '#d93025', action: onDelete },
   ]
   return (
@@ -80,9 +80,9 @@ function CardMenu({ onSelect, onClone, onEdit, onDelete }) {
 
 /* ─── Leaflet map ─── */
 function LocationMap({ lat, lng, onChange }) {
-  const mapRef     = useRef(null)
+  const mapRef = useRef(null)
   const leafletRef = useRef(null)
-  const markerRef  = useRef(null)
+  const markerRef = useRef(null)
 
   useEffect(() => {
     if (!document.getElementById('leaflet-css')) {
@@ -130,8 +130,8 @@ function LocationMap({ lat, lng, onChange }) {
 
 /* ─── right panel with saved items — includes search bar + quick-select dropdown ─── */
 function SavedPanel({ title, items, renderCard, selectMode, selectedIds, onEnterSelect, onToggle, onDeleteSelected, onCancelSelect, onShowToggle, show, getItemLabel, extraHeader, statusBanner, onSearch, searchLoading }) {
-  const [search, setSearch]   = useState('')
-  const [ddOpen, setDdOpen]   = useState(false)
+  const [search, setSearch] = useState('')
+  const [ddOpen, setDdOpen] = useState(false)
   const [ddSearch, setDdSearch] = useState('')
   const ddRef = useRef(null)
   const debounceRef = useRef(null)
@@ -301,41 +301,41 @@ function SavedPanel({ title, items, renderCard, selectMode, selectedIds, onEnter
 ═══════════════════════════════════════════════════════════ */
 const GEO_DATA = {
   India: [
-    'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh',
-    'Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka',
-    'Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram',
-    'Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana',
-    'Tripura','Uttar Pradesh','Uttarakhand','West Bengal',
-    'Andaman and Nicobar Islands','Chandigarh','Dadra and Nagar Haveli and Daman and Diu',
-    'Delhi','Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry',
+    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+    'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+    'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana',
+    'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+    'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
+    'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry',
   ],
   'United States': [
-    'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut',
-    'Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa',
-    'Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan',
-    'Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada',
-    'New Hampshire','New Jersey','New Mexico','New York','North Carolina',
-    'North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island',
-    'South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont',
-    'Virginia','Washington','West Virginia','Wisconsin','Wyoming',
+    'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
+    'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
+    'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan',
+    'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada',
+    'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina',
+    'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island',
+    'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
+    'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming',
   ],
   'United Kingdom': [
-    'England','Scotland','Wales','Northern Ireland',
+    'England', 'Scotland', 'Wales', 'Northern Ireland',
   ],
   Australia: [
-    'New South Wales','Victoria','Queensland','South Australia',
-    'Western Australia','Tasmania','Australian Capital Territory','Northern Territory',
+    'New South Wales', 'Victoria', 'Queensland', 'South Australia',
+    'Western Australia', 'Tasmania', 'Australian Capital Territory', 'Northern Territory',
   ],
   Canada: [
-    'Alberta','British Columbia','Manitoba','New Brunswick',
-    'Newfoundland and Labrador','Nova Scotia','Ontario',
-    'Prince Edward Island','Quebec','Saskatchewan',
+    'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick',
+    'Newfoundland and Labrador', 'Nova Scotia', 'Ontario',
+    'Prince Edward Island', 'Quebec', 'Saskatchewan',
   ],
   Germany: [
-    'Baden-Württemberg','Bavaria','Berlin','Brandenburg','Bremen','Hamburg',
-    'Hesse','Lower Saxony','Mecklenburg-Vorpommern','North Rhine-Westphalia',
-    'Rhineland-Palatinate','Saarland','Saxony','Saxony-Anhalt',
-    'Schleswig-Holstein','Thuringia',
+    'Baden-Württemberg', 'Bavaria', 'Berlin', 'Brandenburg', 'Bremen', 'Hamburg',
+    'Hesse', 'Lower Saxony', 'Mecklenburg-Vorpommern', 'North Rhine-Westphalia',
+    'Rhineland-Palatinate', 'Saarland', 'Saxony', 'Saxony-Anhalt',
+    'Schleswig-Holstein', 'Thuringia',
   ],
   'Other': [],
 }
@@ -344,187 +344,187 @@ const COUNTRY_LIST = Object.keys(GEO_DATA)
 /* Districts keyed by Indian state — other countries fall back to free-text */
 const DISTRICT_DATA = {
   'Tamil Nadu': [
-    'Ariyalur','Chengalpattu','Chennai','Coimbatore','Cuddalore','Dharmapuri',
-    'Dindigul','Erode','Kallakurichi','Kancheepuram','Kanyakumari','Karur',
-    'Krishnagiri','Madurai','Mayiladuthurai','Nagapattinam','Namakkal',
-    'Nilgiris','Perambalur','Pudukkottai','Ramanathapuram','Ranipet',
-    'Salem','Sivaganga','Tenkasi','Thanjavur','Theni','Thoothukudi',
-    'Tiruchirappalli','Tirunelveli','Tirupathur','Tiruppur','Tiruvallur',
-    'Tiruvannamalai','Tiruvarur','Vellore','Viluppuram','Virudhunagar',
+    'Ariyalur', 'Chengalpattu', 'Chennai', 'Coimbatore', 'Cuddalore', 'Dharmapuri',
+    'Dindigul', 'Erode', 'Kallakurichi', 'Kancheepuram', 'Kanyakumari', 'Karur',
+    'Krishnagiri', 'Madurai', 'Mayiladuthurai', 'Nagapattinam', 'Namakkal',
+    'Nilgiris', 'Perambalur', 'Pudukkottai', 'Ramanathapuram', 'Ranipet',
+    'Salem', 'Sivaganga', 'Tenkasi', 'Thanjavur', 'Theni', 'Thoothukudi',
+    'Tiruchirappalli', 'Tirunelveli', 'Tirupathur', 'Tiruppur', 'Tiruvallur',
+    'Tiruvannamalai', 'Tiruvarur', 'Vellore', 'Viluppuram', 'Virudhunagar',
   ],
   'Maharashtra': [
-    'Ahmednagar','Akola','Amravati','Aurangabad','Beed','Bhandara','Buldhana',
-    'Chandrapur','Dhule','Gadchiroli','Gondia','Hingoli','Jalgaon','Jalna',
-    'Kolhapur','Latur','Mumbai City','Mumbai Suburban','Nagpur','Nanded',
-    'Nandurbar','Nashik','Osmanabad','Palghar','Parbhani','Pune','Raigad',
-    'Ratnagiri','Sangli','Satara','Sindhudurg','Solapur','Thane','Wardha',
-    'Washim','Yavatmal',
+    'Ahmednagar', 'Akola', 'Amravati', 'Aurangabad', 'Beed', 'Bhandara', 'Buldhana',
+    'Chandrapur', 'Dhule', 'Gadchiroli', 'Gondia', 'Hingoli', 'Jalgaon', 'Jalna',
+    'Kolhapur', 'Latur', 'Mumbai City', 'Mumbai Suburban', 'Nagpur', 'Nanded',
+    'Nandurbar', 'Nashik', 'Osmanabad', 'Palghar', 'Parbhani', 'Pune', 'Raigad',
+    'Ratnagiri', 'Sangli', 'Satara', 'Sindhudurg', 'Solapur', 'Thane', 'Wardha',
+    'Washim', 'Yavatmal',
   ],
   'Karnataka': [
-    'Bagalkot','Ballari','Belagavi','Bengaluru Rural','Bengaluru Urban',
-    'Bidar','Chamarajanagar','Chikkaballapur','Chikkamagaluru','Chitradurga',
-    'Dakshina Kannada','Davangere','Dharwad','Gadag','Hassan','Haveri',
-    'Kalaburagi','Kodagu','Kolar','Koppal','Mandya','Mysuru','Raichur',
-    'Ramanagara','Shivamogga','Tumakuru','Udupi','Uttara Kannada','Vijayapura',
+    'Bagalkot', 'Ballari', 'Belagavi', 'Bengaluru Rural', 'Bengaluru Urban',
+    'Bidar', 'Chamarajanagar', 'Chikkaballapur', 'Chikkamagaluru', 'Chitradurga',
+    'Dakshina Kannada', 'Davangere', 'Dharwad', 'Gadag', 'Hassan', 'Haveri',
+    'Kalaburagi', 'Kodagu', 'Kolar', 'Koppal', 'Mandya', 'Mysuru', 'Raichur',
+    'Ramanagara', 'Shivamogga', 'Tumakuru', 'Udupi', 'Uttara Kannada', 'Vijayapura',
     'Yadgir',
   ],
   'Kerala': [
-    'Alappuzha','Ernakulam','Idukki','Kannur','Kasaragod','Kollam',
-    'Kottayam','Kozhikode','Malappuram','Palakkad','Pathanamthitta',
-    'Thiruvananthapuram','Thrissur','Wayanad',
+    'Alappuzha', 'Ernakulam', 'Idukki', 'Kannur', 'Kasaragod', 'Kollam',
+    'Kottayam', 'Kozhikode', 'Malappuram', 'Palakkad', 'Pathanamthitta',
+    'Thiruvananthapuram', 'Thrissur', 'Wayanad',
   ],
   'Andhra Pradesh': [
-    'Alluri Sitharama Raju','Anakapalli','Anantapur','Annamayya','Bapatla',
-    'Chittoor','East Godavari','Eluru','Guntur','Kadapa','Kakinada',
-    'Konaseema','Krishna','Kurnool','Nandyal','NTR','Palnadu','Parvathipuram Manyam',
-    'Prakasam','Sri Potti Sriramulu Nellore','Sri Sathya Sai','Srikakulam',
-    'Tirupati','Visakhapatnam','Vizianagaram','West Godavari',
+    'Alluri Sitharama Raju', 'Anakapalli', 'Anantapur', 'Annamayya', 'Bapatla',
+    'Chittoor', 'East Godavari', 'Eluru', 'Guntur', 'Kadapa', 'Kakinada',
+    'Konaseema', 'Krishna', 'Kurnool', 'Nandyal', 'NTR', 'Palnadu', 'Parvathipuram Manyam',
+    'Prakasam', 'Sri Potti Sriramulu Nellore', 'Sri Sathya Sai', 'Srikakulam',
+    'Tirupati', 'Visakhapatnam', 'Vizianagaram', 'West Godavari',
   ],
   'Telangana': [
-    'Adilabad','Bhadradri Kothagudem','Hanamkonda','Hyderabad','Jagtial',
-    'Jangaon','Jayashankar Bhupalpally','Jogulamba Gadwal','Kamareddy',
-    'Karimnagar','Khammam','Kumuram Bheem','Mahabubabad','Mahabubnagar',
-    'Mancherial','Medak','Medchal-Malkajgiri','Mulugu','Nagarkurnool',
-    'Nalgonda','Narayanpet','Nirmal','Nizamabad','Peddapalli','Rajanna Sircilla',
-    'Rangareddy','Sangareddy','Siddipet','Suryapet','Vikarabad','Wanaparthy',
-    'Warangal','Yadadri Bhuvanagiri',
+    'Adilabad', 'Bhadradri Kothagudem', 'Hanamkonda', 'Hyderabad', 'Jagtial',
+    'Jangaon', 'Jayashankar Bhupalpally', 'Jogulamba Gadwal', 'Kamareddy',
+    'Karimnagar', 'Khammam', 'Kumuram Bheem', 'Mahabubabad', 'Mahabubnagar',
+    'Mancherial', 'Medak', 'Medchal-Malkajgiri', 'Mulugu', 'Nagarkurnool',
+    'Nalgonda', 'Narayanpet', 'Nirmal', 'Nizamabad', 'Peddapalli', 'Rajanna Sircilla',
+    'Rangareddy', 'Sangareddy', 'Siddipet', 'Suryapet', 'Vikarabad', 'Wanaparthy',
+    'Warangal', 'Yadadri Bhuvanagiri',
   ],
   'Gujarat': [
-    'Ahmedabad','Amreli','Anand','Aravalli','Banaskantha','Bharuch','Bhavnagar',
-    'Botad','Chhota Udaipur','Dahod','Dang','Devbhoomi Dwarka','Gandhinagar',
-    'Gir Somnath','Jamnagar','Junagadh','Kheda','Kutch','Mahisagar','Mehsana',
-    'Morbi','Narmada','Navsari','Panchmahal','Patan','Porbandar','Rajkot',
-    'Sabarkantha','Surat','Surendranagar','Tapi','Vadodara','Valsad',
+    'Ahmedabad', 'Amreli', 'Anand', 'Aravalli', 'Banaskantha', 'Bharuch', 'Bhavnagar',
+    'Botad', 'Chhota Udaipur', 'Dahod', 'Dang', 'Devbhoomi Dwarka', 'Gandhinagar',
+    'Gir Somnath', 'Jamnagar', 'Junagadh', 'Kheda', 'Kutch', 'Mahisagar', 'Mehsana',
+    'Morbi', 'Narmada', 'Navsari', 'Panchmahal', 'Patan', 'Porbandar', 'Rajkot',
+    'Sabarkantha', 'Surat', 'Surendranagar', 'Tapi', 'Vadodara', 'Valsad',
   ],
   'Rajasthan': [
-    'Ajmer','Alwar','Banswara','Baran','Barmer','Bharatpur','Bhilwara','Bikaner',
-    'Bundi','Chittorgarh','Churu','Dausa','Dholpur','Dungarpur','Hanumangarh',
-    'Jaipur','Jaisalmer','Jalore','Jhalawar','Jhunjhunu','Jodhpur','Karauli',
-    'Kota','Nagaur','Pali','Pratapgarh','Rajsamand','Sawai Madhopur','Sikar',
-    'Sirohi','Sri Ganganagar','Tonk','Udaipur',
+    'Ajmer', 'Alwar', 'Banswara', 'Baran', 'Barmer', 'Bharatpur', 'Bhilwara', 'Bikaner',
+    'Bundi', 'Chittorgarh', 'Churu', 'Dausa', 'Dholpur', 'Dungarpur', 'Hanumangarh',
+    'Jaipur', 'Jaisalmer', 'Jalore', 'Jhalawar', 'Jhunjhunu', 'Jodhpur', 'Karauli',
+    'Kota', 'Nagaur', 'Pali', 'Pratapgarh', 'Rajsamand', 'Sawai Madhopur', 'Sikar',
+    'Sirohi', 'Sri Ganganagar', 'Tonk', 'Udaipur',
   ],
   'Uttar Pradesh': [
-    'Agra','Aligarh','Ambedkar Nagar','Amethi','Amroha','Auraiya','Ayodhya',
-    'Azamgarh','Baghpat','Bahraich','Ballia','Balrampur','Banda','Bara Banki',
-    'Bareilly','Basti','Bhadohi','Bijnor','Budaun','Bulandshahr','Chandauli',
-    'Chitrakoot','Deoria','Etah','Etawah','Farrukhabad','Fatehpur','Firozabad',
-    'Gautam Buddha Nagar','Ghaziabad','Ghazipur','Gonda','Gorakhpur','Hamirpur',
-    'Hapur','Hardoi','Hathras','Jalaun','Jaunpur','Jhansi','Kannauj','Kanpur Dehat',
-    'Kanpur Nagar','Kasganj','Kaushambi','Kushinagar','Lakhimpur Kheri','Lalitpur',
-    'Lucknow','Maharajganj','Mahoba','Mainpuri','Mathura','Mau','Meerut',
-    'Mirzapur','Moradabad','Muzaffarnagar','Pilibhit','Pratapgarh','Prayagraj',
-    'Raebareli','Rampur','Saharanpur','Sambhal','Sant Kabir Nagar','Shahjahanpur',
-    'Shamli','Shravasti','Siddharthnagar','Sitapur','Sonbhadra','Sultanpur',
-    'Unnao','Varanasi',
+    'Agra', 'Aligarh', 'Ambedkar Nagar', 'Amethi', 'Amroha', 'Auraiya', 'Ayodhya',
+    'Azamgarh', 'Baghpat', 'Bahraich', 'Ballia', 'Balrampur', 'Banda', 'Bara Banki',
+    'Bareilly', 'Basti', 'Bhadohi', 'Bijnor', 'Budaun', 'Bulandshahr', 'Chandauli',
+    'Chitrakoot', 'Deoria', 'Etah', 'Etawah', 'Farrukhabad', 'Fatehpur', 'Firozabad',
+    'Gautam Buddha Nagar', 'Ghaziabad', 'Ghazipur', 'Gonda', 'Gorakhpur', 'Hamirpur',
+    'Hapur', 'Hardoi', 'Hathras', 'Jalaun', 'Jaunpur', 'Jhansi', 'Kannauj', 'Kanpur Dehat',
+    'Kanpur Nagar', 'Kasganj', 'Kaushambi', 'Kushinagar', 'Lakhimpur Kheri', 'Lalitpur',
+    'Lucknow', 'Maharajganj', 'Mahoba', 'Mainpuri', 'Mathura', 'Mau', 'Meerut',
+    'Mirzapur', 'Moradabad', 'Muzaffarnagar', 'Pilibhit', 'Pratapgarh', 'Prayagraj',
+    'Raebareli', 'Rampur', 'Saharanpur', 'Sambhal', 'Sant Kabir Nagar', 'Shahjahanpur',
+    'Shamli', 'Shravasti', 'Siddharthnagar', 'Sitapur', 'Sonbhadra', 'Sultanpur',
+    'Unnao', 'Varanasi',
   ],
   'West Bengal': [
-    'Alipurduar','Bankura','Birbhum','Cooch Behar','Dakshin Dinajpur','Darjeeling',
-    'Hooghly','Howrah','Jalpaiguri','Jhargram','Kalimpong','Kolkata','Malda',
-    'Murshidabad','Nadia','North 24 Parganas','Paschim Bardhaman','Paschim Medinipur',
-    'Purba Bardhaman','Purba Medinipur','Purulia','South 24 Parganas','Uttar Dinajpur',
+    'Alipurduar', 'Bankura', 'Birbhum', 'Cooch Behar', 'Dakshin Dinajpur', 'Darjeeling',
+    'Hooghly', 'Howrah', 'Jalpaiguri', 'Jhargram', 'Kalimpong', 'Kolkata', 'Malda',
+    'Murshidabad', 'Nadia', 'North 24 Parganas', 'Paschim Bardhaman', 'Paschim Medinipur',
+    'Purba Bardhaman', 'Purba Medinipur', 'Purulia', 'South 24 Parganas', 'Uttar Dinajpur',
   ],
   'Punjab': [
-    'Amritsar','Barnala','Bathinda','Faridkot','Fatehgarh Sahib','Fazilka',
-    'Ferozepur','Gurdaspur','Hoshiarpur','Jalandhar','Kapurthala','Ludhiana',
-    'Mansa','Moga','Mohali','Muktsar','Nawanshahr','Pathankot','Patiala',
-    'Rupnagar','Sangrur','Tarn Taran',
+    'Amritsar', 'Barnala', 'Bathinda', 'Faridkot', 'Fatehgarh Sahib', 'Fazilka',
+    'Ferozepur', 'Gurdaspur', 'Hoshiarpur', 'Jalandhar', 'Kapurthala', 'Ludhiana',
+    'Mansa', 'Moga', 'Mohali', 'Muktsar', 'Nawanshahr', 'Pathankot', 'Patiala',
+    'Rupnagar', 'Sangrur', 'Tarn Taran',
   ],
   'Haryana': [
-    'Ambala','Bhiwani','Charkhi Dadri','Faridabad','Fatehabad','Gurugram',
-    'Hisar','Jhajjar','Jind','Kaithal','Karnal','Kurukshetra','Mahendragarh',
-    'Nuh','Palwal','Panchkula','Panipat','Rewari','Rohtak','Sirsa','Sonipat','Yamunanagar',
+    'Ambala', 'Bhiwani', 'Charkhi Dadri', 'Faridabad', 'Fatehabad', 'Gurugram',
+    'Hisar', 'Jhajjar', 'Jind', 'Kaithal', 'Karnal', 'Kurukshetra', 'Mahendragarh',
+    'Nuh', 'Palwal', 'Panchkula', 'Panipat', 'Rewari', 'Rohtak', 'Sirsa', 'Sonipat', 'Yamunanagar',
   ],
   'Madhya Pradesh': [
-    'Agar Malwa','Alirajpur','Anuppur','Ashoknagar','Balaghat','Barwani',
-    'Betul','Bhind','Bhopal','Burhanpur','Chhatarpur','Chhindwara','Damoh',
-    'Datia','Dewas','Dhar','Dindori','Guna','Gwalior','Harda','Hoshangabad',
-    'Indore','Jabalpur','Jhabua','Katni','Khandwa','Khargone','Mandla',
-    'Mandsaur','Morena','Narsinghpur','Neemuch','Niwari','Panna','Raisen',
-    'Rajgarh','Ratlam','Rewa','Sagar','Satna','Sehore','Seoni','Shahdol',
-    'Shajapur','Sheopur','Shivpuri','Sidhi','Singrauli','Tikamgarh','Ujjain',
-    'Umaria','Vidisha',
+    'Agar Malwa', 'Alirajpur', 'Anuppur', 'Ashoknagar', 'Balaghat', 'Barwani',
+    'Betul', 'Bhind', 'Bhopal', 'Burhanpur', 'Chhatarpur', 'Chhindwara', 'Damoh',
+    'Datia', 'Dewas', 'Dhar', 'Dindori', 'Guna', 'Gwalior', 'Harda', 'Hoshangabad',
+    'Indore', 'Jabalpur', 'Jhabua', 'Katni', 'Khandwa', 'Khargone', 'Mandla',
+    'Mandsaur', 'Morena', 'Narsinghpur', 'Neemuch', 'Niwari', 'Panna', 'Raisen',
+    'Rajgarh', 'Ratlam', 'Rewa', 'Sagar', 'Satna', 'Sehore', 'Seoni', 'Shahdol',
+    'Shajapur', 'Sheopur', 'Shivpuri', 'Sidhi', 'Singrauli', 'Tikamgarh', 'Ujjain',
+    'Umaria', 'Vidisha',
   ],
   'Bihar': [
-    'Araria','Arwal','Aurangabad','Banka','Begusarai','Bhagalpur','Bhojpur',
-    'Buxar','Darbhanga','East Champaran','Gaya','Gopalganj','Jamui','Jehanabad',
-    'Kaimur','Katihar','Khagaria','Kishanganj','Lakhisarai','Madhepura',
-    'Madhubani','Munger','Muzaffarpur','Nalanda','Nawada','Patna','Purnia',
-    'Rohtas','Saharsa','Samastipur','Saran','Sheikhpura','Sheohar','Sitamarhi',
-    'Siwan','Supaul','Vaishali','West Champaran',
+    'Araria', 'Arwal', 'Aurangabad', 'Banka', 'Begusarai', 'Bhagalpur', 'Bhojpur',
+    'Buxar', 'Darbhanga', 'East Champaran', 'Gaya', 'Gopalganj', 'Jamui', 'Jehanabad',
+    'Kaimur', 'Katihar', 'Khagaria', 'Kishanganj', 'Lakhisarai', 'Madhepura',
+    'Madhubani', 'Munger', 'Muzaffarpur', 'Nalanda', 'Nawada', 'Patna', 'Purnia',
+    'Rohtas', 'Saharsa', 'Samastipur', 'Saran', 'Sheikhpura', 'Sheohar', 'Sitamarhi',
+    'Siwan', 'Supaul', 'Vaishali', 'West Champaran',
   ],
   'Odisha': [
-    'Angul','Balangir','Balasore','Bargarh','Bhadrak','Boudh','Cuttack',
-    'Deogarh','Dhenkanal','Gajapati','Ganjam','Jagatsinghpur','Jajpur',
-    'Jharsuguda','Kalahandi','Kandhamal','Kendrapara','Kendujhar','Khordha',
-    'Koraput','Malkangiri','Mayurbhanj','Nabarangpur','Nayagarh','Nuapada',
-    'Puri','Rayagada','Sambalpur','Sonepur','Sundargarh',
+    'Angul', 'Balangir', 'Balasore', 'Bargarh', 'Bhadrak', 'Boudh', 'Cuttack',
+    'Deogarh', 'Dhenkanal', 'Gajapati', 'Ganjam', 'Jagatsinghpur', 'Jajpur',
+    'Jharsuguda', 'Kalahandi', 'Kandhamal', 'Kendrapara', 'Kendujhar', 'Khordha',
+    'Koraput', 'Malkangiri', 'Mayurbhanj', 'Nabarangpur', 'Nayagarh', 'Nuapada',
+    'Puri', 'Rayagada', 'Sambalpur', 'Sonepur', 'Sundargarh',
   ],
   'Assam': [
-    'Bajali','Baksa','Barpeta','Biswanath','Bongaigaon','Cachar','Charaideo',
-    'Chirang','Darrang','Dhemaji','Dhubri','Dibrugarh','Dima Hasao','Goalpara',
-    'Golaghat','Hailakandi','Hojai','Jorhat','Kamrup','Kamrup Metropolitan',
-    'Karbi Anglong','Karimganj','Kokrajhar','Lakhimpur','Majuli','Morigaon',
-    'Nagaon','Nalbari','Sivasagar','Sonitpur','South Salmara-Mankachar',
-    'Tinsukia','Udalguri','West Karbi Anglong',
+    'Bajali', 'Baksa', 'Barpeta', 'Biswanath', 'Bongaigaon', 'Cachar', 'Charaideo',
+    'Chirang', 'Darrang', 'Dhemaji', 'Dhubri', 'Dibrugarh', 'Dima Hasao', 'Goalpara',
+    'Golaghat', 'Hailakandi', 'Hojai', 'Jorhat', 'Kamrup', 'Kamrup Metropolitan',
+    'Karbi Anglong', 'Karimganj', 'Kokrajhar', 'Lakhimpur', 'Majuli', 'Morigaon',
+    'Nagaon', 'Nalbari', 'Sivasagar', 'Sonitpur', 'South Salmara-Mankachar',
+    'Tinsukia', 'Udalguri', 'West Karbi Anglong',
   ],
   'Delhi': [
-    'Central Delhi','East Delhi','New Delhi','North Delhi','North East Delhi',
-    'North West Delhi','Shahdara','South Delhi','South East Delhi',
-    'South West Delhi','West Delhi',
+    'Central Delhi', 'East Delhi', 'New Delhi', 'North Delhi', 'North East Delhi',
+    'North West Delhi', 'Shahdara', 'South Delhi', 'South East Delhi',
+    'South West Delhi', 'West Delhi',
   ],
   'Himachal Pradesh': [
-    'Bilaspur','Chamba','Hamirpur','Kangra','Kinnaur','Kullu','Lahaul and Spiti',
-    'Mandi','Shimla','Sirmaur','Solan','Una',
+    'Bilaspur', 'Chamba', 'Hamirpur', 'Kangra', 'Kinnaur', 'Kullu', 'Lahaul and Spiti',
+    'Mandi', 'Shimla', 'Sirmaur', 'Solan', 'Una',
   ],
   'Uttarakhand': [
-    'Almora','Bageshwar','Chamoli','Champawat','Dehradun','Haridwar','Nainital',
-    'Pauri Garhwal','Pithoragarh','Rudraprayag','Tehri Garhwal','Udham Singh Nagar',
+    'Almora', 'Bageshwar', 'Chamoli', 'Champawat', 'Dehradun', 'Haridwar', 'Nainital',
+    'Pauri Garhwal', 'Pithoragarh', 'Rudraprayag', 'Tehri Garhwal', 'Udham Singh Nagar',
     'Uttarkashi',
   ],
   'Jharkhand': [
-    'Bokaro','Chatra','Deoghar','Dhanbad','Dumka','East Singhbhum','Garhwa',
-    'Giridih','Godda','Gumla','Hazaribagh','Jamtara','Khunti','Koderma',
-    'Latehar','Lohardaga','Pakur','Palamu','Ramgarh','Ranchi','Sahebganj',
-    'Seraikela Kharsawan','Simdega','West Singhbhum',
+    'Bokaro', 'Chatra', 'Deoghar', 'Dhanbad', 'Dumka', 'East Singhbhum', 'Garhwa',
+    'Giridih', 'Godda', 'Gumla', 'Hazaribagh', 'Jamtara', 'Khunti', 'Koderma',
+    'Latehar', 'Lohardaga', 'Pakur', 'Palamu', 'Ramgarh', 'Ranchi', 'Sahebganj',
+    'Seraikela Kharsawan', 'Simdega', 'West Singhbhum',
   ],
   'Chhattisgarh': [
-    'Balod','Baloda Bazar','Balrampur','Bastar','Bemetara','Bijapur','Bilaspur',
-    'Dantewada','Dhamtari','Durg','Gariaband','Gaurela-Pendra-Marwahi','Janjgir-Champa',
-    'Jashpur','Kabirdham','Kanker','Kondagaon','Korba','Korea','Mahasamund',
-    'Manendragarh','Mohla-Manpur','Mungeli','Narayanpur','Raigarh','Raipur',
-    'Rajnandgaon','Sakti','Sarangarh-Bilaigarh','Sukma','Surajpur','Surguja',
+    'Balod', 'Baloda Bazar', 'Balrampur', 'Bastar', 'Bemetara', 'Bijapur', 'Bilaspur',
+    'Dantewada', 'Dhamtari', 'Durg', 'Gariaband', 'Gaurela-Pendra-Marwahi', 'Janjgir-Champa',
+    'Jashpur', 'Kabirdham', 'Kanker', 'Kondagaon', 'Korba', 'Korea', 'Mahasamund',
+    'Manendragarh', 'Mohla-Manpur', 'Mungeli', 'Narayanpur', 'Raigarh', 'Raipur',
+    'Rajnandgaon', 'Sakti', 'Sarangarh-Bilaigarh', 'Sukma', 'Surajpur', 'Surguja',
   ],
-  'Goa': ['North Goa','South Goa'],
+  'Goa': ['North Goa', 'South Goa'],
   'Manipur': [
-    'Bishnupur','Chandel','Churachandpur','Imphal East','Imphal West','Jiribam',
-    'Kakching','Kamjong','Kangpokpi','Noney','Pherzawl','Senapati','Tamenglong',
-    'Tengnoupal','Thoubal','Ukhrul',
+    'Bishnupur', 'Chandel', 'Churachandpur', 'Imphal East', 'Imphal West', 'Jiribam',
+    'Kakching', 'Kamjong', 'Kangpokpi', 'Noney', 'Pherzawl', 'Senapati', 'Tamenglong',
+    'Tengnoupal', 'Thoubal', 'Ukhrul',
   ],
-  'Meghalaya': ['East Garo Hills','East Jaintia Hills','East Khasi Hills','Eastern West Khasi Hills',
-    'North Garo Hills','Ri Bhoi','South Garo Hills','South West Garo Hills',
-    'South West Khasi Hills','West Garo Hills','West Jaintia Hills','West Khasi Hills'],
-  'Sikkim': ['East Sikkim','North Sikkim','Pakyong','Soreng','South Sikkim','West Sikkim'],
-  'Tripura': ['Dhalai','Gomati','Khowai','North Tripura','Sepahijala','South Tripura','Unakoti','West Tripura'],
+  'Meghalaya': ['East Garo Hills', 'East Jaintia Hills', 'East Khasi Hills', 'Eastern West Khasi Hills',
+    'North Garo Hills', 'Ri Bhoi', 'South Garo Hills', 'South West Garo Hills',
+    'South West Khasi Hills', 'West Garo Hills', 'West Jaintia Hills', 'West Khasi Hills'],
+  'Sikkim': ['East Sikkim', 'North Sikkim', 'Pakyong', 'Soreng', 'South Sikkim', 'West Sikkim'],
+  'Tripura': ['Dhalai', 'Gomati', 'Khowai', 'North Tripura', 'Sepahijala', 'South Tripura', 'Unakoti', 'West Tripura'],
   'Arunachal Pradesh': [
-    'Anjaw','Changlang','Dibang Valley','East Kameng','East Siang','Kamle',
-    'Kra Daadi','Kurung Kumey','Lepa Rada','Lohit','Longding','Lower Dibang Valley',
-    'Lower Siang','Lower Subansiri','Namsai','Pakke-Kessang','Papum Pare',
-    'Shi Yomi','Siang','Tawang','Tirap','Upper Dibang Valley','Upper Siang',
-    'Upper Subansiri','West Kameng','West Siang',
+    'Anjaw', 'Changlang', 'Dibang Valley', 'East Kameng', 'East Siang', 'Kamle',
+    'Kra Daadi', 'Kurung Kumey', 'Lepa Rada', 'Lohit', 'Longding', 'Lower Dibang Valley',
+    'Lower Siang', 'Lower Subansiri', 'Namsai', 'Pakke-Kessang', 'Papum Pare',
+    'Shi Yomi', 'Siang', 'Tawang', 'Tirap', 'Upper Dibang Valley', 'Upper Siang',
+    'Upper Subansiri', 'West Kameng', 'West Siang',
   ],
-  'Mizoram': ['Aizawl','Champhai','Hnahthial','Khawzawl','Kolasib','Lawngtlai','Lunglei','Mamit','Saiha','Saitual','Serchhip'],
-  'Nagaland': ['Chumoukedima','Dimapur','Kiphire','Kohima','Longleng','Mokokchung','Mon','Niuland','Noklak','Peren','Phek','Shamator','Tseminyü','Tuensang','Wokha','Zunheboto'],
-  'Puducherry': ['Karaikal','Mahe','Puducherry','Yanam'],
+  'Mizoram': ['Aizawl', 'Champhai', 'Hnahthial', 'Khawzawl', 'Kolasib', 'Lawngtlai', 'Lunglei', 'Mamit', 'Saiha', 'Saitual', 'Serchhip'],
+  'Nagaland': ['Chumoukedima', 'Dimapur', 'Kiphire', 'Kohima', 'Longleng', 'Mokokchung', 'Mon', 'Niuland', 'Noklak', 'Peren', 'Phek', 'Shamator', 'Tseminyü', 'Tuensang', 'Wokha', 'Zunheboto'],
+  'Puducherry': ['Karaikal', 'Mahe', 'Puducherry', 'Yanam'],
   'Chandigarh': ['Chandigarh'],
   'Jammu and Kashmir': [
-    'Anantnag','Bandipora','Baramulla','Budgam','Doda','Ganderbal','Jammu',
-    'Kathua','Kishtwar','Kulgam','Kupwara','Poonch','Pulwama','Rajouri',
-    'Ramban','Reasi','Samba','Shopian','Srinagar','Udhampur',
+    'Anantnag', 'Bandipora', 'Baramulla', 'Budgam', 'Doda', 'Ganderbal', 'Jammu',
+    'Kathua', 'Kishtwar', 'Kulgam', 'Kupwara', 'Poonch', 'Pulwama', 'Rajouri',
+    'Ramban', 'Reasi', 'Samba', 'Shopian', 'Srinagar', 'Udhampur',
   ],
-  'Ladakh': ['Kargil','Leh'],
-  'Andaman and Nicobar Islands': ['Nicobar','North and Middle Andaman','South Andaman'],
+  'Ladakh': ['Kargil', 'Leh'],
+  'Andaman and Nicobar Islands': ['Nicobar', 'North and Middle Andaman', 'South Andaman'],
   'Lakshadweep': ['Lakshadweep'],
-  'Dadra and Nagar Haveli and Daman and Diu': ['Dadra and Nagar Haveli','Daman','Diu'],
+  'Dadra and Nagar Haveli and Daman and Diu': ['Dadra and Nagar Haveli', 'Daman', 'Diu'],
 }
 
 /* ─── Cascading select helper ─── */
@@ -593,24 +593,24 @@ function ZoneDetailModal({ zone, onClose, onEdit, onClone }) {
         <div style={{ flex: 1, overflowY: 'auto', padding: '4px 20px 16px' }}>
 
           <SectionHead icon="🏷" title="Zone Identity" />
-          <DRow label="Zone Name"  value={zone.zoneName || zone.zoneNameLong} />
+          <DRow label="Zone Name" value={zone.zoneName || zone.zoneNameLong} />
 
           <SectionHead icon="📍" title="Map Location" />
-          <DRow label="Latitude"   value={zone.lat} />
-          <DRow label="Longitude"  value={zone.lng} />
+          <DRow label="Latitude" value={zone.lat} />
+          <DRow label="Longitude" value={zone.lng} />
 
           <SectionHead icon="🏠" title="Address" />
           <DRow label="Address Line 1" value={zone.addressLine1} />
           <DRow label="Address Line 2" value={zone.addressLine2} />
-          <DRow label="City"           value={zone.city} />
-          <DRow label="District"       value={zone.district} />
-          <DRow label="State"          value={zone.state} />
-          <DRow label="Country"        value={zone.country} />
-          <DRow label="Pincode"        value={zone.pincode} />
+          <DRow label="City" value={zone.city} />
+          <DRow label="District" value={zone.district} />
+          <DRow label="State" value={zone.state} />
+          <DRow label="Country" value={zone.country} />
+          <DRow label="Pincode" value={zone.pincode} />
 
           <SectionHead icon="📞" title="Contact" />
-          <DRow label="Mobile"  value={zone.mobile} />
-          <DRow label="Email"   value={zone.email} />
+          <DRow label="Mobile" value={zone.mobile} />
+          <DRow label="Email" value={zone.email} />
 
         </div>
 
@@ -643,21 +643,21 @@ const zoneBlank = {
 }
 
 function ZoneSection() {
-  const [form, setForm]               = useState(zoneBlank)
-  const [saved, setSaved]             = useState([])
-  const [sel, setSel]                 = useState(null)
-  const [confirm, setConfirm]         = useState(false)
-  const [busy, setBusy]               = useState(false)
-  const [show, setShow]               = useState(true)
-  const [selectMode, setSelectMode]   = useState(false)
+  const [form, setForm] = useState(zoneBlank)
+  const [saved, setSaved] = useState([])
+  const [sel, setSel] = useState(null)
+  const [confirm, setConfirm] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [show, setShow] = useState(true)
+  const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
-  const [geocoding, setGeocoding]     = useState(false)
+  const [geocoding, setGeocoding] = useState(false)
   const [loadingZones, setLoadingZones] = useState(false)
-  const [loadError, setLoadError]       = useState(null)
-  const [viewZone, setViewZone]         = useState(null)   // zone detail modal
+  const [loadError, setLoadError] = useState(null)
+  const [viewZone, setViewZone] = useState(null)   // zone detail modal
 
   // ── cascading dropdown derived state ──
-  const stateList    = GEO_DATA[form.country] || []
+  const stateList = GEO_DATA[form.country] || []
   const districtList = DISTRICT_DATA[form.state] || []
 
   const loadZones = async () => {
@@ -681,14 +681,14 @@ function ZoneSection() {
     return () => window.removeEventListener('zones-updated', loadZones)
   }, [])
 
-  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const e = {...p}; delete e[k]; return e }) }
+  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const e = { ...p }; delete e[k]; return e }) }
 
   // when country changes, reset state (but keep city — user may re-type)
   const setCountry = v => setForm(p => ({ ...p, country: v, state: '', district: '' }))
   // when state changes just update state
-  const setState_  = v => setForm(p => ({ ...p, state: v, district: '' }))
+  const setState_ = v => setForm(p => ({ ...p, state: v, district: '' }))
 
-  const handleEdit  = async item => {
+  const handleEdit = async item => {
     // Normalise country capitalisation for dropdown match
     const country = COUNTRY_LIST.find(c => c.toLowerCase() === str(item.country).toLowerCase()) || item.country || 'India'
     // Pre-populate immediately so UI responds fast
@@ -702,7 +702,7 @@ function ZoneSection() {
           const fullCountry = COUNTRY_LIST.find(c => c.toLowerCase() === str(full.country).toLowerCase()) || full.country || 'India'
           setForm({ ...zoneBlank, ...full, zoneName: full.zoneName || full.zoneNameLong || '', country: fullCountry })
         }
-      } catch {}
+      } catch { }
     }
   }
 
@@ -720,9 +720,9 @@ function ZoneSection() {
 
   const [errors, setErrors] = useState({})
   const handleCancel = () => { setForm(zoneBlank); setSel(null); setErrors({}) }
-  const handleSave   = () => {
+  const handleSave = () => {
     const errs = {}
-    if (!form.zoneName)     errs.zoneName     = 'Zone Name is required'
+    if (!form.zoneName) errs.zoneName = 'Zone Name is required'
     if (!form.addressLine1) errs.addressLine1 = 'Address Line 1 is required by the server'
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
@@ -733,23 +733,23 @@ function ZoneSection() {
     setForm(p => ({ ...p, lat, lng }))
     setGeocoding(true)
     try {
-      const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
       const data = await res.json()
-      const a    = data.address || {}
+      const a = data.address || {}
       const rawCountry = a.country || ''
       const country = COUNTRY_LIST.find(c => c.toLowerCase() === rawCountry.toLowerCase()) || rawCountry
       setForm(p => ({
         ...p,
-        liveAddress:  data.display_name || '',
+        liveAddress: data.display_name || '',
         addressLine1: [a.house_number, a.road].filter(Boolean).join(' '),
         addressLine2: [a.suburb, a.neighbourhood].filter(Boolean).join(', '),
-        city:         a.city || a.town || a.village || '',
-        district:     a.county || a.state_district || '',
-        state:        a.state || '',
+        city: a.city || a.town || a.village || '',
+        district: a.county || a.state_district || '',
+        state: a.state || '',
         country,
-        pincode:      a.postcode || '',
+        pincode: a.postcode || '',
       }))
-    } catch {}
+    } catch { }
     setGeocoding(false)
   }
 
@@ -784,7 +784,7 @@ function ZoneSection() {
     }
   }
 
-  const enterSel  = id => { setSelectMode(true); setSelectedIds([id]) }
+  const enterSel = id => { setSelectMode(true); setSelectedIds([id]) }
   const toggleSel = fn => setSelectedIds(typeof fn === 'function' ? fn : fn)
   const cancelSel = () => { setSelectMode(false); setSelectedIds([]) }
   const deleteSel = async () => {
@@ -801,15 +801,15 @@ function ZoneSection() {
   }
 
   const summary = [
-    { label: 'Zone Name',    value: form.zoneName },
+    { label: 'Zone Name', value: form.zoneName },
     { label: 'Live Address', value: form.liveAddress },
-    { label: 'City',         value: form.city },
-    { label: 'District',     value: form.district },
-    { label: 'State',        value: form.state },
-    { label: 'Country',      value: form.country },
-    { label: 'Pincode',      value: form.pincode },
-    { label: 'Mobile',       value: form.mobile },
-    { label: 'Email',        value: form.email },
+    { label: 'City', value: form.city },
+    { label: 'District', value: form.district },
+    { label: 'State', value: form.state },
+    { label: 'Country', value: form.country },
+    { label: 'Pincode', value: form.pincode },
+    { label: 'Mobile', value: form.mobile },
+    { label: 'Email', value: form.email },
   ]
 
   const sectionLabel = {
@@ -831,15 +831,15 @@ function ZoneSection() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <p style={sectionLabel}>Zone Identity</p>
           <div>
-            <TextField label={<>Zone Name <span style={{color:'#d93025'}}>*</span></>} value={form.zoneName} onChange={v => set('zoneName', v)} placeholder="e.g. North Industrial Zone" />
-            {errors.zoneName && <p style={{margin:'4px 0 0',fontSize:'11px',color:'#d93025'}}>{errors.zoneName}</p>}
+            <TextField label={<>Zone Name <span style={{ color: '#d93025' }}>*</span></>} value={form.zoneName} onChange={v => set('zoneName', v)} placeholder="e.g. North Industrial Zone" />
+            {errors.zoneName && <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#d93025' }}>{errors.zoneName}</p>}
           </div>
 
           <p style={sectionLabel}>
             Map Location {geocoding && <span style={{ fontWeight: 400, color: '#9aa0a6', textTransform: 'none', fontSize: '11px' }}>— fetching address…</span>}
           </p>
           <Row>
-            <TextField label="Latitude"  value={form.lat} onChange={v => set('lat', parseFloat(v) || 0)} type="number" />
+            <TextField label="Latitude" value={form.lat} onChange={v => set('lat', parseFloat(v) || 0)} type="number" />
             <TextField label="Longitude" value={form.lng} onChange={v => set('lng', parseFloat(v) || 0)} type="number" />
           </Row>
           <LocationMap lat={form.lat} lng={form.lng} onChange={reverseGeocode} />
@@ -849,8 +849,8 @@ function ZoneSection() {
             <input value={form.liveAddress} onChange={e => set('liveAddress', e.target.value)} placeholder="Drag pin or click map to auto-fill" style={iStyle} />
           </Field>
           <div>
-            <TextField label={<>Address Line 1 <span style={{color:'#d93025'}}>*</span></>} value={form.addressLine1} onChange={v => set('addressLine1', v)} placeholder="House / Building / Street" />
-            {errors.addressLine1 && <p style={{margin:'4px 0 0',fontSize:'11px',color:'#d93025'}}>⚠ {errors.addressLine1}</p>}
+            <TextField label={<>Address Line 1 <span style={{ color: '#d93025' }}>*</span></>} value={form.addressLine1} onChange={v => set('addressLine1', v)} placeholder="House / Building / Street" />
+            {errors.addressLine1 && <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#d93025' }}>⚠ {errors.addressLine1}</p>}
           </div>
           <TextField label="Address Line 2" value={form.addressLine2} onChange={v => set('addressLine2', v)} placeholder="Area / Locality" />
 
@@ -893,8 +893,8 @@ function ZoneSection() {
 
           <p style={sectionLabel}>Contact</p>
           <Row>
-            <TextField label="Mobile" value={form.mobile} onChange={v => set('mobile', v)} type="tel"   placeholder="+91 XXXXX XXXXX" />
-            <TextField label="Email"  value={form.email}  onChange={v => set('email', v)}  type="email" placeholder="zone@example.com" />
+            <TextField label="Mobile" value={form.mobile} onChange={v => set('mobile', v)} type="tel" placeholder="+91 XXXXX XXXXX" />
+            <TextField label="Email" value={form.email} onChange={v => set('email', v)} type="email" placeholder="zone@example.com" />
           </Row>
         </div>
 
@@ -947,16 +947,16 @@ function ZoneSection() {
             {/* ── All params as label:value rows ── */}
             {(() => {
               const rows = [
-                { label: 'Lat / Lon',  value: (item.lat && item.lng) ? `${item.lat}, ${item.lng}` : '' },
-                { label: 'Address 1',  value: item.addressLine1 },
-                { label: 'Address 2',  value: item.addressLine2 },
-                { label: 'City',       value: item.city },
-                { label: 'District',   value: item.district },
-                { label: 'State',      value: item.state },
-                { label: 'Country',    value: item.country },
-                { label: 'Pincode',    value: item.pincode },
-                { label: 'Mobile',     value: item.mobile },
-                { label: 'Email',      value: item.email },
+                { label: 'Lat / Lon', value: (item.lat && item.lng) ? `${item.lat}, ${item.lng}` : '' },
+                { label: 'Address 1', value: item.addressLine1 },
+                { label: 'Address 2', value: item.addressLine2 },
+                { label: 'City', value: item.city },
+                { label: 'District', value: item.district },
+                { label: 'State', value: item.state },
+                { label: 'Country', value: item.country },
+                { label: 'Pincode', value: item.pincode },
+                { label: 'Mobile', value: item.mobile },
+                { label: 'Email', value: item.email },
               ].filter(r => str(r.value).trim() && str(r.value).trim() !== '-' && str(r.value).trim() !== '0')
               if (rows.length === 0) return (
                 <div onClick={() => setViewZone(item)} style={{ fontSize: '11px', color: '#bbb', fontStyle: 'italic', cursor: 'pointer' }}>Tap to view details</div>
@@ -985,28 +985,28 @@ function ZoneSection() {
 const ttBlank = { typeName: '' }
 
 function TripTypeSection() {
-  const [form, setForm]               = useState(ttBlank)
-  const [saved, setSaved]             = useState([])
-  const [sel, setSel]                 = useState(null)
-  const [confirm, setConfirm]         = useState(false)
-  const [busy, setBusy]               = useState(false)
-  const [show, setShow]               = useState(true)
-  const [selectMode, setSelectMode]   = useState(false)
+  const [form, setForm] = useState(ttBlank)
+  const [saved, setSaved] = useState([])
+  const [sel, setSel] = useState(null)
+  const [confirm, setConfirm] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [show, setShow] = useState(true)
+  const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
-  const [errors, setErrors]           = useState({})
+  const [errors, setErrors] = useState({})
 
   // ✅ FIX: Centralized loader — always fetches fresh from API
   const loadData = async () => {
-    try { setSaved(await getTripTypes()) } catch {}
+    try { setSaved(await getTripTypes()) } catch { }
   }
 
   useEffect(() => { loadData() }, [])
 
-  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const e = {...p}; delete e[k]; return e }) }
-  const handleEdit   = item => { setForm({ typeName: item.typeName || '' }); setSel(item.id); setErrors({}) }
-  const handleClone  = item => { setForm({ typeName: item.typeName || '' }); setSel(null); setErrors({}) }
+  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const e = { ...p }; delete e[k]; return e }) }
+  const handleEdit = item => { setForm({ typeName: item.typeName || '' }); setSel(item.id); setErrors({}) }
+  const handleClone = item => { setForm({ typeName: item.typeName || '' }); setSel(null); setErrors({}) }
   const handleCancel = () => { setForm(ttBlank); setSel(null); setErrors({}) }
-  const handleSave   = () => { if (!form.typeName) return; setConfirm(true) }
+  const handleSave = () => { if (!form.typeName) return; setConfirm(true) }
 
   const handleConfirmed = async () => {
     setBusy(true)
@@ -1037,7 +1037,7 @@ function TripTypeSection() {
     }
   }
 
-  const enterSel  = id => { setSelectMode(true); setSelectedIds([id]) }
+  const enterSel = id => { setSelectMode(true); setSelectedIds([id]) }
   const toggleSel = fn => setSelectedIds(typeof fn === 'function' ? fn : fn)
   const cancelSel = () => { setSelectMode(false); setSelectedIds([]) }
   const deleteSel = async () => {
@@ -1092,20 +1092,20 @@ function TripTypeSection() {
 const ptBlank = { patrolName: '' }
 
 function PatrolTypeSection() {
-  const [form, setForm]               = useState(ptBlank)
-  const [saved, setSaved]             = useState([])
-  const [sel, setSel]                 = useState(null)
-  const [confirm, setConfirm]         = useState(false)
-  const [busy, setBusy]               = useState(false)
-  const [show, setShow]               = useState(true)
-  const [selectMode, setSelectMode]   = useState(false)
+  const [form, setForm] = useState(ptBlank)
+  const [saved, setSaved] = useState([])
+  const [sel, setSel] = useState(null)
+  const [confirm, setConfirm] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [show, setShow] = useState(true)
+  const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
-  const [errors, setErrors]           = useState({})
-  const [searching, setSearching]     = useState(false)
+  const [errors, setErrors] = useState({})
+  const [searching, setSearching] = useState(false)
 
   // ✅ Load all patrol types on mount
   const loadData = async () => {
-    try { setSaved(await getPatrolTypes()) } catch {}
+    try { setSaved(await getPatrolTypes()) } catch { }
   }
 
   useEffect(() => { loadData() }, [])
@@ -1123,11 +1123,11 @@ function PatrolTypeSection() {
     }
   }
 
-  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const e = {...p}; delete e[k]; return e }) }
-  const handleEdit   = item => { setForm({ patrolName: item.patrolName || item.typeName || '' }); setSel(item.id); setErrors({}) }
-  const handleClone  = item => { setForm({ patrolName: item.patrolName || item.typeName || '' }); setSel(null); setErrors({}) }
+  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const e = { ...p }; delete e[k]; return e }) }
+  const handleEdit = item => { setForm({ patrolName: item.patrolName || item.typeName || '' }); setSel(item.id); setErrors({}) }
+  const handleClone = item => { setForm({ patrolName: item.patrolName || item.typeName || '' }); setSel(null); setErrors({}) }
   const handleCancel = () => { setForm(ptBlank); setSel(null); setErrors({}) }
-  const handleSave   = () => { if (!form.patrolName) return; setConfirm(true) }
+  const handleSave = () => { if (!form.patrolName) return; setConfirm(true) }
 
   const handleConfirmed = async () => {
     setBusy(true)
@@ -1158,7 +1158,7 @@ function PatrolTypeSection() {
     }
   }
 
-  const enterSel  = id => { setSelectMode(true); setSelectedIds([id]) }
+  const enterSel = id => { setSelectMode(true); setSelectedIds([id]) }
   const toggleSel = fn => setSelectedIds(typeof fn === 'function' ? fn : fn)
   const cancelSel = () => { setSelectMode(false); setSelectedIds([]) }
   const deleteSel = async () => {
@@ -1214,20 +1214,22 @@ function PatrolTypeSection() {
 const desigBlank = { designationName: '' }
 
 function DesignationSection() {
-  const [form, setForm]               = useState(desigBlank)
-  const [saved, setSaved]             = useState([])
-  const [sel, setSel]                 = useState(null)
-  const [confirm, setConfirm]         = useState(false)
-  const [busy, setBusy]               = useState(false)
-  const [show, setShow]               = useState(true)
-  const [selectMode, setSelectMode]   = useState(false)
+  const [form, setForm] = useState(desigBlank)
+  const [saved, setSaved] = useState([])
+  const [sel, setSel] = useState(null)
+  const [confirm, setConfirm] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [show, setShow] = useState(true)
+  const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
-  const [errors, setErrors]           = useState({})
-  const [searching, setSearching]     = useState(false)
+  const [errors, setErrors] = useState({})
+  const [searching, setSearching] = useState(false)
 
   // ✅ FIX: Centralized loader
   const loadData = async () => {
-    try { setSaved(await getDesignations()) } catch {}
+    try { 
+      const res=await getDesignations()
+      setSaved(res) } catch { }
   }
 
   useEffect(() => { loadData() }, [])
@@ -1245,11 +1247,11 @@ function DesignationSection() {
     }
   }
 
-  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const e = {...p}; delete e[k]; return e }) }
-  const handleEdit   = item => { setForm({ designationName: item.designationName }); setSel(item.id); setErrors({}) }
-  const handleClone  = item => { setForm({ designationName: item.designationName }); setSel(null); setErrors({}) }
+  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const e = { ...p }; delete e[k]; return e }) }
+  const handleEdit = item => { setForm({ designationName: item.designationName }); setSel(item.id); setErrors({}) }
+  const handleClone = item => { setForm({ designationName: item.designationName }); setSel(null); setErrors({}) }
   const handleCancel = () => { setForm(desigBlank); setSel(null); setErrors({}) }
-  const handleSave   = () => { if (!form.designationName) return; setConfirm(true) }
+  const handleSave = () => { if (!form.designationName) return; setConfirm(true) }
 
   const handleConfirmed = async () => {
     setBusy(true)
@@ -1280,7 +1282,7 @@ function DesignationSection() {
     }
   }
 
-  const enterSel  = id => { setSelectMode(true); setSelectedIds([id]) }
+  const enterSel = id => { setSelectMode(true); setSelectedIds([id]) }
   const toggleSel = fn => setSelectedIds(typeof fn === 'function' ? fn : fn)
   const cancelSel = () => { setSelectMode(false); setSelectedIds([]) }
   const deleteSel = async () => {
@@ -1335,20 +1337,20 @@ function DesignationSection() {
 const deptBlank = { departmentName: '' }
 
 function DepartmentSection() {
-  const [form, setForm]               = useState(deptBlank)
-  const [saved, setSaved]             = useState([])
-  const [sel, setSel]                 = useState(null)
-  const [confirm, setConfirm]         = useState(false)
-  const [busy, setBusy]               = useState(false)
-  const [show, setShow]               = useState(true)
-  const [selectMode, setSelectMode]   = useState(false)
+  const [form, setForm] = useState(deptBlank)
+  const [saved, setSaved] = useState([])
+  const [sel, setSel] = useState(null)
+  const [confirm, setConfirm] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [show, setShow] = useState(true)
+  const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
-  const [errors, setErrors]           = useState({})
-  const [searching, setSearching]     = useState(false)
+  const [errors, setErrors] = useState({})
+  const [searching, setSearching] = useState(false)
 
   // ✅ FIX: Centralized loader
   const loadData = async () => {
-    try { setSaved(await getDepartments()) } catch {}
+    try { setSaved(await getDepartments()) } catch { }
   }
 
   useEffect(() => { loadData() }, [])
@@ -1366,11 +1368,11 @@ function DepartmentSection() {
     }
   }
 
-  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const e = {...p}; delete e[k]; return e }) }
-  const handleEdit   = item => { setForm({ departmentName: item.departmentName }); setSel(item.id); setErrors({}) }
-  const handleClone  = item => { setForm({ departmentName: item.departmentName }); setSel(null); setErrors({}) }
+  const set = (k, v) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const e = { ...p }; delete e[k]; return e }) }
+  const handleEdit = item => { setForm({ departmentName: item.departmentName }); setSel(item.id); setErrors({}) }
+  const handleClone = item => { setForm({ departmentName: item.departmentName }); setSel(null); setErrors({}) }
   const handleCancel = () => { setForm(deptBlank); setSel(null); setErrors({}) }
-  const handleSave   = () => { if (!form.departmentName) return; setConfirm(true) }
+  const handleSave = () => { if (!form.departmentName) return; setConfirm(true) }
 
   const handleConfirmed = async () => {
     setBusy(true)
@@ -1401,7 +1403,7 @@ function DepartmentSection() {
     }
   }
 
-  const enterSel  = id => { setSelectMode(true); setSelectedIds([id]) }
+  const enterSel = id => { setSelectMode(true); setSelectedIds([id]) }
   const toggleSel = fn => setSelectedIds(typeof fn === 'function' ? fn : fn)
   const cancelSel = () => { setSelectMode(false); setSelectedIds([]) }
   const deleteSel = async () => {
@@ -1454,20 +1456,20 @@ function DepartmentSection() {
    OTHERS FORM — top-level with sub-tabs
 ═══════════════════════════════════════════════════════════ */
 const SUB_TABS = [
-  { key: 'zone',        label: 'Zones',        icon: '🗺' },
-  { key: 'patroltype',  label: 'Patrol Types', icon: '🔖' },
+  { key: 'zone', label: 'Zones', icon: '🗺' },
+  { key: 'patroltype', label: 'Patrol Types', icon: '🔖' },
   { key: 'designation', label: 'Designations', icon: '🏷' },
-  { key: 'department',  label: 'Departments',  icon: '🏢' },
+  { key: 'department', label: 'Departments', icon: '🏢' },
 ]
 
 export default function OthersForm() {
   const [active, setActive] = useState('zone')
 
   const Comp = {
-    zone:        ZoneSection,
-    patroltype:  PatrolTypeSection,
+    zone: ZoneSection,
+    patroltype: PatrolTypeSection,
     designation: DesignationSection,
-    department:  DepartmentSection,
+    department: DepartmentSection,
   }[active]
 
   return (
