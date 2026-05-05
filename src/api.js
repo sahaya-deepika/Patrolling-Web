@@ -1050,7 +1050,7 @@ export async function getPatrolTypes() {
       id: 0, name: 'all',
       limit: 100, offset: 0,
       e_id: auth.e_id, api_key: auth.api_key,
-          name: 'all', lat: '0', lon: '0',
+      name: 'all', lat: '0', lon: '0',
     adrs1: '-', adrs2: '-', city: '-',
     district: '-', state: '-', country: 'india',
     zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
@@ -1058,9 +1058,10 @@ export async function getPatrolTypes() {
     }),
   })
   const data = await res.json()
+  console.log(data);
   if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch patrol types')
   const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
-  return records.map(r => ({ id: r.id ?? r.value, patrolName: str(r.name || r.patrol_name || r.patrolName || r.label) }))
+  return records.map(r => ({ id: r.value ?? r.value, patrolName: str(r.label || r.patrol_name || r.patrolName || r.label) }))
 }
 
 export async function getPatrolTypeById(id) {
@@ -1123,6 +1124,10 @@ export async function deletePatrolType(id) {
       district: '-', state: '-', country: 'india',
       zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
+      name: 'all', lat: '0', lon: '0',
+    adrs1: '-', adrs2: '-', city: '-',
+    district: '-', state: '-', country: 'india',
+    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
     }),
   })
   const data = await res.json()
