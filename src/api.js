@@ -44,6 +44,24 @@ export function notifyZonesUpdated() {
   }
 }
 
+export function notifyPatrolTypesUpdated() {
+  if (typeof window !== 'undefined' && window?.dispatchEvent) {
+    window.dispatchEvent(new Event('patroltypes-updated'))
+  }
+}
+
+export function notifyDesignationsUpdated() {
+  if (typeof window !== 'undefined' && window?.dispatchEvent) {
+    window.dispatchEvent(new Event('designations-updated'))
+  }
+}
+
+export function notifyDepartmentsUpdated() {
+  if (typeof window !== 'undefined' && window?.dispatchEvent) {
+    window.dispatchEvent(new Event('departments-updated'))
+  }
+}
+
 const str = v => (v == null ? '' : String(v))
 
 // ── AUTHENTICATION ────────────────────────────────────────────────────────────
@@ -205,12 +223,151 @@ export const fetchEmployeeAttendanceDetail = id => fetchById('employeeAttendance
 export const fetchPunctualEmployees = f => fetchOne('punctualEmployees', f)
 
 // ── MASTER FORM — USERS ───────────────────────────────────────────────────────
-export const getUsers = () => getMany('users')
-export const getUserById = (id) => fetchById('users', id)
-export const createUser = (body) => postOne('user/create', body)
-export const updateUser = (id, b) => putOne('user/update', id, b)
-export const patchUser = (id, b) => patchOne('user/update', id, b)
-export const deleteUser = (id) => deleteOne('user/delete', id)
+
+const USER_COMMON = (auth) => ({
+  limit: '100', offset: '0',
+  lat: '11.0271', lon: '76.9830',
+  adrs1: '-', adrs2: '-', city: '-',
+  district: '-', state: '-', country: 'india',
+  zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+  e_id: auth.e_id, api_key: auth.api_key,
+})
+
+function userFromRecord(r) {
+  return {
+    id:         r.id ?? r.user_id,
+    userid:     str(r.userid   || r.user_id   || r.empId || ''),
+    userName:   str(r.name     || r.userName  || r.user_name || ''),
+    mobile:     str(r.mobile   || ''),
+    mail:       str(r.mail     || r.email     || ''),
+    zone:       str(r.zone     || ''),
+    dsg:        str(r.dsg      || r.designation || ''),
+    patroltype: str(r.patroltype || r.patrol_type || ''),
+    dept:       str(r.dept     || r.department   || ''),
+    is_admin:   r.is_admin === '1' || r.is_admin === true || r.is_admin === 1,
+    role:       str(r.role     || '2'),
+    imagePreview: r.image_url  || r.imagePreview || null,
+  }
+}
+
+/** user/view — fetch all users */
+export async function getUsers() {
+  const auth = getAuth()
+  try {
+    const res = await fetch(`${BASE}/user/view`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...USER_COMMON(auth), id: '1', name: 'all' }),
+    })
+    const data = await res.json()
+    if (!data.error && data.result) {
+      const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+      if (records.length > 0) return records.map(userFromRecord)
+    }
+  } catch { /* fall through to filter */ }
+
+  // fallback: user/filter
+  const res2 = await fetch(`${BASE}/user/filter`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...USER_COMMON(auth), id: '1', name: 'all' }),
+  })
+  const data2 = await res2.json()
+  if (data2.error || !data2.result) return []   // graceful — empty list beats crash
+  const records2 = Array.isArray(data2.data) ? data2.data : (data2.data?.records || [])
+  return records2.map(userFromRecord)
+}
+
+export async function getUserById(id) {
+  const all = await getUsers()
+  const match = all.find(u => String(u.id) === String(id))
+  if (!match) throw new Error(`User not found: ${id}`)
+  return match
+}
+
+/** user/create */
+export async function createUser(form) {
+  const auth = getAuth()
+  const payload = {
+    ...USER_COMMON(auth),
+    id:        '1',
+    e_id:      str(form.e_id || auth.e_id),
+    name:      str(form.name || form.userName),
+    userid:    str(form.userid || ''),
+    mobile:    str(form.mobile || '0000000000'),
+    mail:      str(form.mail   || 'a@a.com'),
+    zone:      Array.isArray(form.zone) ? form.zone : [str(form.zone || '')],
+    dsg:       str(form.dsg || ''),
+    patroltype:str(form.patroltype || ''),
+    dept:      str(form.dept || ''),
+    is_admin:  form.is_admin ? '1' : '0',
+    role:      str(form.role || '2'),
+    shift:     '2',
+  }
+  const res = await fetch(`${BASE}/user/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  const text = await res.text()
+  let data
+  try { data = JSON.parse(text) } catch { throw new Error('Server returned non-JSON on user/create') }
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to create user')
+  const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  return userFromRecord({ ...payload, ...r, id: r.id || Date.now() })
+}
+
+/** user/delete */
+export async function deleteUser(id) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/user/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...USER_COMMON(auth), id: String(id), name: 'all' }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to delete user')
+  return true
+}
+
+/** user/clone */
+export async function cloneUser(id) {
+  const auth = getAuth()
+  try {
+    const res = await fetch(`${BASE}/user/clone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...USER_COMMON(auth), id: String(id) }),
+    })
+    const data = await res.json()
+    if (!data.error && data.result) {
+      const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+      return userFromRecord({ ...r, id: r.id || Date.now() })
+    }
+  } catch {}
+  // Fallback: read source then create copy
+  const source = await getUserById(id)
+  const { id: _id, ...rest } = source
+  return createUser({ ...rest, name: `${rest.userName} (copy)`, userid: '' })
+}
+
+/** user/filter — search by name/id */
+export async function filterUsers(query = 'all') {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/user/filter`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...USER_COMMON(auth), id: '1', name: query || 'all' }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) return []
+  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+  return records.map(userFromRecord)
+}
+
+// Keep patchUser alias for any existing callers (no-op update path)
+export const updateUser = async (_id, _b) => { throw new Error('updateUser (user/update) is disabled — skipped per spec') }
+export const patchUser  = updateUser
 
 export async function getEmployeeNames() {
   const all = await getAll('attendanceList')
@@ -264,46 +421,31 @@ export const patchEmployee = (id, b) => patchOne('employees', id, b)
 export const deleteEmployee = (id) => deleteOne('employees', id)
 
 // ── MASTER FORM — DESIGNATIONS ────────────────────────────────────────────────
-export async function getDesignations() {
+export async function getDesignations(form = null) {
   const auth = getAuth()
   const payload = {
-    id: 0, limit: '100', offset: '0', name: 'all',
+    id: 0, limit: '100', offset: '0',
+    name: (form && form.designationName) ? form.designationName : 'all',
+    e_id: auth.e_id, api_key: auth.api_key,
     lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
     district: '-', state: '-', country: 'india',
     zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-    e_id: auth.e_id, api_key: auth.api_key,
   }
   const parseRecords = (data) => {
     const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
-    return records.map(r => ({ id: r.id, designationName: str(r.name || r.designation_name || r.designationName) }))
+    return records.map(r => ({ id: r.value ?? r.id, designationName: str(r.label || r.designation_name || r.designationName) }))
   }
-  // Try /view first (canonical "fetch all" endpoint)
-  try {
-    const res = await fetch(`${BASE}/designation/view`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    const data = await res.json()
-    if (!data.error && data.result) {
-      const rows = parseRecords(data)
-      if (rows.length > 0) return rows
-    }
-  } catch { /* fall through */ }
-  // Fallback to /filter
   const res = await fetch(`${BASE}/designation/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: 0, name: 'all',
-      limit: 100, offset: 0,
-      e_id: auth.e_id, api_key: auth.api_key,
-    }),
+    body: JSON.stringify(payload),
   })
   const data = await res.json()
-  if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch designations')
-  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
-  return records.map(r => ({ id: r.id, designationName: str(r.name || r.designation_name || r.designationName) }))
+  if (!data.error && data.result) {
+    const rows = parseRecords(data)
+    if (rows.length > 0) return rows
+  }
+  return []
 }
 
 export async function getDesignationById(id) {
@@ -313,18 +455,19 @@ export async function getDesignationById(id) {
   return match
 }
 
-export async function createDesignation(form) {
+export async function createDesignation(form, isClone = false) {
   const auth = getAuth()
+  console.log("desg name "+form.designationName);
   const res = await fetch(`${BASE}/designation/create`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: 0, name: form.designationName, zone_id: form.zone_id || 0,
-      limit: '10', offset: '0',
+      name: form.designationName, zone_id: form.zone_id || 0,
+      id: 21,limit: '10', offset: '0',
       lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
       district: '-', state: '-', country: 'india',
       zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-      e_id: auth.e_id, api_key: auth.api_key,
+      e_id: auth.e_id, api_key: auth.api_key, 
     }),
   })
   const text = await res.text()
@@ -332,6 +475,7 @@ export async function createDesignation(form) {
   try { data = JSON.parse(text) } catch { throw new Error('Server returned non-JSON — check designation/create endpoint') }
   if (data.error || !data.result) throw new Error(data.message || 'Failed to create designation')
   const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  notifyDesignationsUpdated()
   return { id: r.id || Date.now(), designationName: r.name || r.designation_name || r.designationName || form.designationName }
 }
 
@@ -351,6 +495,7 @@ export async function updateDesignation(id, form) {
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to update designation')
+  notifyDesignationsUpdated()
   return { id, designationName: form.designationName }
 }
 
@@ -360,7 +505,7 @@ export async function deleteDesignation(id) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id,
+      id,name: 'all',
       limit: '10', offset: '0',
       lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
       district: '-', state: '-', country: 'india',
@@ -370,6 +515,7 @@ export async function deleteDesignation(id) {
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to delete designation')
+  notifyDesignationsUpdated()
   return true
 }
 
@@ -449,6 +595,7 @@ export async function createDepartment(form) {
   try { data = JSON.parse(text) } catch { throw new Error('Server returned non-JSON — check department/create endpoint') }
   if (data.error || !data.result) throw new Error(data.message || 'Failed to create department')
   const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  notifyDepartmentsUpdated()
   return { id: r.id || Date.now(), departmentName: r.name || r.department_name || r.departmentName || form.departmentName }
 }
 
@@ -468,6 +615,7 @@ export async function updateDepartment(id, form) {
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to update department')
+  notifyDepartmentsUpdated()
   return { id, departmentName: form.departmentName }
 }
 
@@ -477,7 +625,7 @@ export async function deleteDepartment(id) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id,
+      id,name: 'all',
       limit: '10', offset: '0',
       lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
       district: '-', state: '-', country: 'india',
@@ -487,6 +635,7 @@ export async function deleteDepartment(id) {
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to delete department')
+  notifyDepartmentsUpdated()
   return true
 }
 
@@ -717,7 +866,10 @@ export async function getZones() {
         body: JSON.stringify({
           id: 0, limit: '100', offset: '0',
           e_id: auth.e_id, api_key: auth.api_key, userid: "1", "dsg": "manager",
-          ...extraFields,
+            name: 'all', lat: '0', lon: '0',
+    adrs1: '-', adrs2: '-', city: '-',
+    district: '-', state: '-', country: 'india',
+    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
         }),
       })
       const data = await res.json()
@@ -889,7 +1041,10 @@ export async function cloneZone(id) {
   const res = await fetch(`${BASE}/zone/clone`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify({ id, limit: '10', offset: '0', e_id: auth.e_id, api_key: auth.api_key }),
+    body   : JSON.stringify({ id, limit: '10', offset: '0', e_id: auth.e_id, api_key: auth.api_key, name: 'all', lat: '0', lon: '0',
+    adrs1: '-', adrs2: '-', city: '-',
+    district: '-', state: '-', country: 'india',
+    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000', }),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to clone zone')
@@ -1141,7 +1296,10 @@ export async function getPatrolTypes() {
     body: JSON.stringify({
       id: 0, name: 'all',
       limit: 100, offset: 0,
-      e_id: auth.e_id, api_key: auth.api_key,
+      e_id: auth.e_id, api_key: auth.api_key, lat: '0', lon: '0',
+    adrs1: '-', adrs2: '-', city: '-',
+    district: '-', state: '-', country: 'india',
+    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
     }),
   })
   const data = await res.json()
@@ -1177,6 +1335,7 @@ export async function createPatrolType(form) {
   try { data = JSON.parse(text) } catch { throw new Error('Server returned non-JSON — check patrol_type/create endpoint') }
   if (data.error || !data.result) throw new Error(data.message || 'Failed to create patrol type')
   const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  notifyPatrolTypesUpdated()
   return { id: r.id || Date.now(), patrolName: r.name || r.patrol_name || r.patrolName || form.patrolName }
 }
 
@@ -1196,6 +1355,7 @@ export async function updatePatrolType(id, form) {
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to update patrol type')
+  notifyPatrolTypesUpdated()
   return { id, patrolName: form.patrolName }
 }
 
@@ -1219,6 +1379,7 @@ export async function deletePatrolType(id) {
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to delete patrol type')
+  notifyPatrolTypesUpdated()
   return true
 }
 
