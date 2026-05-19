@@ -6,7 +6,7 @@ const NAV = [
   { to: '/dashboard',  label: 'Dashboard',  Icon: FiGrid      },
   { to: '/schedule',   label: 'Schedule',   Icon: FiClock     },
   { to: '/attendance', label: 'Attendance', Icon: FiClipboard },
-  { to: '/reports',    label: 'Forms',Icon: FiMapPin    },
+  { to: '/reports',    label: 'Forms',      Icon: FiMapPin    },
   { to: '/settings',   label: 'Settings',   Icon: FiSettings  },
 ]
 

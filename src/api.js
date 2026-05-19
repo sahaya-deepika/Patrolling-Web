@@ -50,6 +50,18 @@ export function notifyPatrolTypesUpdated() {
   }
 }
 
+export function notifyLocationsUpdated() {
+  if (typeof window !== 'undefined' && window?.dispatchEvent) {
+    window.dispatchEvent(new Event('locations-updated'))
+  }
+}
+
+export function notifyTripsUpdated() {
+  if (typeof window !== 'undefined' && window?.dispatchEvent) {
+    window.dispatchEvent(new Event('trips-updated'))
+  }
+}
+
 export function notifyDesignationsUpdated() {
   if (typeof window !== 'undefined' && window?.dispatchEvent) {
     window.dispatchEvent(new Event('designations-updated'))
@@ -63,6 +75,17 @@ export function notifyDepartmentsUpdated() {
 }
 
 const str = v => (v == null ? '' : String(v))
+
+// ── UNIVERSAL NUMERIC ID EXTRACTOR ───────────────────────────────────────────
+// API schema requires dsg, dept, patroltype, zone as plain numbers (not strings).
+// Handles { value, label }, { id, label }, plain string, or plain number.
+// Returns a Number so the JSON payload satisfies the server schema validation.
+function extractNum(field) {
+  if (field == null) return 0
+  if (typeof field === 'object') return Number(field.value ?? field.id ?? 0)
+  const n = Number(field)
+  return isNaN(n) ? 0 : n
+}
 
 // ── AUTHENTICATION ────────────────────────────────────────────────────────────
 export async function login(credentials) {
@@ -78,6 +101,43 @@ export async function login(credentials) {
     throw new Error(msg)
   }
   if (data) setAuth(data)
+  return data
+}
+
+// ── LOGOUT ────────────────────────────────────────────────────────────────────
+export async function logout() {
+  const { e_id } = getAuth()
+  const stored = (() => { try { return JSON.parse(localStorage.getItem('authUser') || '{}') } catch { return {} } })()
+  const user_id = stored.user_id || stored.userId || stored.username || stored.api_key || ''
+
+  try {
+    await fetch(`${BASE}/signin/logout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id, e_id }),
+    })
+  } catch (err) {
+    console.warn('[logout] API call failed, clearing local storage anyway:', err)
+  }
+
+  // Clear all auth data from localStorage
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('refreshToken')
+  localStorage.removeItem('api_key')
+  localStorage.removeItem('e_id')
+  localStorage.removeItem('authUser')
+}
+
+// ── CHANGE PASSWORD ───────────────────────────────────────────────────────────
+export async function changePassword({ old_pass, new_pass, confirm_pass }) {
+  const { e_id } = getAuth()
+  const res = await fetch(`${BASE}/signin/update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ old_pass, new_pass, confirm_pass, e_id }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to change password')
   return data
 }
 
@@ -180,35 +240,129 @@ function datesBetween(start, end) {
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
-export const fetchTripStats = f => fetchOne('tripStats', f)
-export const fetchAttendanceStats = f => fetchOne('attendanceStats', f)
-export const fetchTodayStats = f => fetchOne('todayStats', f)
-export const fetchTodayStatsByDate = async (date) => {
-  const all = await getAll('todayStats')
-  return all.filter(row => row.date === date)
-}
-export const fetchSchedule = f => fetchMany('schedule', f)
+//
+// Three real endpoints:
+//   POST /dashboard/admin/all            → attendance + schedule (today)
+//   POST /dashboard/admin/trip_statistics → trip stats (supports date / date range)
+//   POST /dashboard/admin/statistics      → today stats per unit
+//
+// All three accept { e_id, api_key, date?, date_start?, date_end?, unit? }
 
-export async function fetchTripStatsRange(filters) {
-  const { unit, dateStart, dateEnd } = filters
-  const all = await getAll('tripStats')
-  const dates = datesBetween(dateStart, dateEnd)
-  const rows = all.filter(row => row.unit === unit && dates.includes(row.date))
-  if (rows.length === 0)
-    throw new Error(`No data found for ${unit} between ${dateStart} and ${dateEnd}`)
-  const totals = rows.reduce(
+async function dashPost(path, extra = {}) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/dashboard/admin/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ e_id: auth.e_id, api_key: auth.api_key, ...extra }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || `Dashboard API error: ${path}`)
+  return data.data ?? data
+}
+
+// ── Trip Statistics ───────────────────────────────────────────────────────────
+// Returns: { allTrips, completed, missed, ontime, late, efficiency, upcoming?, cancelled? }
+export async function fetchTripStats(filters = {}) {
+  const extra = {}
+  if (filters.date)  extra.date = filters.date
+  if (filters.unit && filters.unit !== 'All') extra.unit = filters.unit
+  const raw = await dashPost('trip_statistics', extra)
+  return normalizeTripStats(raw)
+}
+
+export async function fetchTripStatsRange(filters = {}) {
+  const extra = {}
+  if (filters.dateStart) extra.date_start = filters.dateStart
+  if (filters.dateEnd)   extra.date_end   = filters.dateEnd
+  if (filters.unit && filters.unit !== 'All') extra.unit = filters.unit
+  const raw = await dashPost('trip_statistics', extra)
+  return normalizeTripStats(raw)
+}
+
+function normalizeTripStats(raw) {
+  // Handle array (sum all records) or single object
+  const src = Array.isArray(raw) ? raw : [raw]
+  const totals = src.reduce(
     (acc, r) => ({
-      allTrips: acc.allTrips + (r.allTrips ?? 0),
-      completed: acc.completed + (r.completed ?? 0),
-      missed: acc.missed + (r.missed ?? 0),
-      ontime: acc.ontime + (r.ontime ?? 0),
-      late: acc.late + (r.late ?? 0),
-      _effSum: acc._effSum + (r.efficiency ?? 0) * (r.allTrips ?? 0),
+      allTrips:  acc.allTrips  + (r.all_trips  ?? r.allTrips  ?? r.total_trips ?? 0),
+      completed: acc.completed + (r.completed  ?? r.complete  ?? 0),
+      missed:    acc.missed    + (r.missed     ?? r.miss      ?? 0),
+      ontime:    acc.ontime    + (r.on_time    ?? r.ontime    ?? 0),
+      late:      acc.late      + (r.late       ?? 0),
+      upcoming:  acc.upcoming  + (r.upcoming   ?? 0),
+      cancelled: acc.cancelled + (r.cancelled  ?? r.cancel   ?? 0),
+      _effSum:   acc._effSum   + (r.efficiency ?? r.eff ?? 0) * (r.all_trips ?? r.allTrips ?? r.total_trips ?? 1),
     }),
-    { allTrips: 0, completed: 0, missed: 0, ontime: 0, late: 0, _effSum: 0 }
+    { allTrips: 0, completed: 0, missed: 0, ontime: 0, late: 0, upcoming: 0, cancelled: 0, _effSum: 0 }
   )
   const efficiency = totals.allTrips > 0 ? Math.round(totals._effSum / totals.allTrips) : 0
-  return { allTrips: totals.allTrips, completed: totals.completed, missed: totals.missed, ontime: totals.ontime, late: totals.late, efficiency }
+  return { ...totals, efficiency }
+}
+
+// ── Attendance Statistics ─────────────────────────────────────────────────────
+// Returns: { present, absent, ontime, late }
+export async function fetchAttendanceStats(filters = {}) {
+  const extra = {}
+  if (filters.date) extra.date = filters.date
+  if (filters.unit && filters.unit !== 'All') extra.unit = filters.unit
+  const raw = await dashPost('all', extra)
+  // Server returns attendance nested or flat — handle both shapes
+  const src = raw.attendance ?? raw.attendance_stats ?? raw
+  const obj = Array.isArray(src) ? src[0] ?? {} : src
+  return {
+    present: obj.present  ?? obj.total_present ?? 0,
+    absent:  obj.absent   ?? obj.total_absent  ?? 0,
+    ontime:  obj.on_time  ?? obj.ontime        ?? 0,
+    late:    obj.late     ?? obj.total_late    ?? 0,
+  }
+}
+
+
+export async function fetchSchedule(filters = {}) {
+  const extra = {}
+  if (filters.date) extra.date = filters.date
+  if (filters.unit && filters.unit !== 'All') extra.unit = filters.unit
+  const raw = await dashPost('all', extra)
+  const list = raw.schedule ?? raw.schedules ?? raw.today_schedule ?? raw
+  return Array.isArray(list) ? list : []
+}
+
+
+export async function fetchTodayStatsByDate(date) {
+  const extra = {}
+  if (date) extra.date = date
+  const raw = await dashPost('statistics', extra)
+  // Normalize each unit record
+  const list = Array.isArray(raw) ? raw : (raw.records ?? raw.units ?? [raw])
+  return list.map(r => ({
+    unit:      r.unit      ?? r.unit_name ?? 'All',
+    allTrips:  r.all_trips ?? r.allTrips  ?? r.total_trips ?? 0,
+    complete:  r.completed ?? r.complete  ?? 0,
+    upcoming:  r.upcoming  ?? 0,
+    missed:    r.missed    ?? r.miss      ?? 0,
+    cancelled: r.cancelled ?? r.cancel   ?? 0,
+  }))
+}
+
+// Legacy alias (used by older parts of the codebase)
+export const fetchTodayStats = (filters) => fetchTodayStatsByDate(filters?.date)
+
+// ── Schedule-based trip count for a given date ────────────────────────────────
+// Counts how many trip_schedules are active on the given date.
+// API confirmed fields: start_date, expired_at
+export async function fetchScheduleCountByDate(date) {
+  try {
+    const records = await getSchedules()
+    if (!date) return records.length
+    return records.filter(r => {
+      const start  = (r.start_date ?? r.start_date_time ?? '').slice(0, 10)
+      const expiry = (r.expired_at ?? r.expired_date   ?? '').slice(0, 10)
+      if (!start) return false
+      return date >= start && (!expiry || date <= expiry)
+    }).length
+  } catch {
+    return 0
+  }
 }
 
 // ── SCHEDULE PAGE ─────────────────────────────────────────────────────────────
@@ -218,46 +372,259 @@ export const fetchTripDetailByFilters = f => fetchOne('tripDetails', f)
 export const fetchEfficientEmployees = f => fetchOne('efficientEmployees', f)
 
 // ── ATTENDANCE PAGE ───────────────────────────────────────────────────────────
-export const fetchAttendanceList = f => fetchOne('attendanceList', f)
-export const fetchEmployeeAttendanceDetail = id => fetchById('employeeAttendanceDetail', id)
-export const fetchPunctualEmployees = f => fetchOne('punctualEmployees', f)
+//
+// All three functions call the real REST API (POST + auth), replacing the
+// old json-server stubs (fetchOne / fetchById) that used GET with no auth.
+//
+// Expected response envelope from every endpoint:
+//   { result: true, error: false, data: { ... } | [...] }
+//
+// fetchAttendanceList  → POST /attendance/all
+//   payload  : { e_id, api_key, date?, unit?, shift?, department_id? }
+//   data out : { employees: [{ empId, name, status, isLate, loginTime,
+//                              phone, shift, department, deptId,
+//                              zone, designation, role }] }
+//
+// fetchEmployeeAttendanceDetail → POST /attendance/detail
+//   payload  : { e_id, api_key, emp_id }
+//   data out : { timeline: [{ day, date, type, timeFrom, timeTo,
+//                             activeHours, note, label?, punches: [] }] }
+//
+// fetchPunctualEmployees → derived from /attendance/all (no separate endpoint).
+//   Returns present employees sorted by earliest loginTime so the
+//   PunctualEmployees / AverageLogin widget always reflects real data.
+//   data out : { employees: [{ empId, name, loginTime }] }   (sorted ASC)
+
+// ── Helper: parse "HH:MM AM/PM" or "HH:MM" → total minutes from midnight ─────
+function _parseLoginMinutes(timeStr) {
+  if (!timeStr) return Infinity  // employees without loginTime sort last
+  const m = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i)
+  if (!m) return Infinity
+  let h = parseInt(m[1], 10)
+  const min = parseInt(m[2], 10)
+  const mer = (m[3] || '').toUpperCase()
+  if (mer === 'PM' && h !== 12) h += 12
+  if (mer === 'AM' && h === 12) h = 0
+  return h * 60 + min
+}
+
+// ── Helper: normalise raw attendance record → { employees: [...] } ────────────
+function _normaliseAttendanceData(raw) {
+  // Server may return the list directly or nested under various keys
+  const src = raw?.employees ?? raw?.data?.employees
+    ?? (Array.isArray(raw) ? raw : null)
+    ?? []
+  const employees = src.map(r => ({
+    empId:       str(r.emp_id   ?? r.empId   ?? r.user_id ?? r.userid ?? ''),
+    name:        str(r.name     ?? r.emp_name ?? ''),
+    status:      str(r.status   ?? ''),                      // 'absent' | 'present' | ''
+    isLate:      r.is_late === true || r.is_late === 1 || r.is_late === '1'
+                   || r.isLate === true || r.late === true,
+    loginTime:   str(r.login_time ?? r.loginTime ?? r.check_in ?? ''),
+    phone:       str(r.mobile    ?? r.phone    ?? ''),
+    shift:       str(r.shift     ?? ''),
+    department:  str(r.dept_name ?? r.department ?? r.dept ?? ''),
+    deptId:      r.dept_id ?? r.deptId ?? null,
+    zone:        str(r.zone_name ?? r.zone ?? ''),
+    designation: str(r.dsg_name  ?? r.designation ?? ''),
+    role:        str(r.role      ?? ''),
+  }))
+  console.log('[_normaliseAttendanceData] employees count:', employees.length,
+    '| sample:', JSON.stringify(employees[0] ?? null))
+  return { employees }
+}
+
+// ── Helper: normalise raw detail record → { timeline: [...] } ─────────────────
+function _normaliseDetailData(raw) {
+  // Server may return the timeline directly or nested
+  const src = raw?.timeline ?? raw?.data?.timeline
+    ?? (Array.isArray(raw) ? raw : null)
+    ?? []
+  const timeline = src.map(r => ({
+    day:         str(r.day   ?? ''),
+    date:        str(r.date  ?? ''),
+    type:        str(r.type  ?? 'active'),    // 'active' | 'holiday'
+    label:       str(r.label ?? ''),
+    timeFrom:    str(r.time_from  ?? r.timeFrom  ?? r.check_in  ?? ''),
+    timeTo:      str(r.time_to    ?? r.timeTo    ?? r.check_out ?? ''),
+    activeHours: str(r.active_hours ?? r.activeHours ?? r.duration ?? ''),
+    note:        str(r.note  ?? r.remarks ?? ''),
+    punches:     Array.isArray(r.punches) ? r.punches.map(p => ({
+      label:         str(p.label ?? ''),
+      punchTime:     str(p.punch_time  ?? p.punchTime  ?? ''),
+      scheduledTime: str(p.sched_time  ?? p.scheduledTime ?? ''),
+    })) : [],
+  }))
+  console.log('[_normaliseDetailData] timeline entries:', timeline.length,
+    '| sample:', JSON.stringify(timeline[0] ?? null))
+  return { timeline }
+}
+
+// ── fetchAttendanceList ────────────────────────────────────────────────────────
+export async function fetchAttendanceList(filters = {}) {
+  const auth = getAuth()
+  const payload = {
+    e_id:    auth.e_id,
+    api_key: auth.api_key,
+  }
+  if (filters.date)                            payload.date          = filters.date
+  if (filters.unit && filters.unit !== 'All')  payload.unit          = filters.unit
+  if (filters.shift)                           payload.shift         = filters.shift
+  if (filters.department_id)                   payload.department_id = filters.department_id
+
+  console.log('[fetchAttendanceList] → POST /attendance/all | payload:', JSON.stringify(payload))
+
+  const res  = await fetch(`${BASE}/attendance/all`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(payload),
+  })
+  const text = await res.text()
+  console.log('[fetchAttendanceList] ← HTTP', res.status, '| raw (first 500):', text.slice(0, 500))
+
+  let data
+  try { data = JSON.parse(text) }
+  catch { throw new Error(`[fetchAttendanceList] Server returned non-JSON: ${text.slice(0, 200)}`) }
+
+  if (data.error || !data.result) {
+    console.error('[fetchAttendanceList] API error:', data)
+    throw new Error(data.message || 'Failed to fetch attendance list')
+  }
+
+  const result = _normaliseAttendanceData(data.data ?? data)
+  console.log('[fetchAttendanceList] ✅ resolved employees:', result.employees.length)
+  return result
+}
+
+// ── fetchEmployeeAttendanceDetail ─────────────────────────────────────────────
+export async function fetchEmployeeAttendanceDetail(empId) {
+  const auth = getAuth()
+  const payload = {
+    emp_id:  empId,
+    e_id:    auth.e_id,
+    api_key: auth.api_key,
+  }
+
+  console.log('[fetchEmployeeAttendanceDetail] → POST /attendance/detail | payload:', JSON.stringify(payload))
+
+  const res  = await fetch(`${BASE}/attendance/detail`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(payload),
+  })
+  const text = await res.text()
+  console.log('[fetchEmployeeAttendanceDetail] ← HTTP', res.status, '| raw (first 500):', text.slice(0, 500))
+
+  let data
+  try { data = JSON.parse(text) }
+  catch { throw new Error(`[fetchEmployeeAttendanceDetail] Server returned non-JSON: ${text.slice(0, 200)}`) }
+
+  if (data.error || !data.result) {
+    console.error('[fetchEmployeeAttendanceDetail] API error:', data)
+    throw new Error(data.message || 'Failed to fetch employee attendance detail')
+  }
+
+  const result = _normaliseDetailData(data.data ?? data)
+  console.log('[fetchEmployeeAttendanceDetail] ✅ timeline entries:', result.timeline.length)
+  return result
+}
+
+// ── fetchPunctualEmployees ────────────────────────────────────────────────────
+// Derived from /attendance/all — reuses the same endpoint instead of a
+// separate /punctualEmployees json-server route that no longer exists.
+// Returns present employees sorted by earliest loginTime (most punctual first).
+export async function fetchPunctualEmployees(filters = {}) {
+  const auth = getAuth()
+  const payload = {
+    e_id:    auth.e_id,
+    api_key: auth.api_key,
+  }
+  if (filters.date)                           payload.date = filters.date
+  if (filters.unit && filters.unit !== 'All') payload.unit = filters.unit
+
+  console.log('[fetchPunctualEmployees] → POST /attendance/all | payload:', JSON.stringify(payload))
+
+  const res  = await fetch(`${BASE}/attendance/all`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(payload),
+  })
+  const text = await res.text()
+  console.log('[fetchPunctualEmployees] ← HTTP', res.status, '| raw (first 500):', text.slice(0, 500))
+
+  let data
+  try { data = JSON.parse(text) }
+  catch { throw new Error(`[fetchPunctualEmployees] Server returned non-JSON: ${text.slice(0, 200)}`) }
+
+  if (data.error || !data.result) {
+    console.error('[fetchPunctualEmployees] API error:', data)
+    throw new Error(data.message || 'Failed to fetch punctual employees')
+  }
+
+  const { employees } = _normaliseAttendanceData(data.data ?? data)
+
+  // Keep only present employees (with a loginTime), sort earliest first
+  const sorted = employees
+    .filter(e => e.status !== 'absent' && e.loginTime)
+    .sort((a, b) => _parseLoginMinutes(a.loginTime) - _parseLoginMinutes(b.loginTime))
+
+  console.log('[fetchPunctualEmployees] ✅ present+sorted:', sorted.length,
+    '| top:', JSON.stringify(sorted[0] ?? null))
+
+  return { employees: sorted }
+}
 
 // ── MASTER FORM — USERS ───────────────────────────────────────────────────────
 
-const USER_COMMON = (auth) => ({
-  limit: '100', offset: '0',
-  lat: '11.0271', lon: '76.9830',
-  adrs1: '-', adrs2: '-', city: '-',
-  district: '-', state: '-', country: 'india',
-  zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-  e_id: auth.e_id, api_key: auth.api_key,
-})
-
 function userFromRecord(r) {
-  return {
-    id:         r.id ?? r.user_id,
-    userid:     str(r.userid   || r.user_id   || r.empId || ''),
-    userName:   str(r.name     || r.userName  || r.user_name || ''),
-    mobile:     str(r.mobile   || ''),
-    mail:       str(r.mail     || r.email     || ''),
-    zone:       str(r.zone     || ''),
-    dsg:        str(r.dsg      || r.designation || ''),
-    patroltype: str(r.patroltype || r.patrol_type || ''),
-    dept:       str(r.dept     || r.department   || ''),
-    is_admin:   r.is_admin === '1' || r.is_admin === true || r.is_admin === 1,
-    role:       str(r.role     || '2'),
-    imagePreview: r.image_url  || r.imagePreview || null,
+  // zone may come back as an array [id] or a plain string/number
+  const zoneRaw = Array.isArray(r.zone) ? r.zone[0] : r.zone
+
+  // Safely extract a numeric id from any shape the server might return.
+  // dsg / dept / patroltype must be sent as numbers to the API.
+  // The server sometimes returns the label string instead of the id —
+  // in that case we store 0 so the type stays correct (schema: must be a number).
+  const rawNum = v => {
+    if (v == null || v === '') return 0
+    if (typeof v === 'object') return Number(v.value ?? v.id ?? 0)
+    const n = Number(v)
+    return isNaN(n) ? 0 : n
   }
+
+  return {
+    id:           r.id ?? r.user_id,
+    userid:       str(r.userid      || r.user_id   || r.empId || ''),
+    userName:     str(r.name        || r.userName  || r.user_name || ''),
+    mobile:       str(r.mobile      || ''),
+    mail:         str(r.mail        || r.email     || ''),
+    // zone stays a string (API requires string); dsg/dept/patroltype must be numbers
+    zone:         str(zoneRaw       || ''),
+    dsg:          rawNum(r.dsg_id   ?? r.designation_id ?? r.dsg),
+    patroltype:   rawNum(r.pt_id    ?? r.patrol_type_id ?? r.patroltype ?? r.patrol_type),
+    dept:         rawNum(r.dept_id  ?? r.department_id  ?? r.dept ?? r.department),
+    is_admin:     r.is_admin === '1' || r.is_admin === true || r.is_admin === 1,
+    role:         str(r.role        || '2'),
+    imagePreview: r.image_url || r.imagePreview || null,
+  }
+}
+
+// Helper: extract zone id from form.zone which may be { id, label }, { value, label }, array, or string
+function _zoneArray(zoneField) {
+  if (!zoneField) return []
+  if (Array.isArray(zoneField)) return zoneField.map(String)
+  const id = zoneField?.id ?? zoneField?.value ?? zoneField
+  return id ? [String(id)] : []
 }
 
 /** user/view — fetch all users */
 export async function getUsers() {
   const auth = getAuth()
+  const body = { limit: Number(10), offset: Number(0), e_id: auth.e_id, api_key: auth.api_key }
   try {
     const res = await fetch(`${BASE}/user/view`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...USER_COMMON(auth), id: '1', name: 'all' }),
+      body: JSON.stringify(body),
     })
     const data = await res.json()
     if (!data.error && data.result) {
@@ -267,13 +634,13 @@ export async function getUsers() {
   } catch { /* fall through to filter */ }
 
   // fallback: user/filter
-  const res2 = await fetch(`${BASE}/user/filter`, {
+  const res2 = await fetch(`${BASE}/user/list`, { 
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...USER_COMMON(auth), id: '1', name: 'all' }),
+    body: JSON.stringify(body),
   })
   const data2 = await res2.json()
-  if (data2.error || !data2.result) return []   // graceful — empty list beats crash
+  if (data2.error || !data2.result) return []
   const records2 = Array.isArray(data2.data) ? data2.data : (data2.data?.records || [])
   return records2.map(userFromRecord)
 }
@@ -285,25 +652,27 @@ export async function getUserById(id) {
   return match
 }
 
-/** user/create */
+/** user/create — matches Postman contract exactly */
 export async function createUser(form) {
   const auth = getAuth()
+  console.log("[createUser] raw form:", form)
   const payload = {
-    ...USER_COMMON(auth),
-    id:        '1',
-    e_id:      str(form.e_id || auth.e_id),
-    name:      str(form.name || form.userName),
-    userid:    str(form.userid || ''),
-    mobile:    str(form.mobile || '0000000000'),
-    mail:      str(form.mail   || 'a@a.com'),
-    zone:      Array.isArray(form.zone) ? form.zone : [str(form.zone || '')],
-    dsg:       str(form.dsg || ''),
-    patroltype:str(form.patroltype || ''),
-    dept:      str(form.dept || ''),
-    is_admin:  form.is_admin ? '1' : '0',
-    role:      str(form.role || '2'),
-    shift:     '2',
+    userid:     str(form.userid   || ''),
+    name:       str(form.name     || form.userName),
+    mobile:     str(form.mobile   || '0000000000'),
+    mail:       str(form.mail     || 'a@a.com'),
+    // zone → string; dsg/dept/patroltype/role → number (API schema requirement)
+    zone:       String(extractNum(form.zone)),
+    dsg:        extractNum(form.dsg),
+    dept:       extractNum(form.dept),
+    patroltype: extractNum(form.patroltype),
+    //role:       extractNum(form.role) || 2,
+    is_admin:   form.is_admin === true || form.is_admin === 1 ? '1' : '0',
+    image:      form.imagePreview || '',
+    e_id:       str(auth.e_id),
+    api_key:    auth.api_key,
   }
+  console.log("[createUser] payload being sent:", payload)
   const res = await fetch(`${BASE}/user/create`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -317,27 +686,27 @@ export async function createUser(form) {
   return userFromRecord({ ...payload, ...r, id: r.id || Date.now() })
 }
 
-/** user/delete */
+/** user/delete — uses userid (primary key) */
 export async function deleteUser(id) {
   const auth = getAuth()
   const res = await fetch(`${BASE}/user/delete`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...USER_COMMON(auth), id: String(id), name: 'all' }),
+    body: JSON.stringify({ userid: String(id), e_id: auth.e_id, api_key: auth.api_key }),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to delete user')
   return true
 }
 
-/** user/clone */
+/** user/clone — uses userid (primary key) */
 export async function cloneUser(id) {
   const auth = getAuth()
   try {
     const res = await fetch(`${BASE}/user/clone`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...USER_COMMON(auth), id: String(id) }),
+      body: JSON.stringify({ userid: String(id), e_id: auth.e_id, api_key: auth.api_key }),
     })
     const data = await res.json()
     if (!data.error && data.result) {
@@ -351,13 +720,13 @@ export async function cloneUser(id) {
   return createUser({ ...rest, name: `${rest.userName} (copy)`, userid: '' })
 }
 
-/** user/filter — search by name/id */
+/** user/filter — search by name */
 export async function filterUsers(query = 'all') {
   const auth = getAuth()
   const res = await fetch(`${BASE}/user/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...USER_COMMON(auth), id: '1', name: query || 'all' }),
+    body: JSON.stringify({ limit: '100', offset: '0', name: query || 'all', e_id: auth.e_id, api_key: auth.api_key }),
   })
   const data = await res.json()
   if (data.error || !data.result) return []
@@ -365,9 +734,55 @@ export async function filterUsers(query = 'all') {
   return records.map(userFromRecord)
 }
 
-// Keep patchUser alias for any existing callers (no-op update path)
-export const updateUser = async (_id, _b) => { throw new Error('updateUser (user/update) is disabled — skipped per spec') }
-export const patchUser  = updateUser
+/** user/list — used by the employee dropdown in ScheduleForm */
+export async function getUserList() {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/user/list`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ limit: 100, offset: 0, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) return []
+  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+  return records.map(userFromRecord)
+}
+
+/** user/update — matches Postman contract exactly */
+export async function updateUser(id, form) {
+  const auth = getAuth()
+  console.log("update form", form)
+  const payload = {
+    userid:     str(form.userid   || ''),
+    name:       str(form.name     || form.userName),
+    mobile:     str(form.mobile   || '0000000000'),
+    mail:       str(form.mail     || 'a@a.com'),
+    // zone → string; dsg/dept/patroltype/role → number (API schema requirement)
+    zone:       String(extractNum(form.zone)),
+    dsg:        extractNum(form.dsg),
+    dept:       extractNum(form.dept),
+    patroltype: extractNum(form.patroltype),
+    //role:       extractNum(form.role) || 2,
+    // shift:      str(form.shift    || '1'),
+    is_admin:   form.is_admin === true || form.is_admin === 1 ? '1' : '0',
+    image:      form.imagePreview || '',
+    e_id:       str(auth.e_id),
+    api_key:    auth.api_key,
+  }
+  const res = await fetch(`${BASE}/user/update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  const text = await res.text()
+  let data
+  try { data = JSON.parse(text) } catch { throw new Error('Server returned non-JSON on user/update') }
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to update user')
+  const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  return userFromRecord({ ...payload, ...r, id })
+}
+
+export const patchUser = (id, b) => updateUser(id, b)
 
 export async function getEmployeeNames() {
   const all = await getAll('attendanceList')
@@ -381,36 +796,622 @@ export async function getEmployeeNames() {
 }
 
 // ── MASTER FORM — LOCATIONS ───────────────────────────────────────────────────
-export const getLocations = () => getMany('locations')
-export const getLocationById = (id) => fetchById('locations', id)
-export const createLocation = (body) => postOne('locations', body)
-export const updateLocation = (id, b) => putOne('locations', id, b)
-export const patchLocation = (id, b) => patchOne('locations', id, b)
-export const deleteLocation = (id) => deleteOne('locations', id)
+function locationFromRecord(r) {
+  const name = str(r.name || r.l_name || r.label || r.location_name || r.locationName || '')
+  const zone = str(r.zone_id != null ? r.zone_id : (r.zone ?? ''))
+  return {
+    id: r.id,
+    name,
+    zone,
+    lat: str(r.lat || ''),
+    lon: str(r.lon || ''),
+    rfid: str(r.rfid || r.rfId || r.RFID || ''),
+    qr: str(r.qr || r.qr_code || r.qrCode || r.barcode || ''),
+    image: Array.isArray(r.image) ? r.image : [],
+  }
+}
 
-// ── MASTER FORM — SCHEDULES ───────────────────────────────────────────────────
-export const getSchedules = () => getMany('masterSchedules')
-export const getScheduleById = (id) => fetchById('masterSchedules', id)
-export const createSchedule = (body) => postOne('masterSchedules', body)
-export const updateSchedule = (id, b) => putOne('masterSchedules', id, b)
-export const patchSchedule = (id, b) => patchOne('masterSchedules', id, b)
-export const deleteSchedule = (id) => deleteOne('masterSchedules', id)
+export async function getLocations() {
+  const auth = getAuth()
 
-// ── MASTER FORM — TASKS ───────────────────────────────────────────────────────
-export const getTasks = () => getMany('tasks')
-export const getTaskById = (id) => fetchById('tasks', id)
-export const createTask = (body) => postOne('tasks', body)
-export const updateTask = (id, b) => putOne('tasks', id, b)
-export const patchTask = (id, b) => patchOne('tasks', id, b)
-export const deleteTask = (id) => deleteOne('tasks', id)
+  // Try location/view first — returns full records with rfid, qr, lat, lon
+  try {
+    const res = await fetch(`${BASE}/location/view`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ limit: 100, offset: 0, e_id: auth.e_id, api_key: auth.api_key }),
+    })
+    const data = await res.json()
+    if (!data.error && data.result) {
+      const records = Array.isArray(data.data?.records) ? data.data.records
+        : Array.isArray(data.data) ? data.data : []
+      if (records.length > 0) {
+        console.log('[getLocations] view raw[0]:', JSON.stringify(records[0]))
+        return records.map(locationFromRecord)
+      }
+    }
+  } catch { /* fall through */ }
+
+  // Fallback: location/filter (stubs — no rfid/qr)
+  const res = await fetch(`${BASE}/location/filter`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch locations')
+  const records = Array.isArray(data.data?.records) ? data.data.records
+    : Array.isArray(data.data) ? data.data : []
+  console.log('[getLocations] filter raw[0]:', records[0] ? JSON.stringify(records[0]) : 'empty')
+  return records.map(locationFromRecord)
+}
+
+export async function getLocationById(id) {
+  const all = await getLocations()
+  const match = all.find(r => String(r.id) === String(id))
+  if (!match) throw new Error(`Location not found: ${id}`)
+  return match
+}
+
+export async function createLocation(form) {
+  const auth = getAuth()
+  if (!auth.api_key) throw new Error('Not authenticated — please log in first')
+  const res = await fetch(`${BASE}/location/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: form.name,
+      zone: str(form.zone || ''),
+      lat: str(form.lat || ''),
+      lon: str(form.lon || ''),
+      rfid: str(form.rfid || ''),
+      qr: str(form.qr || ''),
+      image: Array.isArray(form.image) ? form.image : [],
+      e_id: auth.e_id,
+      api_key: auth.api_key,
+    }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to create location')
+  const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  notifyLocationsUpdated()
+  return {
+    id: r.id || Date.now(),
+    name: str(r.name || r.l_name || form.name),
+    zone: str(r.zone || form.zone || ''),
+    lat: str(r.lat || form.lat || ''),
+    lon: str(r.lon || form.lon || ''),
+    rfid: str(r.rfid || form.rfid || ''),
+    qr: str(r.qr || form.qr || ''),
+    image: Array.isArray(r.image) ? r.image : (Array.isArray(form.image) ? form.image : []),
+  }
+}
+
+export async function updateLocation(id, form) {
+  const auth = getAuth()
+  if (!auth.api_key) throw new Error('Not authenticated — please log in first')
+  const res = await fetch(`${BASE}/location/update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id: str(id),
+      name: form.name,
+      zone: str(form.zone || ''),
+      lat: str(form.lat || ''),
+      lon: str(form.lon || ''),
+      rfid: str(form.rfid || ''),
+      qr: str(form.qr || ''),
+      image: Array.isArray(form.image) ? form.image : [],
+      e_id: auth.e_id,
+      api_key: auth.api_key,
+    }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to update location')
+  notifyLocationsUpdated()
+  return { id, ...form }
+}
+
+export async function deleteLocation(id) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/location/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: str(id), e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to delete location')
+  return true
+}
+
+export async function cloneLocation(id) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/location/clone`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: str(id), e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to clone location')
+  const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  return {
+    id: r.id || Date.now(),
+    name: str(r.name || r.l_name || ''),
+    zone: str(r.zone || ''),
+    lat: str(r.lat || ''),
+    lon: str(r.lon || ''),
+    rfid: str(r.rfid || ''),
+    qr: str(r.qr || ''),
+    image: Array.isArray(r.image) ? r.image : [],
+  }
+}
+
+export async function getLocationView({ limit = 10, offset = 0, name = '' } = {}) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/location/view`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ limit, offset, name, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch locations')
+  const records = Array.isArray(data.data?.records) ? data.data.records
+    : Array.isArray(data.data) ? data.data : []
+  return records.map(r => {
+    const name = str(r.name || r.l_name || r.label || r.location_name || r.locationName || '')
+    const zone = str(r.zone_id != null ? r.zone_id : (r.zone ?? ''))
+    console.log('[getLocations] raw record:', JSON.stringify(r))
+    return {
+      id: r.id,
+      name,
+      zone,
+      lat: str(r.lat || ''),
+      lon: str(r.lon || ''),
+      rfid: str(r.rfid || ''),
+      qr: str(r.qr || ''),
+      image: Array.isArray(r.image) ? r.image : [],
+    }
+  })
+}
+
+export const patchLocation = (id, b) => updateLocation(id, b)
+
+/** location/filter — filter locations by zone_id or name */
+export async function filterLocations({ zone_id = '', name = 'all', limit = 100, offset = 0 } = {}) {
+  const auth = getAuth()
+  const body = { limit, offset, name, e_id: auth.e_id, api_key: auth.api_key }
+  if (zone_id) body.zone_id = zone_id
+  const res = await fetch(`${BASE}/location/filter`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) return []
+  const records = Array.isArray(data.data?.records) ? data.data.records
+    : Array.isArray(data.data) ? data.data : []
+  return records.map(locationFromRecord)
+}
+
+// ── MASTER FORM — SCHEDULES (trip_schedule/*) ─────────────────────────────────
+
+function scheduleFromRecord(r) {
+  return {
+    id:              r.id,
+    zone:            Array.isArray(r.zone)        ? r.zone.map(String)        : (r.zone        != null ? [String(r.zone)]        : []),
+    user:            Array.isArray(r.user)        ? r.user.map(String)        : (r.user        != null ? [String(r.user)]        : []),
+    patrol_type:     Array.isArray(r.patrol_type) ? r.patrol_type.map(String) : (r.patrol_type != null ? [String(r.patrol_type)] : []),
+    trip:            r.trip        ?? r.trip_id   ?? null,
+    start_date_time: str(r.start_date_time || ''),
+    end_date_time:   str(r.end_date_time   || ''),
+    expired_date:    str(r.expired_date    || ''),
+    order:           r.order     != null ? Number(r.order)     : 1,
+    is_round:        r.is_round  != null ? Number(r.is_round)  : 1,
+    is_cyclic:       r.is_cyclic != null ? Number(r.is_cyclic) : 0,
+    min_round:       r.min_round  != null ? Number(r.min_round)  : null,
+    max_round:       r.max_round  != null ? Number(r.max_round)  : null,
+    delay_mins:      r.delay_mins != null ? Number(r.delay_mins) : null,
+  }
+}
+
+/** trip_schedule/view */
+export async function getSchedules() {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip_schedule/view`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ limit: 1000, offset: 0, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) return []
+  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+  return records
+}
+
+/** trip_schedule/filter */
+export async function filterSchedules() {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip_schedule/filter`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ limit: 10, offset: 0, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) return []
+  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+  return records.map(scheduleFromRecord)
+}
+
+/** trip_schedule/create
+ *  payload: { zone, user, patrol_type, trip, start_date_time, end_date_time,
+ *             order, is_round, min_round, max_round, is_cyclic, delay_mins, expired_date }
+ */
+export async function createSchedule(form) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip_schedule/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...form, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const text = await res.text()
+  let data
+  try { data = JSON.parse(text) } catch { throw new Error('Server returned non-JSON on trip_schedule/create') }
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to create schedule')
+  const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  return scheduleFromRecord({ ...form, ...r, id: r.id || Date.now() })
+}
+
+/** trip_schedule/update
+ *  payload: { id, zone, user, patrol_type, trip, start_date_time, end_date_time,
+ *             order, is_round, min_round, max_round, is_cyclic, delay_mins, expired_date }
+ */
+export async function updateSchedule(id, form) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip_schedule/update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, ...form, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const text = await res.text()
+  let data
+  try { data = JSON.parse(text) } catch { throw new Error('Server returned non-JSON on trip_schedule/update') }
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to update schedule')
+  return scheduleFromRecord({ ...form, id })
+}
+
+/** trip_schedule/delete — payload: { id, e_id, api_key } */
+export async function deleteSchedule(id) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip_schedule/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to delete schedule')
+  return true
+}
+
+/** trip_schedule/clone — payload: { id, e_id, api_key } */
+export async function cloneSchedule(id) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip_schedule/clone`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to clone schedule')
+  const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  return scheduleFromRecord({ ...r, id: r.id || Date.now() })
+}
+
+export const getScheduleById = async (id) => { const all = await getSchedules(); return all.find(r => String(r.id) === String(id)) || null }
+export const patchSchedule = (id, b) => updateSchedule(id, b)
+
+// ── MASTER FORM — QUESTIONS ───────────────────────────────────────────────────
+
+/** question/view — fetch all questions (limit, offset, e_id, api_key) */
+export async function getQuestions() {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/question/view`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ limit: 10, offset: 0, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) return []
+  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+  return records.map(r => ({
+    id: r.id,
+    qus_id: r.qus_id,
+    role: r.role,
+    name: str(r.name || ''),
+    type: str(r.type || ''),
+    options: Array.isArray(r.options) ? r.options : [],
+  }))
+}
+
+/** question/filter — filter questions (e_id, api_key) */
+export async function filterQuestions() {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/question/filter`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) return []
+  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+  return records.map(r => ({
+    id: r.id,
+    qus_id: r.qus_id,
+    role: r.role,
+    name: str(r.name || ''),
+    type: str(r.type || ''),
+    options: Array.isArray(r.options) ? r.options : [],
+  }))
+}
+
+/** question/create — create a new question */
+export async function createQuestion(form) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/question/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      // role: Number(Array.isArray(form.patroltype) ? form.patroltype[0] : form.patroltype) || 0,
+      role: form.role,
+      name: form.name,
+      type: form.type,
+      options: form.options.map((option) => option.label),
+      e_id: auth.e_id,
+      api_key: auth.api_key,
+    }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to create question')
+  const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  return {
+    id: r.id || Date.now(),
+    qus_id: r.qus_id,
+    role: r.role ?? form.role,
+    name: r.name || form.name,
+    type: r.type || form.type,
+    options: Array.isArray(r.options) ? r.options : (form.options || []),
+  }
+}
+
+/** question/update — update an existing question */
+export async function updateQuestion(id, form) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/question/update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id,
+      qus_id: form.qus_id,
+      role: Number(Array.isArray(form.patroltype) ? form.patroltype[0] : form.patroltype) || 0,
+      name: form.name,
+      type: form.type,
+      options: form.options,
+      e_id: auth.e_id,
+      api_key: auth.api_key,
+    }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to update question')
+  return { id, ...form }
+}
+
+/** question/delete — delete a question by id */
+export async function deleteQuestion(id) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/question/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to delete question')
+  return true
+}
+
+/** question/clone — clone a question by id */
+export async function cloneQuestion(id) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/question/clone`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to clone question')
+  const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  return {
+    id: r.id || Date.now(),
+    qus_id: r.qus_id,
+    role: r.role,
+    name: str(r.name || ''),
+    type: str(r.type || ''),
+    options: Array.isArray(r.options) ? r.options : [],
+  }
+}
+
+export const getQuestionById = async (id) => {
+  const all = await getQuestions()
+  const match = all.find(r => r.id === id)
+  if (!match) throw new Error(`Question not found: ${id}`)
+  return match
+}
+
+export const patchQuestion = (id, b) => updateQuestion(id, b)
 
 // ── MASTER FORM — TRIPS ───────────────────────────────────────────────────────
-export const getTrips = () => getMany('masterTrips')
-export const getTripById = (id) => fetchById('masterTrips', id)
-export const createTrip = (body) => postOne('masterTrips', body)
-export const updateTrip = (id, b) => putOne('masterTrips', id, b)
-export const patchTrip = (id, b) => patchOne('masterTrips', id, b)
-export const deleteTrip = (id) => deleteOne('masterTrips', id)
+
+/** Normalise a raw trip record from the server into a consistent shape */
+function tripFromRecord(r) {
+  // filter endpoint → { value, label }   (same pattern as zone/filter, patrol_type/filter, etc.)
+  // view  endpoint  → full record with r.name / r.trip_name / r.id etc.
+  const id       = r.id    ?? r.value ?? r.trip_id ?? r.t_id
+  const tripName = str(
+    r.label      ||   // filter endpoints return { value, label }
+    r.trip_name  || r.tripName  || r.name  ||
+    r.title      || r.trip_title || r.t_name ||
+    r.tname      || r.description || ''
+  )
+  // patrol_type: filter → label string, view → array of ids
+  const ptLabel   = r.patrol_type_name || r.patrolTypeName || r.patrol_type_label
+  const patrolType = ptLabel != null
+    ? (Array.isArray(ptLabel) ? ptLabel : [ptLabel])
+    : (Array.isArray(r.patrol_type) ? r.patrol_type : (r.patrol_type != null ? [r.patrol_type] : []))
+  // zone: same pattern
+  const zLabel  = r.zone_name || r.zoneName || r.zone_label
+  const zone    = zLabel != null
+    ? (Array.isArray(zLabel) ? zLabel : [zLabel])
+    : (Array.isArray(r.zone) ? r.zone : (r.zone != null ? [r.zone] : []))
+  console.log('[tripFromRecord] keys:', Object.keys(r).join(', '), '| id:', id, '| tripName:', tripName)
+  return {
+    id,
+    tripName,
+    name:      tripName,
+    patrolType,
+    zone,
+    location:  Array.isArray(r.location) ? r.location : [],
+  }
+} // this is the function which modifies our response data .
+
+/** trip/list — fetch all trips for dropdowns (calls trip/filter internally) */
+export async function listTrips() {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip/filter`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, 
+    body: JSON.stringify({  e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  console.log('[listTrips] raw response:', JSON.stringify(data).slice(0, 500))
+  if (data.error || !data.result) return []
+  const records = Array.isArray(data.data?.records) ? data.data.records
+    : Array.isArray(data.data) ? data.data : []
+  console.log('[listTrips] first record:', JSON.stringify(records[0]))
+  // return records as-is — { value, label } shape from trip/filter
+  return records
+}
+
+/** trip/view — fetch all trips (with limit/offset/e_id/api_key) */
+export async function getTrips() {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip/view`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: 0, limit: 100, offset: 0, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  console.log('[getTrips] raw data:', JSON.stringify(data?.data).slice(0, 300))
+  if (data.error || !data.result) return []
+  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+  return records //see here that tripfromrecord is a cb function which modifies our response data so iremoved it 
+} // helloe ??mm ipo puruchuchu, see carefully now , understood ??yess now ok
+
+//git la commit pannlaya nee ??noo da, yeppo lam code work aagutho for any form or any page then do commit 
+/** trip/filter — filter trips (only e_id + api_key required) */
+export async function filterTrips() {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip/filter`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ limit: 100, offset: 0, name: 'all', e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  console.log('[filterTrips] raw data:', JSON.stringify(data?.data).slice(0, 300))
+  if (data.error || !data.result) return []
+  const records = Array.isArray(data.data) ? data.data
+    : Array.isArray(data.data?.records) ? data.data.records : []
+  return records.map(tripFromRecord)
+}
+
+/** trip/create
+ *  payload: { name, patrol_type: [id,...], zone: [id,...], location: [{loc_id, qus_id:[...]},...] }
+ */
+export async function createTrip(form) {
+  const auth = getAuth()
+  const payload = {
+    name:        str(form.tripName || form.name || ''),
+    patrol_type: Array.isArray(form.patrolType) ? form.patrolType.map(Number) : [Number(form.patrolType)].filter(Boolean),
+    zone:        Array.isArray(form.zone)       ? form.zone.map(Number)       : [Number(form.zone)].filter(Boolean),
+    location:    Array.isArray(form.location)   ? form.location               : [],
+    e_id:        auth.e_id,
+    api_key:     auth.api_key,
+  }
+  const res = await fetch(`${BASE}/trip/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  const text = await res.text()
+  let data
+  try { data = JSON.parse(text) } catch { throw new Error('Server returned non-JSON on trip/create') }
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to create trip')
+  const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  return tripFromRecord({ ...payload, ...r, id: r.id || Date.now() })
+}
+
+/** trip/update
+ *  payload: { id, name, patrol_type: [id,...], zone: [id,...], location: [{loc_id, qus_id:[...]},...] }
+ */
+export async function updateTrip(id, form) {
+  const auth = getAuth()
+  const payload = {
+    id,
+    name:        str(form.tripName || form.name || ''),
+    patrol_type: Array.isArray(form.patrolType) ? form.patrolType.map(Number) : [Number(form.patrolType)].filter(Boolean),
+    zone:        Array.isArray(form.zone)       ? form.zone.map(Number)       : [Number(form.zone)].filter(Boolean),
+    location:    Array.isArray(form.location)   ? form.location               : [],
+    e_id:        auth.e_id,
+    api_key:     auth.api_key,
+  }
+  const res = await fetch(`${BASE}/trip/update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  const text = await res.text()
+  let data
+  try { data = JSON.parse(text) } catch { throw new Error('Server returned non-JSON on trip/update') }
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to update trip')
+  return tripFromRecord({ ...payload, id })
+}
+
+/** trip/delete — payload: { id, e_id, api_key } */
+export async function deleteTrip(id) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to delete trip')
+  return true
+}
+
+/** trip/clone — payload: { id, e_id, api_key } */
+export async function cloneTrip(id) {
+  const auth = getAuth()
+  const res = await fetch(`${BASE}/trip/clone`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
+  })
+  const data = await res.json()
+  if (data.error || !data.result) throw new Error(data.message || 'Failed to clone trip')
+  const r = (Array.isArray(data.data) ? data.data[0] : data.data) || {}
+  return tripFromRecord({ ...r, id: r.id || Date.now() })
+}
+
+export const getTripById = async (id) => { const all = await getTrips(); return all.find(r => String(r.id) === String(id)) || null }
+export const patchTrip = (id, b) => updateTrip(id, b)
 
 // ── OTHERS — EMPLOYEES ────────────────────────────────────────────────────────
 export const getEmployees = () => getMany('employees')
@@ -421,21 +1422,18 @@ export const patchEmployee = (id, b) => patchOne('employees', id, b)
 export const deleteEmployee = (id) => deleteOne('employees', id)
 
 // ── MASTER FORM — DESIGNATIONS ────────────────────────────────────────────────
-export async function getDesignations(form = null) {
+export async function getDesignations(limit = 10, offset = 0, form = null) {
   const auth = getAuth()
   const payload = {
-    id: 0, limit: '100', offset: '0',
-    name: (form && form.designationName) ? form.designationName : 'all',
+    limit,
+    offset,
     e_id: auth.e_id, api_key: auth.api_key,
-    lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
   }
   const parseRecords = (data) => {
     const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
-    return records.map(r => ({ id: r.value ?? r.id, designationName: str(r.label || r.designation_name || r.designationName) }))
+    return records.map(r => ({ id: r.value ?? r.id, designationName: str(r.label || r.designation_name || r.designationName || r.name) }))
   }
-  const res = await fetch(`${BASE}/designation/filter`, {
+  const res = await fetch(`${BASE}/designation/view`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -457,17 +1455,13 @@ export async function getDesignationById(id) {
 
 export async function createDesignation(form, isClone = false) {
   const auth = getAuth()
-  console.log("desg name "+form.designationName);
+  console.log("desg name " + form.designationName)
   const res = await fetch(`${BASE}/designation/create`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      name: form.designationName, zone_id: form.zone_id || 0,
-      id: 21,limit: '10', offset: '0',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-      e_id: auth.e_id, api_key: auth.api_key, 
+      name: form.designationName,
+      e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
   const text = await res.text()
@@ -485,11 +1479,7 @@ export async function updateDesignation(id, form) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id, name: form.designationName, zone_id: form.zone_id || 0,
-      limit: '10', offset: '0',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+      id, name: form.designationName,
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -505,11 +1495,7 @@ export async function deleteDesignation(id) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id,name: 'all',
-      limit: '10', offset: '0',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+      id,
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -519,15 +1505,13 @@ export async function deleteDesignation(id) {
   return true
 }
 
-
 export async function cloneDesignation(id) {
   const auth = getAuth()
-  // Try designation/clone endpoint first
   try {
     const res = await fetch(`${BASE}/designation/clone`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, limit: '10', offset: '0', e_id: auth.e_id, api_key: auth.api_key }),
+      body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
     })
     const data = await res.json()
     if (!data.error && data.result) {
@@ -543,30 +1527,34 @@ export async function cloneDesignation(id) {
 export const patchDesignation = (id, b) => updateDesignation(id, b)
 
 // ── MASTER FORM — DEPARTMENTS ─────────────────────────────────────────────────
-export async function getDepartments() {
+export async function getDepartments(limit = 10, offset = 0) {
   const auth = getAuth()
-  // department/view returns empty on this server — use filter instead
+  const parseRecords = (data) => {
+    const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
+    return records.map(r => ({ id: r.id ?? r.value, departmentName: str(r.name || r.label || r.department_name || r.departmentName) }))
+  }
+  // PRIMARY: department/view
+  try {
+    const res = await fetch(`${BASE}/department/view`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ limit, offset, e_id: auth.e_id, api_key: auth.api_key }),
+    })
+    const data = await res.json()
+    if (!data.error && data.result) {
+      const rows = parseRecords(data)
+      if (rows.length > 0) return rows
+    }
+  } catch { /* fall through to filter */ }
+  // FALLBACK: department/filter (only when view returns empty)
   const res = await fetch(`${BASE}/department/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: 0, limit: '100', offset: '0', name: 'all',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-      e_id: auth.e_id, api_key: auth.api_key,
-    name: 'all', lat: '0', lon: '0',
-    adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-
-
-    }),
+    body: JSON.stringify({ e_id: auth.e_id, api_key: auth.api_key }),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch departments')
-  const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
-  return records.map(r => ({ id: r.value, departmentName: r.label }))
+  return parseRecords(data)
 }
 
 export async function getDepartmentById(id) {
@@ -582,11 +1570,7 @@ export async function createDepartment(form) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: 0, name: form.departmentName, zone_id: form.zone_id || 0,
-      limit: '10', offset: '0',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+      name: form.departmentName,
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -605,11 +1589,7 @@ export async function updateDepartment(id, form) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id, name: form.departmentName, zone_id: form.zone_id || 0,
-      limit: '10', offset: '0',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+      id, name: form.departmentName,
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -625,11 +1605,7 @@ export async function deleteDepartment(id) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id,name: 'all',
-      limit: '10', offset: '0',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+      id,
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -639,14 +1615,13 @@ export async function deleteDepartment(id) {
   return true
 }
 
-
 export async function cloneDepartment(id) {
   const auth = getAuth()
   try {
     const res = await fetch(`${BASE}/department/clone`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, limit: '10', offset: '0', e_id: auth.e_id, api_key: auth.api_key }),
+      body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
     })
     const data = await res.json()
     if (!data.error && data.result) {
@@ -666,10 +1641,6 @@ export async function filterDepartments(name = 'all') {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: 0, limit: '100', offset: '0', name: name || 'all',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -685,17 +1656,13 @@ export async function filterDesignations(name = 'all') {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: 0, limit: '100', offset: '0', name: name || 'all',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to filter designations')
   const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
-  return records.map(r => ({ id: r.id, designationName: str(r.name || r.designation_name || r.designationName) }))
+  return records.map(r => ({ id: (r.id || r.value), designationName: str(r.name || r.designation_name || r.designationName || r.label) }))
 }
 
 // ✅ uses patrol_type/filter — confirmed correct path from Postman
@@ -705,10 +1672,6 @@ export async function filterPatrolTypes(name = 'all') {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: 0, limit: '100', offset: '0', name: name || 'all',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -789,8 +1752,6 @@ function zoneToBody(form, auth, id = 0) {
 
   return {
     id,
-    limit: '10',   // Postman sends as string
-    offset: '0',    // Postman sends as string
     name,
     lat,
     lon,
@@ -809,10 +1770,6 @@ function zoneToBody(form, auth, id = 0) {
 }
 
 // ── ZONE LOCAL CACHE ──────────────────────────────────────────────────────────
-// zone/view returns full details (adrs1, adrs2, city, district, state, country, mail, mobile, zipcode)
-// We also cache full zone data in localStorage after every create/update/clone
-// so detail modal is instant even without a network call.
-
 const ZONE_CACHE_KEY = 'zone_cache_v1'
 
 function zoneCache_read() {
@@ -833,8 +1790,6 @@ function zoneCache_merge(stubs) {
   return stubs.map(stub => {
     const id = stub.value ?? stub.id
     const cached = cache[String(id)]
-    // Prefer cached (has full address/contact details from form save)
-    // Always use the freshest name label from the stub
     if (cached) {
       const zone = zoneFromRecord({
         ...cached,
@@ -843,81 +1798,44 @@ function zoneCache_merge(stubs) {
       })
       return zone
     }
-    // No cache — just the stub (name only)
     return zoneFromRecord(stub)
   })
 }
 
-// getZones:
-//   Step 1 — Try zone/view (minimal body: id+auth only) → full details if server supports it
-//   Step 2 — Try zone/view (full body with all fields)  → alternate format
-//   Step 3 — Fall back to zone/filter stubs merged with localStorage cache
-//
-// NOTE: zone/filter only returns {value, label} — no address/contact data.
-// Full details come from: zone/view API OR localStorage cache (populated on create/update).
-export async function getZones() {
+export async function getZones(limit = 10, offset = 0) {
   const auth = getAuth()
-  // ── Step 1: zone/view minimal body (just id + auth) ──
-  const tryView = async (extraFields = {}) => {
-    try {
-      const res = await fetch(`${BASE}/zone/view`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: 0, limit: '100', offset: '0',
-          e_id: auth.e_id, api_key: auth.api_key, userid: "1", "dsg": "manager",
-            name: 'all', lat: '0', lon: '0',
-    adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-        }),
-      })
-      const data = await res.json()
+  console.log("Fetching zones with auth", { e_id: auth.e_id, api_key: auth.api_key ? '***' : null })
 
-      if (!data.error && data.result) {
-        let records = []
-        if (Array.isArray(data.data?.records)) records = data.data.records
-        else if (Array.isArray(data.data)) records = data.data
-        else if (Array.isArray(data.records)) records = data.records
-        if (records.length > 0) {
-          const zones = records.map(r => zoneFromRecord(r))
-          // Cache each zone so future loads are instant
-          zones.forEach(z => { if (z.id) zoneCache_save(z.id, { ...z }) })
-          return zones
-        }
-      }
-    } catch { }
-    return null
-  }
+  // ── PRIMARY: zone/view ────────────────────────────────────────────────────────
+  try {
+    const res = await fetch(`${BASE}/zone/view`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        limit, offset,
+        name: 'all', lat: '0', lon: '0',
+        adrs1: '-', adrs2: '-', city: '-',
+        district: '-', state: '-', country: 'india',
+        zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+        e_id: auth.e_id, api_key: auth.api_key,
+      }),
+    })
+    const data = await res.json()
+    if (!data.error && data.result) {
+      let records = []
+      if (Array.isArray(data.data?.records)) records = data.data.records
+      else if (Array.isArray(data.data)) records = data.data
+      if (records.length > 0) return zoneCache_merge(records)
+    }
+  } catch { /* fall through to filter */ }
 
-  // Try minimal body first
-  const viewResult = await tryView()
-  if (viewResult) return viewResult
-
-  // Try with full required fields (server may need them for auth schema)
-  const viewResult2 = await tryView({
-    name: 'all', lat: '0', lon: '0',
-    adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-  })
-  if (viewResult2) return viewResult2
-
-  // ── Step 3: zone/filter stubs + localStorage cache ──
-  const filterBody = {
-    id: 0, limit: '100', offset: '0', name: 'all',
-    lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-    e_id: auth.e_id, api_key: auth.api_key, 
-  }
+  // ── FALLBACK: zone/filter (only when view returns empty) ──────────────────────
   const res = await fetch(`${BASE}/zone/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(filterBody),
+    body: JSON.stringify({ e_id: auth.e_id, api_key: auth.api_key }),
   })
   const data = await res.json()
-
   if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch zones')
 
   let stubs = []
@@ -925,30 +1843,12 @@ export async function getZones() {
   else if (Array.isArray(data.data)) stubs = data.data
   else if (Array.isArray(data.records)) stubs = data.records
 
-  // Merge with localStorage cache — full details available for recently created/edited zones
   return zoneCache_merge(stubs)
 }
 
-// getZoneFilter — returns dropdown-style list via zone/filter
-// Uses '%' wildcard to match all zone names for this e_id
 export async function getZoneFilter() {
   const auth = getAuth()
   const body = {
-    id: 0,
-    limit: '100',
-    offset: '0',
-    name: 'all',   // ✅ confirmed working value
-    lat: '0',
-    lon: '0',
-    adrs1: '-',
-    adrs2: '-',
-    city: '-',
-    district: '-',
-    state: '-',
-    country: 'india',
-    zipcode: '000000',
-    mail: 'a@a.com',
-    mobile: '0000000000',
     e_id: auth.e_id,
     api_key: auth.api_key,
   }
@@ -958,6 +1858,7 @@ export async function getZoneFilter() {
     body: JSON.stringify(body),
   })
   const data = await res.json()
+  console.log("data", data)
   if (data.error || !data.result) return []
   const records = Array.isArray(data.data?.records) ? data.data.records
     : Array.isArray(data.data) ? data.data : []
@@ -979,37 +1880,26 @@ export async function createZone(form) {
     throw new Error(data.message || 'Failed to create zone')
   }
 
-  // Server returns {"error":false,"result":true,"message":"Successfully Created"} with no id/data.
-  // Find the newly created zone by re-fetching the full filter list and matching by name.
   const zoneName = str(form.zoneName || form.zoneNameLong || '').trim()
   let resolvedId = null
   try {
-    const filterBody = {
-      id: 0, limit: '100', offset: '0', name: 'all',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-      e_id: auth.e_id, api_key: auth.api_key,
-    }
+    const filterBody = { e_id: auth.e_id, api_key: auth.api_key }
     const fr = await fetch(`${BASE}/zone/filter`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(filterBody) })
     const fd = await fr.json()
     let list = []
     if (Array.isArray(fd.data?.records)) list = fd.data.records
     else if (Array.isArray(fd.data)) list = fd.data
     else if (Array.isArray(fd.records)) list = fd.records
-    // Match by zone name (label), take the highest id as the newest
     const matches = list.filter(s => str(s.label || s.name || '').trim().toLowerCase() === zoneName.toLowerCase())
     if (matches.length > 0) {
       resolvedId = matches.reduce((max, s) => ((s.id ?? s.value) > max ? (s.id ?? s.value) : max), 0)
     }
-    // Fallback: just take the highest id overall (newest record)
     if (!resolvedId && list.length > 0) {
       resolvedId = list.reduce((max, s) => ((s.id ?? s.value) > max ? (s.id ?? s.value) : max), 0)
     }
   } catch { }
 
   const finalId = resolvedId || Date.now()
-  // ✅ Cache full form data keyed by resolved id so it shows in the list with all details
   const cacheEntry = { ...form, id: finalId, zoneName }
   zoneCache_save(finalId, cacheEntry)
   notifyZonesUpdated()
@@ -1030,7 +1920,6 @@ export async function updateZone(id, form) {
     console.error('updateZone failed', { body, data })
     throw new Error(data.message || 'Failed to update zone')
   }
-  // ✅ Update cache with new form data including zoneName
   zoneCache_save(id, { ...form, id, zoneName: form.zoneName || form.zoneNameLong || '' })
   notifyZonesUpdated()
   return { ...form, id }
@@ -1038,13 +1927,11 @@ export async function updateZone(id, form) {
 
 export async function cloneZone(id) {
   const auth = getAuth()
+  console.log("Cloning zone", { id, e_id: auth.e_id, api_key: auth.api_key ? '***' : null })
   const res = await fetch(`${BASE}/zone/clone`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify({ id, limit: '10', offset: '0', e_id: auth.e_id, api_key: auth.api_key, name: 'all', lat: '0', lon: '0',
-    adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000', }),
+    body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to clone zone')
@@ -1074,49 +1961,21 @@ export async function cloneZone(id) {
     email: str(r.mail || r.email || ''),
     mobile: str(r.mobile),
   }
-  // ✅ Cache the cloned zone so it shows full details in the list
   if (cloned.id) zoneCache_save(cloned.id, cloned)
   return cloned
 }
 
-export async function deleteZone(id, zoneOrName = '') {
+export async function deleteZone(id) {
   const auth = getAuth()
   if (!auth.api_key) throw new Error('Not authenticated — please log in first')
-  const isObj = zoneOrName && typeof zoneOrName === 'object'
-  const form = isObj ? zoneOrName : {}
-  const name = isObj
-    ? (str(form.zoneName || form.zoneNameLong || form.name).trim() || 'zone')
-    : (String(zoneOrName).trim() || 'zone')
-
-  // Clean coords — strip degree symbols
-  const cleanCoord = v => str(v).replace(/[°NSEW\s]/gi, '').trim() || '0'
-
+  const body = { id, e_id: auth.e_id, api_key: auth.api_key }
   const res = await fetch(`${BASE}/zone/delete`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id,
-      limit: '10',
-      offset: '0',
-      name,
-      lat: cleanCoord(form.lat || '0'),
-      lon: cleanCoord(form.lng || form.lon || '0'),
-      adrs1: str(form.addressLine1) || '-',
-      adrs2: str(form.addressLine2) || '-',
-      city: str(form.city) || '-',
-      district: str(form.district) || '-',
-      state: str(form.state) || '-',
-      country: str(form.country).toLowerCase() || 'india',
-      zipcode: str(form.pincode) || '000000',
-      mail: str(form.email) || 'a@a.com',
-      mobile: str(form.mobile) || '0000000000',
-      e_id: auth.e_id,
-      api_key: auth.api_key,
-    }),
+    body: JSON.stringify(body),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to delete zone')
-  // ✅ Remove from cache so it doesn't show stale data
   zoneCache_delete(id)
   notifyZonesUpdated()
   return true
@@ -1125,21 +1984,22 @@ export async function deleteZone(id, zoneOrName = '') {
 export const getZoneById = (_id) => Promise.resolve(null)
 export const patchZone = (id, b) => updateZone(id, b)
 
-// ── Fetch full zone details by id ────────────────────────────────────────────
-// Tries zone/view (minimal + full body), then localStorage cache, then filter stub.
 export async function getZoneDetails(id) {
   const auth = getAuth()
 
-  // 1. zone/view — minimal body
-  const tryView = async (extraFields = {}) => {
+  const tryView = async () => {
     try {
       const res = await fetch(`${BASE}/zone/view`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id, limit: '10', offset: '0',
+          id,
+          name: 'all', lat: '0', lon: '0',
+          adrs1: '-', adrs2: '-', city: '-',
+          district: '-', state: '-', country: 'india',
+          zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+          limit: '10', offset: '0',
           e_id: auth.e_id, api_key: auth.api_key,
-          ...extraFields,
         }),
       })
       const data = await res.json()
@@ -1161,29 +2021,13 @@ export async function getZoneDetails(id) {
   const v1 = await tryView()
   if (v1) return v1
 
-  const v2 = await tryView({
-    name: 'all', lat: '0', lon: '0',
-    adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-  })
-  if (v2) return v2
-
-  // 2. localStorage cache
   const cache = zoneCache_read()
   if (cache[String(id)]) {
     return zoneFromRecord({ ...cache[String(id)], value: id })
   }
 
-  // 3. zone/filter stub (name only — no address data)
   try {
-    const body = {
-      id, limit: '10', offset: '0', name: 'all',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-      e_id: auth.e_id, api_key: auth.api_key,
-    }
+    const body = { e_id: auth.e_id, api_key: auth.api_key }
     const res = await fetch(`${BASE}/zone/filter`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1204,7 +2048,6 @@ export async function getZoneDetails(id) {
 // ── OTHERS — TRIP TYPES ───────────────────────────────────────────────────────
 export async function getTripTypes() {
   const auth = getAuth()
-  // triptype/view does not exist on this server — use triptype/filter
   const res = await fetch(`${BASE}/triptype/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1222,7 +2065,7 @@ export async function getTripTypeById(id) {
   if (!match) throw new Error(`TripType not found: ${id}`)
   return match
 }
-
+ 
 export async function createTripType(form) {
   const auth = getAuth()
   const res = await fetch(`${BASE}/triptype/create`, {
@@ -1265,23 +2108,18 @@ export const patchTripType = (id, b) => updateTripType(id, b)
 // ── OTHERS — PATROL TYPES ─────────────────────────────────────────────────────
 export async function getPatrolTypes() {
   const auth = getAuth()
-  const payload = {
-    id: 0, limit: '100', offset: '0', name: 'all',
-    lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-    e_id: auth.e_id, api_key: auth.api_key,
-  }
   const parseRecords = (data) => {
     const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
     return records.map(r => ({ id: r.id ?? r.value, patrolName: str(r.name || r.patrol_name || r.patrolName || r.label) }))
   }
-  // Try /view first (canonical "fetch all" endpoint)
   try {
     const res = await fetch(`${BASE}/patrol_type/view`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        limit: 10, offset: 0,
+        e_id: auth.e_id, api_key: auth.api_key,
+      }),
     })
     const data = await res.json()
     if (!data.error && data.result) {
@@ -1289,21 +2127,12 @@ export async function getPatrolTypes() {
       if (rows.length > 0) return rows
     }
   } catch { /* fall through */ }
-  // Fallback to /filter
   const res = await fetch(`${BASE}/patrol_type/filter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: 0, name: 'all',
-      limit: 100, offset: 0,
-      e_id: auth.e_id, api_key: auth.api_key, lat: '0', lon: '0',
-    adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-    }),
+    body: JSON.stringify({ e_id: auth.e_id, api_key: auth.api_key }),
   })
   const data = await res.json()
-  console.log(data);
   if (data.error || !data.result) throw new Error(data.message || 'Failed to fetch patrol types')
   const records = Array.isArray(data.data) ? data.data : (data.data?.records || [])
   return records.map(r => ({ id: r.id ?? r.value, patrolName: str(r.name || r.patrol_name || r.patrolName || r.label) }))
@@ -1318,15 +2147,12 @@ export async function getPatrolTypeById(id) {
 
 export async function createPatrolType(form) {
   const auth = getAuth()
+  console.log("form", form)
   const res = await fetch(`${BASE}/patrol_type/create`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id: 0, name: form.patrolName, zone_id: form.zone_id || 0,
-      limit: '10', offset: '0',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+      name: form.patrolName,
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -1345,11 +2171,9 @@ export async function updatePatrolType(id, form) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      id, name: form.patrolName, zone_id: form.zone_id || 0,
-      limit: '10', offset: '0',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
+      id,
+      name: form.patrolName,
+      mail: form.mail || '',
       e_id: auth.e_id, api_key: auth.api_key,
     }),
   })
@@ -1364,18 +2188,7 @@ export async function deletePatrolType(id) {
   const res = await fetch(`${BASE}/patrol_type/delete`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id,
-      limit: '10', offset: '0',
-      lat: '0', lon: '0', adrs1: '-', adrs2: '-', city: '-',
-      district: '-', state: '-', country: 'india',
-      zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-      e_id: auth.e_id, api_key: auth.api_key,
-      name: 'all', lat: '0', lon: '0',
-    adrs1: '-', adrs2: '-', city: '-',
-    district: '-', state: '-', country: 'india',
-    zipcode: '000000', mail: 'a@a.com', mobile: '0000000000',
-    }),
+    body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
   })
   const data = await res.json()
   if (data.error || !data.result) throw new Error(data.message || 'Failed to delete patrol type')
@@ -1391,10 +2204,7 @@ export async function clonePatrolType(id) {
     const res = await fetch(`${BASE}/patrol_type/clone`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id, limit: '10', offset: '0',
-        e_id: auth.e_id, api_key: auth.api_key,
-      }),
+      body: JSON.stringify({ id, e_id: auth.e_id, api_key: auth.api_key }),
     })
     const data = await res.json()
     if (!data.error && data.result) {
@@ -1406,8 +2216,6 @@ export async function clonePatrolType(id) {
   return createPatrolType({ patrolName: `${source.patrolName} (copy)` })
 }
 
-
-
 // ── OTHERS — MASTER TRIPS ─────────────────────────────────────────────────────
 export const getMasterTrips = () => getMany('masterTripsList')
 export const getMasterTripById = (id) => fetchById('masterTripsList', id)
@@ -1416,7 +2224,7 @@ export const updateMasterTrip = (id, b) => putOne('masterTripsList', id, b)
 export const patchMasterTrip = (id, b) => patchOne('masterTripsList', id, b)
 export const deleteMasterTrip = (id) => deleteOne('masterTripsList', id)
 
-// ── TRIP DETAILS PAGE — Employee list ─────────────────────────────────────────
+// ── TRIP DETAILS PAGE — Employee list ──────────────────────────────────────
 export async function fetchTripDetailEmployees(filters) {
   const all = await getAll('attendanceList')
   const rows = all.filter(

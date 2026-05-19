@@ -1,4 +1,5 @@
 
+
 // import { useState, useCallback } from 'react'
 // import ReactECharts from 'echarts-for-react'
 // import { SelectPicker, Toggle, Loader, Table } from 'rsuite'
@@ -13,11 +14,12 @@
 //   { label: 'Electrician', value: 'Electrician' },
 // ]
 
+
 // const BUBBLES = [
-//   { key: 'allTrips', base: '#00c645', light: '#5ee89a', x: 26, y: 72, size: 110 },
-//   { key: 'complete', base: '#3a8ef6', light: '#93c5fd', x: 78, y: 52, size: 88  },
-//   { key: 'upcoming', base: '#4400b1', light: '#a78bfa', x: 35, y: 16, size: 74  },
-//   { key: 'missed',   base: '#e41818', light: '#f88282', x: 78, y: 12, size: 58  },
+//   { key: 'allTrips', base: '#00c645', light: '#5ee89a', x: 22, y: 78, size: 110 },
+//   { key: 'complete', base: '#3a8ef6', light: '#93c5fd', x: 81, y: 78, size: 88  },
+//   { key: 'upcoming', base: '#4400b1', light: '#a78bfa', x: 22, y: 23, size: 74  },
+//   { key: 'missed',   base: '#e41818', light: '#f88282', x: 81, y: 34, size: 58  },
 // ]
 
 // const LEGEND = [
@@ -58,8 +60,8 @@
 //   const option = {
 //     animation: false,
 //     grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
-//     xAxis: { show: false, type: 'value', min: -3, max: 103 },
-//     yAxis: { show: false, type: 'value', min: -3, max: 103 },
+//     xAxis: { show: false, type: 'value', min: -15, max: 115 },
+//     yAxis: { show: false, type: 'value', min: -15, max: 115 },
 //     series: BUBBLES.map((b, i) => ({
 //       type: 'scatter',
 //       data: [[b.x, b.y, data[b.key] ?? 0]],
@@ -93,8 +95,8 @@
 //       <div className="today-chart">
 //         <ReactECharts
 //           option={option}
-//           style={{ width: '210px', height: '210px' }}
-//           opts={{ renderer: 'svg', width: 210, height: 210 }}
+//           style={{ width: '230px', height: '230px' }}
+//           opts={{ renderer: 'svg', width: 230, height: 230 }}
 //           notMerge
 //         />
 //       </div>
@@ -235,33 +237,27 @@ const UNIT_OPTIONS = [
   { label: 'Electrician', value: 'Electrician' },
 ]
 
-// Positions calculated so every adjacent pair has an equal 5 px edge-to-edge gap.
-// Chart canvas = 210×210 px, ECharts axis: x & y ∈ [−3, 103] (range = 106 units).
-// Conversion: x_unit = px_x * 106/210 − 3 ;  y_unit = 103 − px_y * 106/210
-//
-// Radii (px): allTrips=55  complete=44  upcoming=37  missed=29   gap=5 px
-//
-// Left-col x  = margin + r_max_left  = 10.5 + 55  = 65.5 → unit ≈ 24
-// Right-col x = left_x + 55+5+44    = 65.5 + 104 = 169.5 → unit ≈ 76 (clamped to chart edge)
-//   → right-col pixel centred at 53 + 104 = 157 px → unit = 157*106/210−3 ≈ 76
-// Top-left  y (allTrips):  margin+r = 10.5+55 = 65.5 px  → unit = 103−65.5*106/210 ≈ 70
-// Bot-left  y (upcoming):  65.5+97  = 162.5 px            → unit = 103−162.5*106/210 ≈ 21
-// Top-right y (complete):  centred  = 73.5 px             → unit = 103−73.5*106/210  ≈ 66
-// Bot-right y (missed):    73.5+78  = 151.5 px            → unit = 103−151.5*106/210 ≈ 27
-// Axis [-15,115] range=130. px=(unit+15)/130*210
-// Radii: allTrips=55 complete=44 upcoming=37 missed=29, gap=4px
-// Left col centre: 12+55=67px → unit=26; Right: 67+55+4+44=170px → unit=70
-// Top row centre: 12+55=67px → unit=74; Bottom: 67+55+4+37=163px → unit=18
-// Canvas 230×230px, axis [-15,115]=130 units (1.769 px/unit).
-// All adjacent pairs have ~5px edge-to-edge gap.
-// Left col  x-centre = 65px → unit 22 | Right col = 169px → unit 81
-// Top row   y-centre = 65px → unit 78 | Purple bottom = 162px → unit 23
-// Blue↔Red  y gap: blue(65)+44+5+29=143px → unit 34
+
+/*
+  Canvas 230×230px | coord x,y ∈ [−15,115] (130 units) | 1 unit ≈ 1.769px
+  y increases UPWARD. Radii: allTrips=31.1  complete=24.9  upcoming=20.9  missed=16.4
+
+  TOP ROW — same y=79 (proper horizontal alignment):
+    x distance = 62 units → edge-gap = 62−(31.1+24.9) = 6 u ≈ 10.6px
+    x_L = 50−31 = 19,  x_R = 50+31 = 81
+
+  BOTTOM ROW — same y=21, row centered independently:
+    x distance = 43 units → edge-gap = 43−(20.9+16.4) = 5.7 u ≈ 10.1px
+    x_L = 26,  x_R = 69
+
+  LEFT COLUMN vertical edge-gap: (79−31.1)−(21+20.9) = 6 u ≈ 10.6px ✓
+  → All adjacent bubble gaps ≈ 10–11px, visually equal.
+*/
 const BUBBLES = [
-  { key: 'allTrips', base: '#00c645', light: '#5ee89a', x: 22, y: 78, size: 110 },
-  { key: 'complete', base: '#3a8ef6', light: '#93c5fd', x: 81, y: 78, size: 88  },
-  { key: 'upcoming', base: '#4400b1', light: '#a78bfa', x: 22, y: 23, size: 74  },
-  { key: 'missed',   base: '#e41818', light: '#f88282', x: 81, y: 34, size: 58  },
+  { key: 'allTrips', base: '#00c645', light: '#5ee89a', x: 19, y: 79, size: 110 },
+  { key: 'complete', base: '#3a8ef6', light: '#93c5fd', x: 81, y: 79, size: 88  },
+  { key: 'upcoming', base: '#4400b1', light: '#a78bfa', x: 26, y: 21, size: 74  },
+  { key: 'missed',   base: '#e41818', light: '#f88282', x: 69, y: 21, size: 58  },
 ]
 
 const LEGEND = [

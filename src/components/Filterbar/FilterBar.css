@@ -79,7 +79,7 @@
 .refresh-btn.active {
     background-color: var(--accent) !important;
     color: #fff !important;
-    animation: spin 2s linear infinite;
+    animation: spin 1s linear infinite;
 }
 
 .refresh-btn.active:hover {

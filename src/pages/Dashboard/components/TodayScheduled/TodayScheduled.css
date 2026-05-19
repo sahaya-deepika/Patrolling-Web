@@ -44,7 +44,7 @@
   max-width: 100% !important;
 }
 
-/* Hide ALL scrollbars — vertical + horizontal ────────── */
+/* Hide ALL scrollbars completely ─────────────────────── */
 .sched-table-wrap .rs-table-scrollbar,
 .sched-table-wrap .rs-table-scrollbar-vertical,
 .sched-table-wrap .rs-table-scrollbar-horizontal,
@@ -57,13 +57,12 @@
   pointer-events: none !important;
 }
 
-/* Also hide native scrollbar on the body wrapper */
 .sched-table-wrap .rs-table-body-row-wrapper {
   overflow: hidden !important;
-  scrollbar-width: none !important;   /* Firefox */
+  scrollbar-width: none !important;
 }
 .sched-table-wrap .rs-table-body-row-wrapper::-webkit-scrollbar {
-  display: none !important;           /* Chrome/Safari */
+  display: none !important;
   width: 0 !important;
 }
 .sched-table-wrap .rs-table-body-wheel-area {
