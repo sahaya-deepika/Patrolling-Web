@@ -1,13 +1,11 @@
-
 import { useState, useEffect, useRef } from 'react'
 import {
   getTrips, createTrip, deleteTrip, updateTrip,
-  getZoneFilter, filterPatrolTypes, filterLocations, filterQuestions, getQuestions,
+  getZoneFilter, filterPatrolTypes, filterLocations, getLocations, filterQuestions, getQuestions,
   notifyTripsUpdated,
 } from '../../../api'
 import { ConfirmSaveModal } from '../components/MasterFormUI'
-import PagePreviousIcon from '@rsuite/icons/PagePrevious'
-import PageNextIcon from '@rsuite/icons/PageNext'
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 
 /* ─────────────────────────────────────────────
    BLANK FORM  (matches API schema exactly)
@@ -20,8 +18,8 @@ const blank = {
   patrolType: [],          // patrol_type: number[]
   zone: [],          // zone: number[]
   patrols: [            // location: [{loc_id, qus_id:[]}]
-    { loc_id: '', qus_ids: [] },
-    { loc_id: '', qus_ids: [] },
+    { loc_ids: [], qus_ids: [] },
+    { loc_ids: [], qus_ids: [] },
   ],
 }
 
@@ -47,8 +45,9 @@ function MultiSelectDropdown({ placeholder, selected, onChange, options }) {
   }, [])
 
   const toggle = (val) => {
-    const already = selected.includes(val)
-    onChange(already ? selected.filter((v) => v !== val) : [...selected, val])
+    if (val == null || val === '') return
+    const already = selected.some(v => String(v) === String(val))
+    onChange(already ? selected.filter((v) => String(v) !== String(val)) : [...selected, val])
   }
 
   const removeChip = (val) => onChange(selected.filter((v) => v !== val))
@@ -95,7 +94,7 @@ function MultiSelectDropdown({ placeholder, selected, onChange, options }) {
           {options.length === 0
             ? <div style={{ padding: '10px 14px', fontSize: '13px', color: '#9aa0a6' }}>No options</div>
             : options.map((opt) => {
-              const checked = selected.includes(opt.value)
+              const checked = selected.some(v => String(v) === String(opt.value))
               return (
                 <div
                   key={opt.value}
@@ -258,7 +257,7 @@ function CardMenu({ onSelect, onClone, onEdit, onDelete }) {
   )
 }
 
-//ellam ok but ipo epti vanthuchu?
+
 
 /* ══════════════════════════════════════════════════════
    SAVED PANEL  (shared pattern)
@@ -276,6 +275,9 @@ function SavedPanel({
   const [ddSearch, setDdSearch] = useState('')
   const ddRef = useRef(null)
   const debounceRef = useRef(null)
+  const PAGE_SIZE = 10
+  const [page, setPage] = useState(0)
+  useEffect(() => { setPage(0) }, [search, items.length])
 
   useEffect(() => {
     const h = e => { if (ddRef.current && !ddRef.current.contains(e.target)) { setDdOpen(false); setDdSearch('') } }
@@ -296,7 +298,14 @@ function SavedPanel({
   const ddFiltered = items.filter(item => getLabel(item).toLowerCase().includes(ddSearch.toLowerCase()))
 
   return (
-    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{
+      flex: show ? 1 : '0 0 44px',
+      minWidth: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      transition: 'flex 0.3s ease',
+    }}>
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '20px 16px 16px', borderBottom: '1px solid #e8eaed', flexShrink: 0, gap: '8px' }}>
@@ -333,7 +342,7 @@ function SavedPanel({
               </h2>
             )}
             <button onClick={onShowToggle} style={{ width: '28px', height: '28px', border: '1px solid #dadce0', background: '#f8f9fa', color: '#202124', fontSize: '16px', cursor: 'pointer', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 'auto' }}>
-              {show ? <PagePreviousIcon /> : <PageNextIcon />}
+              {show ? <FiChevronRight size={16} /> : <FiChevronLeft size={16} />}
             </button>
             {extraHeader}
           </>
@@ -408,13 +417,14 @@ function SavedPanel({
 
       {/* ── Cards list ── */}
       {show && (
-        <div style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: 0 }}>
+        <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: 0 }}>
+          <style>{`.hide-scrollbar::-webkit-scrollbar{display:none}`}</style>
           {filteredItems.length === 0 && (
             <div style={{ textAlign: 'center', color: '#9aa0a6', fontSize: '13px', marginTop: '40px' }}>
               {items.length === 0 ? 'No trips saved yet.' : 'No matches.'}
             </div>
           )}
-          {filteredItems.map((item, idx) => {
+          {filteredItems.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map((item, idx) => {
             const isChecked = selectedIds.includes(item.id)
             return (
               <div key={item.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
@@ -430,6 +440,27 @@ function SavedPanel({
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Pagination footer */}
+      {show && !selectMode && filteredItems.length > PAGE_SIZE && (
+        <div style={{ padding: '8px 14px', borderTop: '1px solid #e8eaed', flexShrink: 0, background: '#fafbfc', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+          <button
+            onClick={() => setPage(p => Math.max(0, p - 1))}
+            disabled={page === 0}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 12px', border: '1px solid #dadce0', borderRadius: '6px', background: page === 0 ? '#f5f5f5' : '#fff', color: page === 0 ? '#bbb' : '#202124', fontSize: '12px', fontWeight: 500, cursor: page === 0 ? 'not-allowed' : 'pointer' }}>
+            ← Prev
+          </button>
+          <span style={{ fontSize: '12px', color: '#5f6368', fontWeight: 500 }}>
+            Page {page + 1} / {Math.ceil(filteredItems.length / PAGE_SIZE)}
+          </span>
+          <button
+            onClick={() => setPage(p => p + 1)}
+            disabled={(page + 1) * PAGE_SIZE >= filteredItems.length}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 12px', border: '1px solid #dadce0', borderRadius: '6px', background: (page + 1) * PAGE_SIZE >= filteredItems.length ? '#f5f5f5' : '#fff', color: (page + 1) * PAGE_SIZE >= filteredItems.length ? '#bbb' : '#202124', fontSize: '12px', fontWeight: 500, cursor: (page + 1) * PAGE_SIZE >= filteredItems.length ? 'not-allowed' : 'pointer' }}>
+            Next →
+          </button>
         </div>
       )}
     </div>
@@ -460,7 +491,18 @@ export default function TripForm() {
   /* ── Load trips ── */
   const loadTrips = async () => {
     setLoadingTrips(true)
-    try { setSaved(await getTrips()) } catch { }
+    try {
+      const records = await getTrips()
+      // Deduplicate by id to guard against the API returning the same record twice
+      const seen = new Set()
+      const unique = records.filter(r => {
+        const key = String(r.id ?? r.trip_id ?? JSON.stringify(r))
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      setSaved(unique)
+    } catch { }
     finally { setLoadingTrips(false) }
   }
   useEffect(() => { loadTrips() }, [])
@@ -485,14 +527,26 @@ export default function TripForm() {
       if (opts.length) setPatrolTypeOpts(opts)
     }).catch(() => { })
 
-    // Locations — { value, label }
-    filterLocations().then((locs) => {
+    // Locations — try filter API, fallback to view API
+    const loadLocOpts = (locs) => {
+      console.log('[TripForm] raw locs from API:', locs)
       const opts = locs
-        .map(l => ({ value: Number(l.id), label: String(l.name || '') }))
-        .filter(o => o.label)
+        .map(l => ({ value: l.id, label: String(l.name || '') }))
+        .filter(o => o.label && o.value != null && o.value !== '')
         .sort((a, b) => a.label.localeCompare(b.label))
+      console.log('[TripForm] locOpts built:', opts)
       if (opts.length) setLocOpts(opts)
-    }).catch(() => { })
+      return opts.length
+    }
+    filterLocations().then(async (locs) => {
+      if (!loadLocOpts(locs)) {
+        console.warn('[TripForm] filterLocations returned empty, trying getLocations (view)')
+        const fallback = await getLocations()
+        loadLocOpts(fallback)
+      }
+    }).catch(async () => {
+      try { const fallback = await getLocations(); loadLocOpts(fallback) } catch { }
+    })
 
     // Questions — use qus_id as value (that's what API schema expects in qus_id array)
     filterQuestions().then((questions) => {
@@ -533,8 +587,8 @@ export default function TripForm() {
       const opts = types.map(t => ({ value: Number(t.id), label: String(t.patrolName || '') })).filter(o => o.label)
       if (opts.length) setPatrolTypeOpts(opts)
     }).catch(() => { })
-    const refreshLocations = () => filterLocations().then(locs => {
-      const opts = locs.map(l => ({ value: Number(l.id), label: String(l.name || '') })).filter(o => o.label)
+    const refreshLocations = () => filterLocations().then(async locs => {
+      const opts = locs.map(l => ({ value: l.id, label: String(l.name || '') })).filter(o => o.label && o.value != null && o.value !== '')
       if (opts.length) setLocOpts(opts)
     }).catch(() => { })
     window.addEventListener('zones-updated', refreshZones)
@@ -568,7 +622,7 @@ export default function TripForm() {
   const setPatrolField = (i, field, val) =>
     set('patrols', form.patrols.map((p, idx) => idx === i ? { ...p, [field]: val } : p))
 
-  const addPatrol = () => set('patrols', [...form.patrols, { loc_id: '', qus_ids: [] }])
+  const addPatrol = () => set('patrols', [...form.patrols, { loc_ids: [], qus_ids: [] }])
   const removePatrol = (i) => set('patrols', form.patrols.filter((_, idx) => idx !== i))
 
   /* ── Map API record → form shape (for edit / clone) ── */
@@ -585,7 +639,7 @@ export default function TripForm() {
     // location comes back as [{loc_id, qus_id:[]}]
     patrols: Array.isArray(item.location) && item.location.length
       ? item.location.map(l => ({
-        loc_id: Number(l.loc_id ?? ''),
+        loc_ids: l.loc_id != null ? [l.loc_id] : [],
         qus_ids: Array.isArray(l.qus_id) ? l.qus_id.map(String) : [],
       }))
       : blank.patrols,
@@ -597,8 +651,7 @@ export default function TripForm() {
     patrolType: form.patrolType.map(Number).filter(n => n > 0),
     zone: form.zone.map(Number).filter(n => n > 0),
     location: form.patrols
-      .map(p => ({ loc_id: parseInt(p.loc_id, 10), qus_id: p.qus_ids.map(String) }))
-      .filter(p => Number.isFinite(p.loc_id) && p.loc_id > 0),
+      .flatMap(p => p.loc_ids.filter(id => id != null && id !== '').map(id => ({ loc_id: id, qus_id: p.qus_ids.map(String) }))),
   })
 
   const handleEdit = (item) => { setForm({ ...blank, ...apiToForm(item) }); setSel(item.id) }
@@ -649,10 +702,10 @@ export default function TripForm() {
     { label: 'Patrol Types', value: form.patrolType.map(v => patrolTypeOpts.find(o => o.value === v)?.label ?? v).join(', ') || '—' },
     { label: 'Zones', value: form.zone.map(v => zoneOpts.find(o => o.value === v)?.label ?? v).join(', ') || '—' },
     ...form.patrols
-      .filter(p => p.loc_id !== '')
+      .filter(p => p.loc_ids.length > 0)
       .map((p, i) => ({
         label: `Stop ${i + 1}`,
-        value: `${locOpts.find(o => o.value === Number(p.loc_id))?.label ?? p.loc_id} / ${p.qus_ids.length} question(s)`,
+        value: `${p.loc_ids.map(id => locOpts.find(o => o.value === id)?.label ?? id).join(', ')} / ${p.qus_ids.length} question(s)`,
       })),
   ]
 
@@ -667,7 +720,31 @@ export default function TripForm() {
       <ConfirmSaveModal open={confirm} onConfirm={handleConfirmed} onCancel={() => setConfirm(false)} loading={busy} isEditing={!!sel} summary={summary} />
 
       {/* ═══ LEFT: FORM ═══ */}
-      <div style={{ flex: '0 0 60%', width: '60%', maxWidth: '60%', display: 'flex', flexDirection: 'column', borderRight: '2px solid #e8eaed', padding: '24px', overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box', alignSelf: 'stretch' }}>
+      <div className="hide-scrollbar" style={{
+        flex: showSaved ? '0 0 60%' : '1 1 100%',
+        width: showSaved ? '60%' : '100%',
+        maxWidth: showSaved ? '60%' : '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRight: showSaved ? '2px solid #e8eaed' : 'none',
+        padding: '24px',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        boxSizing: 'border-box',
+        alignSelf: 'stretch',
+        transition: 'all 0.3s ease',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: showSaved ? '100%' : '680px',
+          margin: showSaved ? '0' : '0 auto',
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          transition: 'max-width 0.3s ease',
+        }}>
         <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#202124', margin: '0 0 20px 0', paddingBottom: '16px', borderBottom: '1px solid #e8eaed', flexShrink: 0, lineHeight: '28px' }}>
           {sel ? 'Edit Trip' : 'Create Trip'}
         </h2>
@@ -728,12 +805,12 @@ export default function TripForm() {
                   </div>
 
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                    {/* Location — single select */}
+                    {/* Location — multi select */}
                     <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
-                      <SingleSelectDropdown
+                      <MultiSelectDropdown
                         placeholder="Location"
-                        value={patrol.loc_id === '' ? '' : Number(patrol.loc_id)}
-                        onChange={(v) => setPatrolField(i, 'loc_id', Number(v))}
+                        selected={patrol.loc_ids}
+                        onChange={(vals) => setPatrolField(i, 'loc_ids', vals)}
                         options={locOpts}
                       />
                     </div>
@@ -782,6 +859,7 @@ export default function TripForm() {
             {sel ? 'Update' : 'Save'}
           </button>
         </div>
+        </div>{/* ── end centering wrapper ── */}
       </div>
 
       {/* ═══ RIGHT: SAVED TRIPS ═══ */}
@@ -799,19 +877,7 @@ export default function TripForm() {
         onSearch={handleSearch}
         searchLoading={searching}
         getItemLabel={t => t.name || t.tripName || String(t.id)}
-        extraHeader={
-          <button onClick={loadTrips} disabled={loadingTrips} title="Refresh trips"
-            style={{ background: 'none', border: '1px solid #dadce0', borderRadius: '4px', cursor: loadingTrips ? 'wait' : 'pointer', fontSize: '13px', padding: '2px 6px', color: '#5f6368', flexShrink: 0 }}>
-            {loadingTrips ? '⏳' : '↻'}
-          </button>
-        }
-        statusBanner={
-          loadingTrips ? (
-            <div style={{ padding: '10px 14px', fontSize: '12px', color: '#1a73e8', background: '#e8f0fe', borderBottom: '1px solid #c6dafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>⏳</span> Loading trips…
-            </div>
-          ) : null
-        }
+
         renderCard={(t, idx) => {
           const displayName = t.name || `Trip #${t.id}`
           const avatarColor = fallbackColors[idx % fallbackColors.length]
@@ -886,4 +952,6 @@ export default function TripForm() {
       />
     </div>
   )
-} //ok ipo yenna pannanum nu exact ah sollu.,schedule form mari ella data vum side la show aakanum exact ahh ellla data vum, but athukkku data responsela varanum , response la yenna varutho athan show panna mudiyum ., ....ok then response data mattum pothum , ok
+}
+
+

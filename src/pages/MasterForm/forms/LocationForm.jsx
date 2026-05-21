@@ -3643,6 +3643,9 @@ function SavedPanel({
   const [ddOpen, setDdOpen] = useState(false)
   const [ddSearch, setDdSearch] = useState('')
   const ddRef = useRef(null)
+  const PAGE_SIZE = 10
+  const [page, setPage] = useState(0)
+  useEffect(() => { setPage(0) }, [search, items.length])
 
   useEffect(() => {
     const h = e => { if (ddRef.current && !ddRef.current.contains(e.target)) { setDdOpen(false); setDdSearch('') } }
@@ -3655,7 +3658,11 @@ function SavedPanel({
   const ddFiltered    = items.filter(item => getLabel(item).toLowerCase().includes(ddSearch.toLowerCase()))
 
   return (
-    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{
+      flex: show ? 1 : '0 0 44px',
+      minWidth: 0, display: 'flex', flexDirection: 'column',
+      overflow: 'hidden', transition: 'flex 0.3s ease',
+    }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '20px 16px 16px', borderBottom: '1px solid #e8eaed', flexShrink: 0, gap: '8px' }}>
@@ -3746,13 +3753,14 @@ function SavedPanel({
 
       {/* Cards */}
       {show && (
-        <div style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: 0 }}>
+        <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: 0 }}>
+          <style>{`.hide-scrollbar::-webkit-scrollbar{display:none}`}</style>
           {filteredItems.length === 0 && (
             <div style={{ textAlign: 'center', color: '#9aa0a6', fontSize: '13px', marginTop: '40px' }}>
               {items.length === 0 ? 'No locations saved yet.' : 'No matches.'}
             </div>
           )}
-          {filteredItems.map((item, idx) => {
+          {filteredItems.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map((item, idx) => {
             const isChecked = selectedIds.includes(item.id)
             return (
               <div key={item.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
@@ -3768,6 +3776,27 @@ function SavedPanel({
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Pagination footer */}
+      {show && !selectMode && filteredItems.length > PAGE_SIZE && (
+        <div style={{ padding: '8px 14px', borderTop: '1px solid #e8eaed', flexShrink: 0, background: '#fafbfc', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+          <button
+            onClick={() => setPage(p => Math.max(0, p - 1))}
+            disabled={page === 0}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 12px', border: '1px solid #dadce0', borderRadius: '6px', background: page === 0 ? '#f5f5f5' : '#fff', color: page === 0 ? '#bbb' : '#202124', fontSize: '12px', fontWeight: 500, cursor: page === 0 ? 'not-allowed' : 'pointer' }}>
+            ← Prev
+          </button>
+          <span style={{ fontSize: '12px', color: '#5f6368', fontWeight: 500 }}>
+            Page {page + 1} / {Math.ceil(filteredItems.length / PAGE_SIZE)}
+          </span>
+          <button
+            onClick={() => setPage(p => p + 1)}
+            disabled={(page + 1) * PAGE_SIZE >= filteredItems.length}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 12px', border: '1px solid #dadce0', borderRadius: '6px', background: (page + 1) * PAGE_SIZE >= filteredItems.length ? '#f5f5f5' : '#fff', color: (page + 1) * PAGE_SIZE >= filteredItems.length ? '#bbb' : '#202124', fontSize: '12px', fontWeight: 500, cursor: (page + 1) * PAGE_SIZE >= filteredItems.length ? 'not-allowed' : 'pointer' }}>
+            Next →
+          </button>
         </div>
       )}
     </div>
@@ -3922,7 +3951,22 @@ export default function LocationForm() {
       <ConfirmSaveModal open={confirm} onConfirm={handleConfirmed} onCancel={() => setConfirm(false)} loading={busy} isEditing={!!sel} summary={summary} />
 
       {/* ═══ LEFT: FORM ═══ */}
-      <div style={{ flex: '0 0 60%', width: '60%', maxWidth: '60%', display: 'flex', flexDirection: 'column', borderRight: '2px solid #e8eaed', padding: '24px', overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box', alignSelf: 'stretch' }}>
+      <div style={{
+        flex: show ? '0 0 60%' : '1 1 100%',
+        width: show ? '60%' : '100%',
+        maxWidth: show ? '60%' : '100%',
+        display: 'flex', flexDirection: 'column',
+        borderRight: show ? '2px solid #e8eaed' : 'none',
+        padding: '24px', overflowY: 'auto', overflowX: 'hidden',
+        boxSizing: 'border-box', alignSelf: 'stretch',
+        transition: 'all 0.3s ease',
+      }}>
+        <div style={{
+          width: '100%', maxWidth: show ? '100%' : '680px',
+          margin: show ? '0' : '0 auto',
+          display: 'flex', flexDirection: 'column', flex: 1,
+          transition: 'max-width 0.3s ease',
+        }}>
         <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#202124', margin: '0 0 20px 0', paddingBottom: '16px', borderBottom: '1px solid #e8eaed', flexShrink: 0, lineHeight: '28px' }}>
           {sel ? 'Edit Location' : 'Create Location'}
         </h2>
@@ -3988,6 +4032,7 @@ export default function LocationForm() {
             {sel ? 'Update' : 'Save'}
           </button>
         </div>
+        </div>{/* ── end centering wrapper ── */}
       </div>
 
       {/* ═══ RIGHT: SAVED PANEL ═══ */}

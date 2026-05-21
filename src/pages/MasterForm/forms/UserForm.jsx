@@ -1,10 +1,13 @@
 
+
 import { useState, useEffect, useRef } from 'react'
 import {
-  getUsers, createUser, updateUser, deleteUser, cloneUser, filterUsers,
+  getUsers, createUser, updateUser, deleteUser, cloneUser,
   getZoneFilter,
 } from '../../../api'
 import { ConfirmSaveModal } from '../components/MasterFormUI'
+import { MdPhotoCamera } from 'react-icons/md'
+import { FiRefreshCw, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 
 /* ══════════════════════════════════════════════════════
    INLINE API HELPERS FOR DROPDOWN OPTIONS
@@ -31,6 +34,33 @@ function _commonBody(auth) {
     e_id: auth.e_id, api_key: auth.api_key,
     
     userid: '1', dsg: '1', dept: '1', role: '1', is_admin: '1',
+  }
+}
+
+/** Upload user profile photo — base64 image → /user/profile */
+async function uploadUserProfile(userId, base64Image) {
+  const auth = _getAuth()
+  try {
+    const res = await fetch(`${BASE}/user/profile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        e_id:    auth.e_id,
+        api_key: auth.api_key,
+        id:      String(userId),
+        // Server expects pure base64 — strip 'data:image/...;base64,' prefix if present
+        image:   base64Image.includes(',') ? base64Image.split(',')[1] : base64Image,
+      }),
+    })
+    const data = await res.json()
+    if (data.error) {
+      console.warn('[UserForm] ⚠ Profile upload API error:', data)
+    } else {
+      console.log('[UserForm] ✅ Profile photo uploaded for user id:', userId)
+    }
+    return data
+  } catch (err) {
+    console.error('[UserForm] 🔥 uploadUserProfile failed:', err)
   }
 }
 
@@ -348,7 +378,9 @@ function CardMenu({ onSelect, onClone, onEdit, onDelete }) {
 }
 
 /* ══════════════════════════════════════════════════════
-   SAVED PANEL
+   SAVED PANEL  — API-driven pagination (OthersForm style)
+   page / hasMore / onPrevPage / onNextPage come from parent.
+   Local search triggers onSearch (debounced) which resets page 0.
 ══════════════════════════════════════════════════════ */
 function SavedPanel({
   title, items, renderCard,
@@ -357,6 +389,9 @@ function SavedPanel({
   onShowToggle, show,
   getItemLabel, extraHeader, statusBanner,
   onSearch, searchLoading,
+  /* API pagination props (controlled by parent) */
+  page, hasMore, onPrevPage, onNextPage,
+  totalCount,   // total records across all pages (from allUsers.length)
 }) {
   const [search, setSearch] = useState('')
   const [ddOpen, setDdOpen] = useState(false)
@@ -374,13 +409,15 @@ function SavedPanel({
     setSearch(val)
     if (!onSearch) return
     clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => onSearch(val.trim() || 'all'), 400)
+    debounceRef.current = setTimeout(() => onSearch(val.trim() || null), 400)
   }
-  const handleSearchClear = () => { setSearch(''); if (onSearch) onSearch('all') }
+  const handleSearchClear = () => { setSearch(''); if (onSearch) onSearch(null) }
 
   const getLabel = item =>
     getItemLabel ? getItemLabel(item) : (item.userName || item.name || String(item.id))
 
+  // When onSearch is set, parent controls data (API search); show items as-is.
+  // When no onSearch, do local client-side filter.
   const filteredItems = onSearch
     ? items
     : items.filter(item => getLabel(item).toLowerCase().includes(search.toLowerCase()))
@@ -389,8 +426,18 @@ function SavedPanel({
     getLabel(item).toLowerCase().includes(ddSearch.toLowerCase())
   )
 
+  // Hide pagination while local search text is active
+  const showPagination = show && !selectMode && !search.trim()
+
   return (
-    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{
+      flex: show ? 1 : '0 0 44px',
+      minWidth: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      transition: 'flex 0.3s ease',
+    }}>
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '20px 16px 16px', borderBottom: '1px solid #e8eaed', flexShrink: 0, gap: '8px' }}>
@@ -421,11 +468,11 @@ function SavedPanel({
             {show && (
               <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#202124', margin: 0 }}>
                 {title}
-                <span style={{ fontSize: '12px', fontWeight: 400, color: '#9aa0a6', marginLeft: '6px' }}>({items.length})</span>
+                <span style={{ fontSize: '12px', fontWeight: 400, color: '#9aa0a6', marginLeft: '6px' }}>({totalCount ?? items.length})</span>
               </h2>
             )}
             <button onClick={onShowToggle} style={{ width: '28px', height: '28px', border: '1px solid #dadce0', background: '#f8f9fa', color: '#202124', fontSize: '13px', cursor: 'pointer', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 'auto' }}>
-              {show ? '⊏' : '⊐'}
+              {show ? <FiChevronRight size={16} /> : <FiChevronLeft size={16} />}
             </button>
             {extraHeader}
           </>
@@ -493,7 +540,8 @@ function SavedPanel({
 
       {/* ── Cards list ── */}
       {show && (
-        <div style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: 0 }}>
+        <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: 0 }}>
+          <style>{`.hide-scrollbar::-webkit-scrollbar{display:none}`}</style>
           {filteredItems.length === 0 && (
             <div style={{ textAlign: 'center', color: '#9aa0a6', fontSize: '13px', marginTop: '40px' }}>
               {items.length === 0 ? 'No users saved yet.' : 'No matches.'}
@@ -517,6 +565,27 @@ function SavedPanel({
           })}
         </div>
       )}
+
+      {/* ── API Pagination footer ── */}
+      {showPagination && (
+        <div style={{ padding: '8px 14px', borderTop: '1px solid #e8eaed', flexShrink: 0, background: '#fafbfc', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+          <button
+            onClick={onPrevPage}
+            disabled={page === 0}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 12px', border: '1px solid #dadce0', borderRadius: '6px', background: page === 0 ? '#f5f5f5' : '#fff', color: page === 0 ? '#bbb' : '#202124', fontSize: '12px', fontWeight: 500, cursor: page === 0 ? 'not-allowed' : 'pointer', transition: 'all 0.15s' }}>
+            ← Prev
+          </button>
+          <span style={{ fontSize: '12px', color: '#5f6368', fontWeight: 500 }}>
+            Page {page + 1}
+          </span>
+          <button
+            onClick={onNextPage}
+            disabled={!hasMore}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 12px', border: '1px solid #dadce0', borderRadius: '6px', background: !hasMore ? '#f5f5f5' : '#fff', color: !hasMore ? '#bbb' : '#202124', fontSize: '12px', fontWeight: 500, cursor: !hasMore ? 'not-allowed' : 'pointer', transition: 'all 0.15s' }}>
+            Next →
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -536,21 +605,36 @@ export default function UserForm() {
   const [searching, setSearching]     = useState(false)
   const [loadingUsers, setLoadingUsers] = useState(false)
   const [errors, setErrors]           = useState({})
+  /* ── Client-side pagination state ── */
+  const PAGE_SIZE = 10
+  const [allUsers, setAllUsers] = useState([])  // full list from API
+  const [page, setPage]         = useState(0)
 
   const fileRef = useRef(null)
 
-  useEffect(() => {
-    console.log("savvvved", saved);
-  }, [saved]);
-
-  /* ── Load users on mount ── */
+  /* ── Load ALL users via user/list (getUsers) → client-side pagination ── */
   const loadUsers = async () => {
     setLoadingUsers(true)
-    try { setSaved(await getUsers()) } catch {}
-    finally { setLoadingUsers(false) }
+    try {
+      // user/filter API does not exist — use user/list directly via getUsers
+      const all = await getUsers(1000, 0)
+      setAllUsers(all)
+    } catch (err) {
+      console.error('[UserForm] loadUsers failed:', err)
+    } finally {
+      setLoadingUsers(false)
+    }
   }
 
   useEffect(() => { loadUsers() }, [])
+
+  /* ── Derive current page slice whenever allUsers or page changes ──
+     This means setSaved is ONLY ever called from here (or search).
+     No other place should call setSaved for the normal list.         */
+  useEffect(() => {
+    const start = page * PAGE_SIZE
+    setSaved(allUsers.slice(start, start + PAGE_SIZE))
+  }, [allUsers, page])
 
   const set = (k, v) => {
     setForm(p => ({ ...p, [k]: v }))
@@ -636,21 +720,22 @@ export default function UserForm() {
   /* ── Submit → createUser / updateUser API ── */
   const handleConfirmed = async () => {
     setBusy(true)
+    const wasCreating = !sel
     try {
       if (sel) {
-        console.log('[UserForm] 🔄 Updating user id:', sel, 'form:', form)
         await updateUser(sel, form)
+        if (form.image) await uploadUserProfile(sel, form.image)
         setSel(null)
       } else {
-        console.log('[UserForm] ➕ Creating user — form:', form)
-        console.log("form - inside else of handleConfirmed", form);
-        await createUser(form)
+        const created = await createUser(form)
+        if (form.image && created?.id) await uploadUserProfile(created.id, form.image)
       }
-      await loadUsers()
-      console.log('[UserForm] ✅ Save successful — reloaded list')
       setForm(blank)
+      // Reload full list first, THEN go to page 0 for creates.
+      // setPage(0) must come AFTER loadUsers() so the derive-effect sees the new allUsers.
+      await loadUsers()
+      if (wasCreating) setPage(0)
     } catch (err) {
-      console.log('[UserForm] 🔥 Save error:', err)
       alert(err?.message || 'Save failed — please try again')
     }
     setBusy(false); setConfirm(false)
@@ -659,10 +744,20 @@ export default function UserForm() {
   /* ── Delete single ── */
   const handleDelete = async id => {
     if (!window.confirm('Delete this user?')) return
-    console.log('[UserForm] 🗑 Deleting user id:', id)
-    try { await deleteUser(id) } catch (err) { console.log('[UserForm] 🔥 Delete error:', err) }
-    setSaved(p => p.filter(u => u.id !== id))
-    if (sel === id) { setForm(blank); setSel(null) }
+    try {
+      await deleteUser(id)
+      if (sel === id) { setForm(blank); setSel(null) }
+      // Remove from full list immediately (optimistic), then reload from API
+      setAllUsers(prev => {
+        const next = prev.filter(u => u.id !== id)
+        // If current page becomes empty, go back one page
+        const totalPages = Math.ceil(next.length / PAGE_SIZE)
+        if (page >= totalPages && page > 0) setPage(page - 1)
+        return next
+      })
+      // Reload full list from API in background to stay in sync
+      loadUsers()
+    } catch (err) { console.log('[UserForm] 🔥 Delete error:', err) }
   }
 
   /* ── Select mode ── */
@@ -672,31 +767,45 @@ export default function UserForm() {
   const deleteSelected  = async () => {
     if (!window.confirm(`Delete ${selectedIds.length} selected user(s)?`)) return
     for (const id of selectedIds) { try { await deleteUser(id) } catch {} }
-    setSaved(p => p.filter(u => !selectedIds.includes(u.id)))
     if (selectedIds.includes(sel)) { setForm(blank); setSel(null) }
     setSelectMode(false); setSelectedIds([])
+    setAllUsers(prev => {
+      const next = prev.filter(u => !selectedIds.includes(u.id))
+      const totalPages = Math.ceil(next.length / PAGE_SIZE)
+      if (page >= totalPages && page > 0) setPage(page - 1)
+      return next
+    })
+    loadUsers()
   }
 
-  /* ── filterUsers API search (debounced via SavedPanel) ── */
-  const handleSearch = async (query) => {
-    setSearching(true)
-    try {
-      const results = await filterUsers(query && query.trim() ? query.trim() : 'all')
-      setSaved(results)
-    } catch {
-      // fallback: keep existing list
-    } finally {
-      setSearching(false)
+  /* ── Search: filter allUsers locally (instant, no API call needed) ──
+     If allUsers is empty (first load not done), fall back to API.    ── */
+  const handleSearch = (query) => {
+    if (!query) {
+      // Clear search → back to page 0, show full list
+      setPage(0)
+      return
     }
+    // Local filter on allUsers (user/filter API does not exist)
+    const q = query.toLowerCase()
+    const results = allUsers.filter(u =>
+      (u.userName || u.name || '').toLowerCase().includes(q) ||
+      (u.mobile || '').includes(q) ||
+      (u.mail || '').toLowerCase().includes(q)
+    )
+    setSaved(results)
   }
 
-  /* ── Image ── */
+  /* ── Image — convert to base64 on select ── */
   const handleImageChange = e => {
     const file = e.target.files[0]; if (!file) return
     const reader = new FileReader()
-    reader.onload = ev => set('imagePreview', ev.target.result)
+    reader.onload = ev => {
+      const dataUrl = ev.target.result         // data:image/...;base64,<data>
+      set('imagePreview', dataUrl)             // keep full dataURL for <img> preview
+      set('image', dataUrl)                    // uploadUserProfile will strip prefix before sending
+    }
     reader.readAsDataURL(file)
-    set('image', file)
   }
 
   // Summary shows labels for human-readable display
@@ -725,7 +834,6 @@ export default function UserForm() {
   // They hit the API directly and return [{ value, label }] with no intermediate
   // transform — label is shown in the UI, value is sent in the payload.
 
-  console.log("saved", saved);
 
   return (
     <div style={{ display: 'flex', width: '100%', height: '100%', background: '#fff', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(60,64,67,0.15)', alignItems: 'stretch' }}>
@@ -736,7 +844,28 @@ export default function UserForm() {
       />
 
       {/* ═══ LEFT: FORM ═══ */}
-      <div style={{ flex: '0 0 60%', width: '60%', maxWidth: '60%', display: 'flex', flexDirection: 'column', borderRight: '2px solid #e8eaed', padding: '24px', overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box' }}>
+      <div style={{
+        flex: show ? '0 0 60%' : '1 1 100%',
+        width: show ? '60%' : '100%',
+        maxWidth: show ? '60%' : '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRight: show ? '2px solid #e8eaed' : 'none',
+        padding: '24px',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        boxSizing: 'border-box',
+        transition: 'all 0.3s ease',
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: show ? '100%' : '680px',
+          margin: show ? '0' : '0 auto',
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          transition: 'max-width 0.3s ease',
+        }}>
         <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#202124', margin: '0 0 20px', paddingBottom: '16px', borderBottom: '1px solid #e8eaed', flexShrink: 0 }}>
           {sel ? 'Edit User' : 'Create User'}
         </h2>
@@ -776,7 +905,7 @@ export default function UserForm() {
                   <span style={{ fontSize: '13px', color: '#202124' }}>Image selected</span>
                 </div>
               : <span style={{ fontSize: '13px', color: '#9aa0a6' }}>Add image</span>}
-            <span style={{ fontSize: '18px', color: '#5f6368' }}>📎</span>
+            <MdPhotoCamera style={{ fontSize: '18px', color: '#5f6368' }} />
             <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
           </div>
 
@@ -840,6 +969,7 @@ export default function UserForm() {
             {sel ? 'Update' : 'Save'}
           </button>
         </div>
+        </div>{/* ── end centering wrapper ── */}
       </div>
 
       {/* ═══ RIGHT: SAVED PANEL ═══ */}
@@ -857,19 +987,12 @@ export default function UserForm() {
         onSearch={handleSearch}
         searchLoading={searching}
         getItemLabel={item => item.userName || item.name || String(item.id)}
-        extraHeader={
-          <button onClick={loadUsers} disabled={loadingUsers} title="Refresh users"
-            style={{ background: 'none', border: '1px solid #dadce0', borderRadius: '4px', cursor: loadingUsers ? 'wait' : 'pointer', fontSize: '13px', padding: '2px 6px', color: '#5f6368', flexShrink: 0 }}>
-            {loadingUsers ? '⏳' : '↻'}
-          </button>
-        }
-        statusBanner={
-          loadingUsers ? (
-            <div style={{ padding: '10px 14px', fontSize: '12px', color: '#1a73e8', background: '#e8f0fe', borderBottom: '1px solid #c6dafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>⏳</span> Loading users…
-            </div>
-          ) : null
-        }
+        totalCount={allUsers.length}
+        page={page}
+        hasMore={(page + 1) * PAGE_SIZE < allUsers.length}
+        onPrevPage={() => setPage(p => Math.max(0, p - 1))}
+        onNextPage={() => setPage(p => p + 1)}
+
         renderCard={(u, idx) => {
           const displayName = u.userName || u.name || fallbackNames[idx % fallbackNames.length]
           const avatarColor = COLORS[idx % COLORS.length]
@@ -900,8 +1023,8 @@ export default function UserForm() {
                     background: '#1e8e3e', color: '#fff',
                     padding: '1px 7px', borderRadius: '4px',
                     fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap',
-                  }}>
-                    {u.is_admin ? 'Admin' : 'Admin or not'}
+                  }}>  
+                    {u.is_admin ? 'Admin' : 'Admin or not'}  
                   </span>
                   <span style={{ flex: 1 }} />
                   <span style={{ fontSize: '12px', color: '#5f6368', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100px' }}>

@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect, useRef } from 'react'
 import {
   getPatrolTypes,
@@ -10,6 +8,7 @@ import {
   cloneQuestion,
 } from '../../../api'
 import { ConfirmSaveModal } from '../components/MasterFormUI'
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 
 // ── helpers: map between UI form shape and api.js shape ──────────────────────
 
@@ -240,7 +239,29 @@ export default function TaskForm() {
       <ConfirmSaveModal open={confirm} onConfirm={handleConfirmed} onCancel={() => setConfirm(false)} loading={busy} isEditing={!!sel} summary={summary} />
 
       {/* ═══ LEFT: FORM ═══ */}
-      <div style={{ flex: '0 0 60%', width: '60%', maxWidth: '60%', display: 'flex', flexDirection: 'column', borderRight: '2px solid #e8eaed', padding: '24px', overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box', alignSelf: 'stretch' }}>
+      <div style={{
+        flex: showSaved ? '0 0 60%' : '1 1 100%',
+        width: showSaved ? '60%' : '100%',
+        maxWidth: showSaved ? '60%' : '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRight: showSaved ? '2px solid #e8eaed' : 'none',
+        padding: '24px',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        boxSizing: 'border-box',
+        alignSelf: 'stretch',
+        transition: 'all 0.3s ease',
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: showSaved ? '100%' : '680px',
+          margin: showSaved ? '0' : '0 auto',
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          transition: 'max-width 0.3s ease',
+        }}>
         <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#202124', margin: '0 0 20px 0', paddingBottom: '16px', borderBottom: '1px solid #e8eaed', flexShrink: 0, lineHeight: '28px' }}>
           {sel ? 'Edit Question' : 'Questions'}
         </h2>
@@ -331,10 +352,19 @@ export default function TaskForm() {
             {sel ? 'Update' : 'Save'}
           </button>
         </div>
+        </div>{/* ── end centering wrapper ── */}
       </div>
 
       {/* ═══ RIGHT: SAVED QUESTIONS ═══ */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' }}>
+      <div style={{
+        flex: showSaved ? 1 : '0 0 44px',
+        minWidth: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+        transition: 'flex 0.3s ease',
+      }}>
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', padding: '20px 16px 16px', borderBottom: '1px solid #e8eaed', flexShrink: 0, gap: '8px' }}>
@@ -367,7 +397,7 @@ export default function TaskForm() {
               {showSaved && <h2 style={{ fontSize: '16px', fontWeight: 500, color: '#202124', margin: 0, lineHeight: '28px' }}>Saved Question</h2>}
               <button onClick={() => setShowSaved(!showSaved)}
                 style={{ width: '28px', height: '28px', border: '1px solid #dadce0', background: '#f8f9fa', color: '#202124', fontSize: '13px', cursor: 'pointer', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 'auto' }}>
-                {showSaved ? '⊏' : '⊐'}
+                {showSaved ? <FiChevronRight size={16} /> : <FiChevronLeft size={16} />}
               </button>
             </>
           )}
@@ -375,7 +405,8 @@ export default function TaskForm() {
 
         {/* Saved list */}
         {showSaved && (
-          <div style={{ flex: 1, overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: 0 }}>
+          <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', minHeight: 0 }}>
+            <style>{`.hide-scrollbar::-webkit-scrollbar{display:none}`}</style>
             {saved.map((t, idx) => {
               const displayName = t.question || fallbackNames[idx % fallbackNames.length]
               const isChecked   = selectedIds.includes(t.id)
